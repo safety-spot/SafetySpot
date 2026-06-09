@@ -81,6 +81,21 @@ Students register with **username + password only** (no email). Accounts belong 
 
 ---
 
+## MCP Servers
+
+`.vscode/mcp.json` configures [Context7](https://github.com/upstash/context7) for up-to-date library documentation. To use it, add `use context7` to your prompt and name the library:
+
+```
+use context7 to show me Spring Data JPA repository query methods
+use context7 to look up Hibernate entity lifecycle callbacks
+use context7 to find Kotlin coroutine best practices for Android
+use context7 to get the latest Spring Boot 4 auto-configuration docs
+```
+
+Context7 covers: **Spring Boot**, **Spring Data JPA**, **Spring Security**, **Hibernate/Jakarta Persistence**, **Kotlin**, **Android SDK**, **Java SE**, and most other major libraries in this stack.
+
+---
+
 ## Documentation
 
 Design and architecture docs live in `docs/`:
