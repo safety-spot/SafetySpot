@@ -1,2 +1,3 @@
 # SafetySpot
+
 Joa uniprojekt soos
