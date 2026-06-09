@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "Context7-Live-Docs": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "tools": ["*"]
+    }
+  }
+}
