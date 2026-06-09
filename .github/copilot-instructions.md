@@ -83,7 +83,7 @@ Students register with **username + password only** (no email). Accounts belong 
 
 ## MCP Servers
 
-`.vscode/mcp.json` configures [Context7](https://github.com/upstash/context7) for up-to-date library documentation. To use it, add `use context7` to your prompt and name the library:
+[Context7](https://github.com/upstash/context7) for up-to-date library documentation:
 
 ```
 use context7 to show me Spring Data JPA repository query methods
