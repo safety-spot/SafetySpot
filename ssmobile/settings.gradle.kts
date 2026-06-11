@@ -24,4 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ssmobile"
 include(":app")
+
+includeBuild("../sscommon")
  
