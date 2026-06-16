@@ -2,13 +2,9 @@ package spot.safety.ssbackend.school;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import spot.safety.ssbackend.dto.RegisterRequest;
 import spot.safety.ssbackend.enums.LicenseStatus;
-import spot.safety.ssbackend.enums.UserRole;
-import spot.safety.ssbackend.user.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 
 @Entity
