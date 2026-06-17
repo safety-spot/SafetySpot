@@ -2,8 +2,6 @@ package spot.safety.ssbackend.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import spot.safety.ssbackend.auth.AuthToken;
 import spot.safety.ssbackend.enums.UserRole;
 import spot.safety.ssbackend.school.School;
