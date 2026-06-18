@@ -1,12 +1,14 @@
-# SafetySpot — Backend MVP Issues Index
+# SafetySpot — Issues Index
 
-> These issues cover the backend REST API only. The MVP scope is:
-> **images that students tag as DANGEROUS or SAFE**, with teachers managing content and
-> viewing results. The full quiz/scenario system from `plan.md` is deferred to post-MVP.
+> Issues are split into two tracks:
+> **Backend** (ISSUE-001–011) — Spring Boot REST API in `ssbackend/`.
+> **Android** (ISSUE-012–022) — Kotlin Compose app in `ssmobile/`.
+> Both tracks target the same MVP scope: the full student scenario-play loop with login,
+> browse, play, ranking, and profile.
 
 ---
 
-## Parallel Work Map
+## Backend Parallel Work Map
 
 ```
 ISSUE-001  ←────────────────────────────────── (everyone starts here, do first)
@@ -38,7 +40,7 @@ ISSUE-001  ←──────────────────────
 
 ---
 
-## Issues at a Glance
+## Backend Issues at a Glance
 
 | # | Title | Epic | Depends on | Parallel-safe with |
 |---|-------|------|------------|--------------------|
@@ -56,7 +58,51 @@ ISSUE-001  ←──────────────────────
 
 ---
 
-## Suggested Sprint Breakdown (2–3 people)
+## Android Parallel Work Map
+
+```
+ISSUE-012  ←─────────────────────────────────── (do first, unblocks all mobile issues)
+    │
+    ├──► ISSUE-013  (Design system)  ─────────────────────────────────┐
+    │                                                                  │
+    └──► ISSUE-014  (Networking & auth infrastructure)  ──────────────┤
+              │                                                        │
+              └──► ISSUE-015  (Navigation shell) ◄────────────────────┘
+                        │
+                        ├──► ISSUE-016  (Auth screen)       [Person A]
+                        │
+                        ├──► ISSUE-017  (Home dashboard)    [Person B]
+                        │
+                        ├──► ISSUE-018  (Scenarios browse)  [Person C]
+                        │         │
+                        │         └──► ISSUE-019  (Scenario gameplay)
+                        │                   │
+                        │                   └──► ISSUE-022  (Offline cache & sync)
+                        │
+                        ├──► ISSUE-020  (Ranking screen)    [Person B/C]
+                        │
+                        └──► ISSUE-021  (Profile screen)    [Person A/B]
+```
+
+## Android Issues at a Glance
+
+| # | Title | Epic | Depends on | Parallel-safe with |
+|---|-------|------|------------|--------------------|
+| [012](ISSUE-012-mobile-foundation-build-config.md) | Mobile: Foundation & Build Config | Foundation | — | — |
+| [013](ISSUE-013-mobile-design-system.md) | Mobile: Design System | Foundation | 012 | 014 |
+| [014](ISSUE-014-mobile-networking-auth-infrastructure.md) | Mobile: Networking & Auth Infrastructure | Auth | 012 | 013 |
+| [015](ISSUE-015-mobile-navigation-shell.md) | Mobile: Navigation Shell | Foundation | 013, 014 | — |
+| [016](ISSUE-016-mobile-auth-screen.md) | Mobile: Auth Screen | Auth | 015 | 017, 018, 020, 021 |
+| [017](ISSUE-017-mobile-home-screen.md) | Mobile: Home Dashboard | Dashboard | 015 | 016, 018, 020, 021 |
+| [018](ISSUE-018-mobile-scenarios-browse.md) | Mobile: Scenarios Browse | Content | 015 | 016, 017, 020, 021 |
+| [019](ISSUE-019-mobile-scenario-gameplay.md) | Mobile: Scenario Gameplay | Gameplay | 018 | 016, 017, 020, 021 |
+| [020](ISSUE-020-mobile-ranking-screen.md) | Mobile: Ranking Screen | Gamification | 015 | 016, 017, 018, 021 |
+| [021](ISSUE-021-mobile-profile-screen.md) | Mobile: Profile Screen | Profile | 015 | 016, 017, 018, 020 |
+| [022](ISSUE-022-mobile-offline-cache-sync.md) | Mobile: Offline Cache & Sync | Offline | 018, 019 | — |
+
+---
+
+## Backend — Suggested Sprint Breakdown (2–3 people)
 
 ### Sprint 1 — Foundation + Data Layer
 
@@ -86,55 +132,39 @@ ISSUE-001  ←──────────────────────
 
 ---
 
-## MVP Endpoints Summary
+## Android — Suggested Sprint Breakdown (2–3 people)
 
-When all issues are complete, these endpoints exist:
+### Sprint 1 — Foundation
 
-```
-POST   /api/v1/auth/login
-POST   /api/v1/auth/refresh
-POST   /api/v1/auth/logout
+| Issue | Owner | Notes |
+|-------|-------|-------|
+| ISSUE-012 | Person A | Quick, unblocks all mobile work |
+| ISSUE-013 | Person B | Parallel with 014; pure UI |
+| ISSUE-014 | Person A | After 012; networking + token plumbing |
 
-GET    /api/v1/users
-POST   /api/v1/users
-GET    /api/v1/users/{id}
-PUT    /api/v1/users/{id}
-DELETE /api/v1/users/{id}
-POST   /api/v1/users/{id}/reset-password
+### Sprint 2 — Navigation + Auth
 
-GET    /api/v1/schools
-POST   /api/v1/schools
-GET    /api/v1/schools/{id}
-PUT    /api/v1/schools/{id}
-POST   /api/v1/schools/{id}/activate-license
+| Issue | Owner | Notes |
+|-------|-------|-------|
+| ISSUE-015 | Person A | Needs 013 + 014; nav skeleton |
+| ISSUE-016 | Person A | After 015; auth screen |
+| ISSUE-017 | Person B | After 015; parallel with 016 |
+| ISSUE-018 | Person C | After 015; parallel with 016, 017 |
 
-GET    /api/v1/classes
-POST   /api/v1/classes
-GET    /api/v1/classes/{id}
-PUT    /api/v1/classes/{id}
-DELETE /api/v1/classes/{id}
-GET    /api/v1/classes/{id}/students
+### Sprint 3 — Gameplay + Social
 
-GET    /api/v1/images
-POST   /api/v1/images
-GET    /api/v1/images/{id}
-PUT    /api/v1/images/{id}
-DELETE /api/v1/images/{id}
-GET    /api/v1/images/{id}/results
-POST   /api/v1/images/{id}/tag
-
-GET    /api/v1/progress
-GET    /api/v1/progress/summary
-GET    /api/v1/stats/class/{classId}
-GET    /api/v1/stats/image/{imageId}
-```
+| Issue | Owner | Notes |
+|-------|-------|-------|
+| ISSUE-019 | Person C | After 018; gameplay loop |
+| ISSUE-020 | Person B | After 015; parallel with 019 |
+| ISSUE-021 | Person A | After 015; parallel with 019 |
+| ISSUE-022 | Person C | After 018 + 019; offline layer |
 
 ---
 
 ## Post-MVP (Deferred)
 
-The following items from `plan.md` are explicitly **not** in these issues:
-
+**Backend:**
 - Full Scenario/Task/Quiz system
 - Attempt tracking and multi-step gameplay
 - Leaderboard and streak/points system
@@ -143,3 +173,13 @@ The following items from `plan.md` are explicitly **not** in these issues:
 - File upload / binary image storage
 - Token blacklisting on logout
 - Rate limiting
+
+**Android:**
+- Badges gallery screen
+- Settings screen content
+- Help & Feedback screen
+- Avatar image upload
+- Animated podium / task transitions
+- Notification inbox
+- Biometric login
+- Historical rank movement indicators
