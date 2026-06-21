@@ -162,6 +162,36 @@ ISSUE-012  ←──────────────────────
 
 ---
 
+## Android — Suggested Sprint Breakdown (2–3 people)
+
+### Sprint 1 — Foundation
+
+| Issue | Owner | Notes |
+|-------|-------|-------|
+| ISSUE-012 | Person A | Quick, unblocks all mobile work |
+| ISSUE-013 | Person B | Parallel with 014; pure UI |
+| ISSUE-014 | Person A | After 012; networking + token plumbing |
+
+### Sprint 2 — Navigation + Auth
+
+| Issue | Owner | Notes |
+|-------|-------|-------|
+| ISSUE-015 | Person A | Needs 013 + 014; nav skeleton |
+| ISSUE-016 | Person A | After 015; auth screen |
+| ISSUE-017 | Person B | After 015; parallel with 016 |
+| ISSUE-018 | Person C | After 015; parallel with 016, 017 |
+
+### Sprint 3 — Gameplay + Social
+
+| Issue | Owner | Notes |
+|-------|-------|-------|
+| ISSUE-019 | Person C | After 018; gameplay loop |
+| ISSUE-020 | Person B | After 015; parallel with 019 |
+| ISSUE-021 | Person A | After 015; parallel with 019 |
+| ISSUE-022 | Person C | After 018 + 019; offline layer |
+
+---
+
 ## Post-MVP (Deferred)
 
 **Backend:**
