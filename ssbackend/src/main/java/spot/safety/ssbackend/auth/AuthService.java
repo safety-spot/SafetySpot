@@ -40,8 +40,10 @@ public class AuthService {
         return token;
     }
 
-    public void logout (String token) {
-        AuthToken authToken = authTokenRepository.findByToken(token).getFirst();
+    public void logout(String token) {
+        AuthToken authToken = authTokenRepository.findByToken(token).stream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Token not found"));
         authTokenRepository.delete(authToken);
     }
 
