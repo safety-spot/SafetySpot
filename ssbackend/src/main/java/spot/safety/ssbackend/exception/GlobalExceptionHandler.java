@@ -30,10 +30,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> accessDenied (AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> accessDenied(AccessDeniedException ex) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse(403, ex.getMessage(), Instant.now()));
+    }
+
+    @ExceptionHandler(spot.safety.ssbackend.exception.UsernameAlreadyTakenException.class)
+    public ResponseEntity<ErrorResponse> usernameTaken(spot.safety.ssbackend.exception.UsernameAlreadyTakenException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(409, ex.getMessage(), Instant.now()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

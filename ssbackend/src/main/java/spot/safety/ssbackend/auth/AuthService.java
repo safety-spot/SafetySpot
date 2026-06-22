@@ -3,14 +3,12 @@ package spot.safety.ssbackend.auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import spot.safety.ssbackend.enums.UserRole;
+import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolService;
-import spot.safety.ssbackend.user.Student;
-import spot.safety.ssbackend.user.Teacher;
 import spot.safety.ssbackend.user.User;
-import spot.safety.ssbackend.user.UserService;
+import spot.safety.ssbackend.user.UserRepository;
 
 import java.time.LocalDateTime;
 
@@ -18,16 +16,17 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthTokenRepository authTokenRepository;
     private final SchoolService schoolService;
 
     public String login(String username, String password) {
-        User user = userService.findUserByName(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("User not found"));
 
-        if (!passwordEncoder.matches(password, user.getPwdHash())) {
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new AccessDeniedException("Invalid password");
         }
 
@@ -47,16 +46,16 @@ public class AuthService {
         authTokenRepository.delete(authToken);
     }
 
-    public boolean register(String username, String password, String schoolName, UserRole role) {
+    public boolean register(String username, String password, String schoolName, Role role) {
         School school = schoolService.getSchoolByName(schoolName);
-        String encodedPwd = passwordEncoder.encode(password);
-        User user;
-        if (role == UserRole.STUDENT) {
-            user = new Student(username, encodedPwd, school, role);
-        } else {
-            user = new Teacher(username, encodedPwd, school, role);
-        }
-        userService.newUser(user);
+        User user = User.builder()
+                .username(username)
+                .passwordHash(passwordEncoder.encode(password))
+                .role(role)
+                .school(school)
+                .active(true)
+                .build();
+        userRepository.save(user);
         return true;
     }
 }

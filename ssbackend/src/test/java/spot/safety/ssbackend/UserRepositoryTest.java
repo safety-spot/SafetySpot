@@ -3,12 +3,14 @@ package spot.safety.ssbackend;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.enums.LicenseStatus;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolClass;
+import spot.safety.ssbackend.school.SchoolClassRepository;
+import spot.safety.ssbackend.school.SchoolRepository;
 import spot.safety.ssbackend.user.User;
 import spot.safety.ssbackend.user.UserRepository;
 
@@ -17,32 +19,35 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Transactional
 class UserRepositoryTest {
 
     @Autowired
-    private TestEntityManager em;
+    private SchoolRepository schoolRepository;
+
+    @Autowired
+    private SchoolClassRepository schoolClassRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     private School school;
     private SchoolClass schoolClass;
-    private User student;
 
     @BeforeEach
     void setUp() {
-        school = em.persistAndFlush(School.builder()
+        school = schoolRepository.saveAndFlush(School.builder()
                 .name("Test School")
                 .licenseStatus(LicenseStatus.ACTIVE)
                 .build());
 
-        schoolClass = em.persistAndFlush(SchoolClass.builder()
+        schoolClass = schoolClassRepository.saveAndFlush(SchoolClass.builder()
                 .name("10A")
                 .school(school)
                 .build());
 
-        student = em.persistAndFlush(User.builder()
+        userRepository.saveAndFlush(User.builder()
                 .username("alice")
                 .passwordHash("$2a$10$hashedpassword")
                 .role(Role.STUDENT)
@@ -76,7 +81,7 @@ class UserRepositoryTest {
 
     @Test
     void findAllBySchoolClassId_returnsOnlyClassMembers() {
-        User otherStudent = em.persistAndFlush(User.builder()
+        userRepository.saveAndFlush(User.builder()
                 .username("bob")
                 .passwordHash("$2a$10$hashedpassword2")
                 .role(Role.STUDENT)
