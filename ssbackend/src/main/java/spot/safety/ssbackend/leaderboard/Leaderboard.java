@@ -2,12 +2,9 @@ package spot.safety.ssbackend.leaderboard;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.apache.logging.log4j.util.PropertySource;
 import spot.safety.ssbackend.help.sortEntries;
-import spot.safety.ssbackend.school.ClassGroup;
+import spot.safety.ssbackend.school.SchoolClass;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -17,14 +14,15 @@ public class Leaderboard {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
+
     @OneToOne
-    private ClassGroup classGroup;
+    private SchoolClass schoolClass;
 
     @OneToMany
     private List<LeaderboardEntry> entries;
 
-    public Leaderboard(ClassGroup classGroup, List<LeaderboardEntry> entries) {
-        this.classGroup = classGroup;
+    public Leaderboard(SchoolClass schoolClass, List<LeaderboardEntry> entries) {
+        this.schoolClass = schoolClass;
         this.entries = entries;
     }
 
@@ -34,7 +32,7 @@ public class Leaderboard {
     public void refresh() {
         Comparator comp = new sortEntries();
         entries.sort(comp);
-        for(int i = 0; i < entries.size(); i++) {
+        for (int i = 0; i < entries.size(); i++) {
             entries.get(i).setRank(i + 1);
         }
     }
@@ -44,8 +42,4 @@ public class Leaderboard {
         int limit = Math.min(Math.max(n, 0), entries.size());
         return entries.subList(0, limit);
     }
-
-
-
 }
-

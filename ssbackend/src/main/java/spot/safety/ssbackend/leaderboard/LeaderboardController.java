@@ -17,7 +17,7 @@ public class LeaderboardController {
 
     @PostMapping("/classGroup")
     public ResponseEntity<Leaderboard> getLeaderboard(@RequestBody LeaderboardRequest request) {
-       Leaderboard leaderboard = leaderboardService.getLeaderboard(request.classGroup());
+       Leaderboard leaderboard = leaderboardService.getLeaderboard(request.schoolClass());
        return ResponseEntity
                .status(HttpStatus.OK)
                .body(leaderboard);
@@ -25,7 +25,7 @@ public class LeaderboardController {
 
     @PostMapping("/new")
     public ResponseEntity<String> newLeaberboard(@RequestBody LeaderboardRequest request) {
-        leaderboardService.newLeaderboard(request.classGroup());
+        leaderboardService.newLeaderboard(request.schoolClass());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body("Creation successful");

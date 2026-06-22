@@ -26,14 +26,13 @@ public class LeaderboardEntry {
     public LeaderboardEntry() {
     }
 
-    public int addPoints (int points) {
+    public int addPoints(int points) {
         this.totalPoints = totalPoints + points;
         return totalPoints;
     }
 
-    public int subtractPoints (int points) {
+    public int subtractPoints(int points) {
         this.totalPoints = totalPoints - points;
         return totalPoints;
     }
-
 }

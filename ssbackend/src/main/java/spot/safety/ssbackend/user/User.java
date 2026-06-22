@@ -25,6 +25,7 @@ public abstract class User {
 
     @OneToMany(mappedBy = "user")
     private List<AuthToken> authTokens;
+
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
@@ -43,7 +44,6 @@ public abstract class User {
     }
 
     public void logout() {
-
     }
 
     public void resetPassword(String newHash) {

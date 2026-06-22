@@ -5,7 +5,7 @@
 SafetySpot is a school safety awareness app. Students play through interactive hazard scenarios (chemistry lab, workshop, PE, etc.) and earn points. Teachers manage classes and create scenarios. Schools buy licenses.
 
 **Two-component architecture:**
-- `ssbackend/` — Spring Boot REST API (Java 26, Maven)
+- `ssbackend/` — Spring Boot REST API (Java 25, Gradle)
 - Android app — Kotlin, Android Studio (not yet in this repo)
 
 **Hosting:** Microsoft Azure — App Service for the API, Azure SQL for production database. MariaDB locally.
@@ -18,28 +18,28 @@ SafetySpot is a school safety awareness app. Students play through interactive h
 
 ```bash
 # Run all tests
-./mvnw test
+./gradlew test
 
 # Run a single test class
-./mvnw test -Dtest=SsbackendApplicationTests
+./gradlew test --tests "spot.safety.ssbackend.SsbackendApplicationTests"
 
 # Build
-./mvnw package
+./gradlew build
 
 # Run locally
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
-All Maven commands must be run from the `ssbackend/` directory.
+All Gradle commands must be run from the `ssbackend/` directory.
 
 ### Stack
 
-- **Spring Boot 4.0.6**, Java 26
+- **Spring Boot 4.1.0**, Java 25
 - **Spring Data JPA** — persistence layer
 - **Spring Security** — auth
 - **Spring Shell** — admin CLI
 - **MariaDB** (`mariadb-java-client`) — local dev database
-- **Lombok** — excluded from the final jar; annotation processing configured for both compile and test phases in `pom.xml`
+- **Lombok** — excluded from the final jar; annotation processing configured for both compile and test phases in `build.gradle.kts`
 
 ### Package structure
 

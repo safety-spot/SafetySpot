@@ -1,38 +1,48 @@
 package spot.safety.ssbackend.school;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import spot.safety.ssbackend.enums.LicenseStatus;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
-
 @Entity
-@Data
+@Table(name = "schools")
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class School {
-   @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE)
-   private long id;
 
-   private String name;
-   private String licenseKey;
-   @Enumerated(EnumType.STRING)
-   private LicenseStatus licenseStatus;
-   private LocalDate expirationDate;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    private Long id;
 
+    @Column(nullable = false, unique = true, length = 100)
+    private String name;
 
-    public School(String name, String licenseKey) {
-        this.name = name;
-        this.licenseKey = licenseKey;
-        this.licenseStatus = LicenseStatus.INACTIVE;
-    }
+    private String licenseKey;
 
-    public School() { }
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LicenseStatus licenseStatus = LicenseStatus.INACTIVE;
+
+    private LocalDate licenseExpiry;
+
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+    void onCreate() { this.createdAt = Instant.now(); }
 
     public void activateLicense(String key) {
         this.licenseKey = key;
-        this.expirationDate = LocalDate.now().plusMonths(12);
+        this.licenseExpiry = LocalDate.now().plusMonths(12);
         this.licenseStatus = LicenseStatus.ACTIVE;
     }
-
 }

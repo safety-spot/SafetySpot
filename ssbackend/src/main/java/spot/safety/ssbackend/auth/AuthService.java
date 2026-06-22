@@ -5,10 +5,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.enums.UserRole;
 import spot.safety.ssbackend.exception.AccessDeniedException;
-import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolService;
-import spot.safety.ssbackend.user.*;
+import spot.safety.ssbackend.user.Student;
+import spot.safety.ssbackend.user.Teacher;
+import spot.safety.ssbackend.user.User;
+import spot.safety.ssbackend.user.UserService;
 
 import java.time.LocalDateTime;
 
@@ -41,28 +43,20 @@ public class AuthService {
     }
 
     public void logout(String token) {
-        AuthToken authToken = authTokenRepository.findByToken(token).stream()
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Token not found"));
+        AuthToken authToken = authTokenRepository.findByToken(token).getFirst();
         authTokenRepository.delete(authToken);
     }
 
-    public boolean register(
-            String username,
-            String password,
-            String schoolName,
-            UserRole role
-    ) {
-        User user;
+    public boolean register(String username, String password, String schoolName, UserRole role) {
         School school = schoolService.getSchoolByName(schoolName);
-        if(role == UserRole.STUDENT) {
-            user = new Student(username, password, school, role);
+        String encodedPwd = passwordEncoder.encode(password);
+        User user;
+        if (role == UserRole.STUDENT) {
+            user = new Student(username, encodedPwd, school, role);
         } else {
-            user = new Teacher(username, password, school, role);
+            user = new Teacher(username, encodedPwd, school, role);
         }
-
         userService.newUser(user);
-
         return true;
     }
 }
