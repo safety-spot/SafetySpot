@@ -55,6 +55,8 @@ class ImageRepositoryTest {
                 .imageUrl("https://example.test/chemieglas.png")
                 .category("Chemie")
                 .correctTag(TagValue.DANGEROUS)
+                .feedbackCorrect("Richtig")
+                .feedbackWrong("Falsch")
                 .uploadedBy(uploader)
                 .active(true)
                 .build());
@@ -65,6 +67,8 @@ class ImageRepositoryTest {
                 .imageUrl("https://example.test/werkbank.png")
                 .category("Werkraum")
                 .correctTag(TagValue.SAFE)
+                .feedbackCorrect("Richtig")
+                .feedbackWrong("Falsch")
                 .uploadedBy(uploader)
                 .active(true)
                 .build());
@@ -75,6 +79,8 @@ class ImageRepositoryTest {
                 .imageUrl("https://example.test/inaktiv.png")
                 .category("Chemie")
                 .correctTag(TagValue.SAFE)
+                .feedbackCorrect("Richtig")
+                .feedbackWrong("Falsch")
                 .uploadedBy(uploader)
                 .active(false)
                 .build());

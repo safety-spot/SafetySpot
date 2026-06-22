@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
 import spot.safety.ssbackend.dto.image.UpdateImageRequest;
 import spot.safety.ssbackend.enums.Role;
@@ -66,6 +65,8 @@ class ImageServiceTest {
                 .imageUrl("https://example.test/image.png")
                 .category("Chemie")
                 .correctTag(TagValue.DANGEROUS)
+                .feedbackCorrect("Richtig")
+                .feedbackWrong("Falsch")
                 .uploadedBy(teacher)
                 .active(true)
                 .createdAt(Instant.parse("2026-01-01T00:00:00Z"))
@@ -98,7 +99,7 @@ class ImageServiceTest {
 
         assertThatThrownBy(() -> imageService.updateImage(
                 200L,
-                new UpdateImageRequest("new", null, null, null, null),
+                new UpdateImageRequest("new", null, null, null, null, null, null),
                 new UserPrincipal(10L, "teacher", Role.TEACHER, 1L, null)))
                 .isInstanceOf(AccessDeniedException.class);
     }
@@ -120,7 +121,7 @@ class ImageServiceTest {
         when(imageRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = imageService.createImage(
-                new CreateImageRequest("title", "desc", "https://example.test/1.png", "Chemie", TagValue.SAFE),
+                new CreateImageRequest("title", "desc", "https://example.test/1.png", "Chemie", TagValue.SAFE, "ok", "bad"),
                 new UserPrincipal(10L, "teacher", Role.TEACHER, 1L, null));
 
         assertThat(response.uploadedById()).isEqualTo(10L);

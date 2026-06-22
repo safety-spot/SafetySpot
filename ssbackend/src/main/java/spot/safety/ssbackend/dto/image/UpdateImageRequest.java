@@ -8,6 +8,8 @@ public record UpdateImageRequest(
         @Size(max = 500) String description,
         String imageUrl,
         @Size(max = 50) String category,
-        TagValue correctTag
+        TagValue correctTag,
+        String feedbackCorrect,
+        String feedbackWrong
 ) {
 }

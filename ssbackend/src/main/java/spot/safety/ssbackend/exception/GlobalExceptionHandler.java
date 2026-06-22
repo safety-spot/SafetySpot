@@ -2,10 +2,12 @@ package spot.safety.ssbackend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spot.safety.ssbackend.dto.ErrorResponse;
+import spot.safety.ssbackend.exception.DuplicateTagException;
 
 import java.time.Instant;
 
@@ -43,8 +45,22 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(409, ex.getMessage(), Instant.now()));
     }
 
+    @ExceptionHandler(DuplicateTagException.class)
+    public ResponseEntity<ErrorResponse> duplicateTag(DuplicateTagException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(409, ex.getMessage(), Instant.now()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> argumentNotValid (MethodArgumentNotValidException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(400, ex.getMessage(), Instant.now()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> messageNotReadable(HttpMessageNotReadableException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(400, ex.getMessage(), Instant.now()));
