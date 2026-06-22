@@ -108,4 +108,9 @@ class ImageRepositoryTest {
 
         assertThat(images).hasSize(3);
     }
+
+    @Test
+    void countByActiveTrue_returnsActiveCount() {
+        assertThat(imageRepository.countByActiveTrue()).isEqualTo(2);
+    }
 }
