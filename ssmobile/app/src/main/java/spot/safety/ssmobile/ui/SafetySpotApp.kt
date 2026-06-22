@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -22,10 +25,14 @@ import spot.safety.ssmobile.ui.home.HomeScreen
 import spot.safety.ssmobile.ui.navigation.Destinations
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
 import spot.safety.ssmobile.ui.profile.ProfileDetailScreen
+import spot.safety.ssmobile.ui.profile.ProfileUi
 import spot.safety.ssmobile.ui.profile.ProfileScreen
+import spot.safety.ssmobile.ui.ranking.LeaderboardEntryUi
 import spot.safety.ssmobile.ui.ranking.RankingScreen
+import spot.safety.ssmobile.ui.ranking.sampleLeaderboard
 import spot.safety.ssmobile.ui.scenario.ScenarioPlayScreen
 import spot.safety.ssmobile.ui.scenarios.ScenariosScreen
+import spot.safety.ssmobile.ui.scenarios.sampleScenarios
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.SsmobileTheme
 
@@ -33,6 +40,28 @@ import spot.safety.ssmobile.ui.theme.SsmobileTheme
 fun SafetySpotApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val completedScenarioIds = remember { mutableStateListOf<Int>() }
+    var sessionPoints by remember { mutableIntStateOf(2450) }
+    val completedScenarios by remember {
+        derivedStateOf { sampleScenarios.filter { it.id in completedScenarioIds } }
+    }
+    val sessionLevel = 12 + (sessionPoints - 2450).coerceAtLeast(0) / 120
+    val sessionBadges = 24 + completedScenarioIds.size
+    val leaderboardEntries = remember(sessionPoints) {
+        sampleLeaderboard
+            .filterNot { it.isCurrentUser }
+            .plus(LeaderboardEntryUi(0, "Du (Max)", sessionPoints, "M", isCurrentUser = true))
+            .sortedByDescending { it.score }
+            .mapIndexed { index, entry -> entry.copy(rank = index + 1) }
+    }
+    val profile = ProfileUi(
+        fullName = "Max Mustermann",
+        level = sessionLevel,
+        currentXp = sessionPoints,
+        nextLevelXp = 3000,
+        points = sessionPoints,
+        streakDays = 7,
+        badges = sessionBadges
+    )
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val activeDestination = TopLevelDestination.entries.firstOrNull { it.route == currentRoute }
@@ -68,6 +97,9 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             }
             composable(Destinations.HOME) {
                 HomeScreen(
+                    level = sessionLevel,
+                    points = sessionPoints,
+                    completedScenarioCount = completedScenarioIds.size,
                     onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
                     onContinueScenario = { navController.navigate(Destinations.scenarioPlayRoute(1)) },
                     onCategoryClick = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) }
@@ -82,10 +114,11 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(Destinations.RANKING) {
-                RankingScreen()
+                RankingScreen(entries = leaderboardEntries)
             }
             composable(Destinations.PROFILE) {
                 ProfileScreen(
+                    profile = profile,
                     onProgressClick = { navController.navigate(Destinations.PROFILE_PROGRESS) },
                     onBadgesClick = { navController.navigate(Destinations.PROFILE_BADGES) },
                     onMyScenariosClick = { navController.navigate(Destinations.PROFILE_SCENARIOS) },
@@ -105,7 +138,12 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 ProfileDetailScreen(
                     title = "Mein Fortschritt",
                     subtitle = "Hier landen spaeter deine abgeschlossenen Szenarien, XP und Lernziele.",
-                    items = listOf("Chemieraum: 60 %", "Werkraum: 25 %", "Ranking: Platz 6"),
+                    items = if (completedScenarios.isEmpty()) {
+                        listOf("Noch kein Szenario abgeschlossen")
+                    } else {
+                        completedScenarios.map { "${it.title}: abgeschlossen" } +
+                            "Punkte: $sessionPoints"
+                    },
                     onBackClick = { navController.popBackStack() }
                 )
             }
@@ -113,7 +151,13 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 ProfileDetailScreen(
                     title = "Abzeichen",
                     subtitle = "Sammlung deiner Erfolge und Sicherheits-Meilensteine.",
-                    items = listOf("Labor-Profi", "7 Tage Streak", "Erste Aufgabe geschafft"),
+                    items = buildList {
+                        add("7 Tage Streak")
+                        add("Erste Aufgabe geschafft")
+                        if (completedScenarioIds.isNotEmpty()) {
+                            add("${completedScenarioIds.size} Szenario abgeschlossen")
+                        }
+                    },
                     onBackClick = { navController.popBackStack() }
                 )
             }
@@ -121,7 +165,11 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 ProfileDetailScreen(
                     title = "Meine Szenarien",
                     subtitle = "Szenarien, die du begonnen oder abgeschlossen hast.",
-                    items = listOf("Chemieraum", "Werkraum", "Strassenverkehr"),
+                    items = if (completedScenarios.isEmpty()) {
+                        listOf("Noch keine abgeschlossenen Szenarien")
+                    } else {
+                        completedScenarios.map { it.title }
+                    },
                     onBackClick = { navController.popBackStack() }
                 )
             }
@@ -148,8 +196,9 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 val scenarioId = backStackEntry.arguments?.getInt(Destinations.SCENARIO_ID_ARG) ?: 1
                 ScenarioPlayScreen(
                     scenarioId = scenarioId,
-                    onScenarioCompleted = {
+                    onScenarioCompleted = { earnedPoints ->
                         if (scenarioId !in completedScenarioIds) {
+                            sessionPoints += earnedPoints
                             completedScenarioIds.add(scenarioId)
                         }
                     },

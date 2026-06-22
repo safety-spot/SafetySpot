@@ -74,7 +74,7 @@ fun ScenarioPlayScreen(
     modifier: Modifier = Modifier,
     scenarioId: Int = 1,
     scenarios: List<ScenarioPlayUi> = tasksForScenario(scenarioId),
-    onScenarioCompleted: () -> Unit = {},
+    onScenarioCompleted: (Int) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -185,7 +185,8 @@ fun ScenarioPlayScreen(
                         earnedPoints += currentScenario.points
                     }
                     if (currentIndex == scenarios.lastIndex) {
-                        onScenarioCompleted()
+                        val finalPoints = earnedPoints + if (wasCorrect) currentScenario.points else 0
+                        onScenarioCompleted(finalPoints)
                         isComplete = true
                     } else {
                         currentIndex += 1

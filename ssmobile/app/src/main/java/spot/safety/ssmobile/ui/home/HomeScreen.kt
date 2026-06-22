@@ -55,6 +55,7 @@ fun HomeScreen(
     levelTitle: String = "Sicherheitsprofi",
     points: Int = 2450,
     streakDays: Int = 7,
+    completedScenarioCount: Int = 0,
     categories: List<HomeCategoryUi> = sampleHomeCategories,
     onShowAllCategories: () -> Unit = {},
     onContinueScenario: () -> Unit = {},
@@ -91,9 +92,9 @@ fun HomeScreen(
         Text(text = "Weitermachen", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(10.dp))
         ContinueBanner(
-            title = "Chemieraum",
-            subtitle = "Gefaehrliche Stoffe",
-            progress = 0.6f,
+            title = if (completedScenarioCount == 0) "Chemieraum" else "Naechstes Szenario",
+            subtitle = if (completedScenarioCount == 0) "Gefaehrliche Stoffe" else "$completedScenarioCount abgeschlossen",
+            progress = if (completedScenarioCount == 0) 0.6f else 0.15f,
             onContinueClick = onContinueScenario
         )
         Spacer(modifier = Modifier.height(22.dp))
