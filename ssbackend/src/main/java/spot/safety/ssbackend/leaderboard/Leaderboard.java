@@ -41,7 +41,8 @@ public class Leaderboard {
 
     public List<LeaderboardEntry> getTopN(int n) {
         refresh();
-        return entries.subList(0, n);
+        int limit = Math.min(Math.max(n, 0), entries.size());
+        return entries.subList(0, limit);
     }
 
 
