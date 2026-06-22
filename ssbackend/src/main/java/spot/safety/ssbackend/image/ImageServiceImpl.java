@@ -1,7 +1,6 @@
 package spot.safety.ssbackend.image;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
@@ -16,7 +15,6 @@ import spot.safety.ssbackend.model.ImageTag;
 import spot.safety.ssbackend.model.TagValue;
 import spot.safety.ssbackend.repository.ImageRepository;
 import spot.safety.ssbackend.repository.ImageTagRepository;
-import spot.safety.ssbackend.user.SecurityUser;
 import spot.safety.ssbackend.user.User;
 import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserRepository;
@@ -43,6 +41,8 @@ public class ImageServiceImpl implements ImageService {
                 .imageUrl(request.imageUrl())
                 .category(request.category())
                 .correctTag(request.correctTag())
+                .feedbackCorrect(request.feedbackCorrect())
+                .feedbackWrong(request.feedbackWrong())
                 .uploadedBy(uploadedBy)
                 .active(true)
                 .build();
@@ -84,6 +84,12 @@ public class ImageServiceImpl implements ImageService {
         }
         if (request.correctTag() != null) {
             image.setCorrectTag(request.correctTag());
+        }
+        if (request.feedbackCorrect() != null) {
+            image.setFeedbackCorrect(request.feedbackCorrect());
+        }
+        if (request.feedbackWrong() != null) {
+            image.setFeedbackWrong(request.feedbackWrong());
         }
 
         return toResponse(imageRepository.save(image), actor);

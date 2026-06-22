@@ -10,6 +10,8 @@ public record CreateImageRequest(
         @Size(max = 500) String description,
         @NotBlank String imageUrl,
         @Size(max = 50) String category,
-        @NotNull TagValue correctTag
+        @NotNull TagValue correctTag,
+        @NotBlank String feedbackCorrect,
+        @NotBlank String feedbackWrong
 ) {
 }

@@ -38,6 +38,12 @@ public class Image {
     @Column(nullable = false)
     private TagValue correctTag;
 
+    @Column(nullable = false)
+    private String feedbackCorrect;
+
+    @Column(nullable = false)
+    private String feedbackWrong;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "uploaded_by")
     private User uploadedBy;

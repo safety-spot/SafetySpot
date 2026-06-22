@@ -7,10 +7,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import spot.safety.ssbackend.auth.SecurityUserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import spot.safety.ssbackend.auth.JwtAuthFilter;
 import spot.safety.ssbackend.auth.SecurityConfig;
+import spot.safety.ssbackend.auth.SecurityUserDetailsService;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
 import spot.safety.ssbackend.dto.image.ImageResponse;
 import spot.safety.ssbackend.dto.image.ImageTagResultResponse;
@@ -85,7 +85,7 @@ class ImageControllerTest {
                         .with(user(teacherPrincipal()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new CreateImageRequest(
-                                "title", "desc", "https://example.test/1.png", "Chemie", TagValue.SAFE))))
+                                "title", "desc", "https://example.test/1.png", "Chemie", TagValue.SAFE, "ok", "bad"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
     }
@@ -124,7 +124,7 @@ class ImageControllerTest {
                         .with(user(teacherPrincipal()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UpdateImageRequest(
-                                "new", "desc", "https://example.test/1.png", "Chemie", TagValue.SAFE))))
+                                "new", "desc", "https://example.test/1.png", "Chemie", TagValue.SAFE, "ok", "bad"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("new"));
     }

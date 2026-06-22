@@ -89,6 +89,8 @@ class ImageTagRepositoryTest {
                 .title("Image 1")
                 .imageUrl("https://example.test/1.png")
                 .correctTag(TagValue.DANGEROUS)
+                .feedbackCorrect("Correct")
+                .feedbackWrong("Wrong")
                 .uploadedBy(uploader)
                 .active(true)
                 .build());
@@ -97,6 +99,8 @@ class ImageTagRepositoryTest {
                 .title("Image 2")
                 .imageUrl("https://example.test/2.png")
                 .correctTag(TagValue.SAFE)
+                .feedbackCorrect("Correct")
+                .feedbackWrong("Wrong")
                 .uploadedBy(uploader)
                 .active(true)
                 .build());
