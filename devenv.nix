@@ -6,10 +6,10 @@
   ...
 }: {
   # https://devenv.sh/basics/
-  env.GREET = "devenv";
+  # env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [pkgs.git];
+  packages = with pkgs; [javaPackages.compiler.temurin-bin.jdk-25];
 
   # https://devenv.sh/languages/
   # languages.rust.enable = true;
@@ -33,6 +33,5 @@
   };
 
   # See full reference at https://devenv.sh/reference/options/
-
   android.enable = true;
 }
