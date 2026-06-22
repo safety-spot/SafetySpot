@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -30,7 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
 import spot.safety.ssmobile.ui.theme.BrandBlue
@@ -417,7 +420,7 @@ fun SafetySpotBottomBar(
         TopLevelDestination.entries.forEach { destination ->
             BottomBarItem(
                 label = destination.label,
-                iconText = destination.iconText,
+                iconRes = destination.iconRes,
                 active = destination == activeDestination,
                 onClick = { onDestinationSelected(destination) }
             )
@@ -428,7 +431,7 @@ fun SafetySpotBottomBar(
 @Composable
 private fun BottomBarItem(
     label: String,
-    iconText: String,
+    iconRes: Int,
     active: Boolean,
     onClick: () -> Unit
 ) {
@@ -440,13 +443,14 @@ private fun BottomBarItem(
             modifier = Modifier
                 .size(24.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(if (active) BrandGreen else Color(0xFFE3E8EF))
+                .background(if (active) BrandGreen else Color(0xFFE3E8EF)),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = iconText,
-                color = if (active) Color.White else MutedText,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.align(Alignment.Center)
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = label,
+                tint = if (active) Color.White else MutedText,
+                modifier = Modifier.size(bottomBarIconSize(label))
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -456,6 +460,11 @@ private fun BottomBarItem(
             style = MaterialTheme.typography.labelMedium
         )
     }
+}
+
+private fun bottomBarIconSize(label: String): Dp = when (label) {
+    "Szenarien" -> 17.dp
+    else -> 16.dp
 }
 
 @Preview(showBackground = true)
