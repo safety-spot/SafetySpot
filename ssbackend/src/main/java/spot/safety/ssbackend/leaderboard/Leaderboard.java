@@ -16,8 +16,7 @@ import java.util.List;
 public class Leaderboard {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long Id;
-
+    private long id;
     @OneToOne
     private ClassGroup classGroup;
 
