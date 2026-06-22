@@ -5,15 +5,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import spot.safety.ssmobile.ui.auth.AuthScreen
 import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
+import spot.safety.ssmobile.ui.navigation.Destinations
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
 import spot.safety.ssmobile.ui.profile.ProfileScreen
 import spot.safety.ssmobile.ui.ranking.RankingScreen
@@ -22,70 +24,85 @@ import spot.safety.ssmobile.ui.scenarios.ScenariosScreen
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.SsmobileTheme
 
-private sealed interface AppScreen {
-    data object Auth : AppScreen
-    data object TopLevel : AppScreen
-    data object ScenarioPlay : AppScreen
-}
-
 @Composable
 fun SafetySpotApp(modifier: Modifier = Modifier) {
-    var activeDestination by rememberSaveable { mutableStateOf(TopLevelDestination.HOME) }
-    var appScreen by remember { mutableStateOf<AppScreen>(AppScreen.Auth) }
-    val showBottomBar = appScreen == AppScreen.TopLevel
+    val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val activeDestination = TopLevelDestination.entries.firstOrNull { it.route == currentRoute }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = AppBackground,
         bottomBar = {
-            if (showBottomBar) {
+            if (activeDestination != null) {
                 SafetySpotBottomBar(
                     activeDestination = activeDestination,
-                    onDestinationSelected = {
-                        activeDestination = it
-                        appScreen = AppScreen.TopLevel
+                    onDestinationSelected = { destination ->
+                        navController.navigateToTopLevel(destination)
                     }
                 )
             }
         }
     ) { innerPadding ->
-        when (appScreen) {
-            AppScreen.Auth -> AuthScreen(
-                modifier = Modifier.padding(innerPadding),
-                onAuthenticated = {
-                    activeDestination = TopLevelDestination.HOME
-                    appScreen = AppScreen.TopLevel
-                }
-            )
-
-            AppScreen.ScenarioPlay -> ScenarioPlayScreen(
-                modifier = Modifier.padding(innerPadding),
-                onBackClick = { appScreen = AppScreen.TopLevel }
-            )
-
-            AppScreen.TopLevel -> when (activeDestination) {
-                TopLevelDestination.HOME -> HomeScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    onShowAllCategories = { activeDestination = TopLevelDestination.SCENARIOS },
-                    onContinueScenario = { appScreen = AppScreen.ScenarioPlay },
-                    onCategoryClick = { activeDestination = TopLevelDestination.SCENARIOS }
+        NavHost(
+            navController = navController,
+            startDestination = Destinations.AUTH,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Destinations.AUTH) {
+                AuthScreen(
+                    onAuthenticated = {
+                        navController.navigate(Destinations.HOME) {
+                            popUpTo(Destinations.AUTH) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
                 )
-
-                TopLevelDestination.SCENARIOS -> ScenariosScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    onScenarioClick = { appScreen = AppScreen.ScenarioPlay }
+            }
+            composable(Destinations.HOME) {
+                HomeScreen(
+                    onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
+                    onContinueScenario = { navController.navigate(Destinations.SCENARIO_PLAY) },
+                    onCategoryClick = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) }
                 )
-
-                TopLevelDestination.RANKING -> RankingScreen(
-                    modifier = Modifier.padding(innerPadding)
+            }
+            composable(Destinations.SCENARIOS) {
+                ScenariosScreen(
+                    onScenarioClick = { navController.navigate(Destinations.SCENARIO_PLAY) }
                 )
-
-                TopLevelDestination.PROFILE -> ProfileScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    onLogoutClick = { appScreen = AppScreen.Auth }
+            }
+            composable(Destinations.RANKING) {
+                RankingScreen()
+            }
+            composable(Destinations.PROFILE) {
+                ProfileScreen(
+                    onLogoutClick = {
+                        navController.navigate(Destinations.AUTH) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+            composable(Destinations.SCENARIO_PLAY) {
+                ScenarioPlayScreen(
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }
+    }
+}
+
+private fun androidx.navigation.NavHostController.navigateToTopLevel(destination: TopLevelDestination) {
+    navigate(destination.route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }
 
