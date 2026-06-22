@@ -2,7 +2,7 @@ package spot.safety.ssbackend.leaderboard;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import spot.safety.ssbackend.school.ClassGroup;
+import spot.safety.ssbackend.school.SchoolClass;
 
 import java.util.ArrayList;
 
@@ -11,9 +11,9 @@ import java.util.ArrayList;
 public class LeaderboardService {
     private LeaderboardRepository leaderboardRepository;
 
-    public void newLeaderboard(ClassGroup classGroup) {
+    public void newLeaderboard(SchoolClass schoolClass) {
         Leaderboard leaderboard = new Leaderboard(
-                classGroup,
+                schoolClass,
                 new ArrayList<LeaderboardEntry>()
         );
 
@@ -24,7 +24,7 @@ public class LeaderboardService {
         leaderboardRepository.saveAndFlush(leaderboard);
     }
 
-    public Leaderboard getLeaderboard(ClassGroup classGroup) {
-        return leaderboardRepository.findByClassGroup(classGroup).getFirst();
+    public Leaderboard getLeaderboard(SchoolClass schoolClass) {
+        return leaderboardRepository.findBySchoolClass(schoolClass).getFirst();
     }
 }

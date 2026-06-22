@@ -22,11 +22,11 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPwdHash();
+        return user.getPasswordHash();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getUserRole().name()));
+        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 }

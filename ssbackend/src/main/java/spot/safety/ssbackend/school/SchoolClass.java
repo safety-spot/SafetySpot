@@ -2,35 +2,36 @@ package spot.safety.ssbackend.school;
 
 import jakarta.persistence.*;
 import lombok.*;
-import spot.safety.ssbackend.enums.LicenseStatus;
+import spot.safety.ssbackend.user.User;
 
 import java.time.Instant;
-import java.time.LocalDate;
 
 @Entity
-@Table(name = "schools")
+@Table(name = "classes")
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"school", "teacher"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class School {
+public class SchoolClass {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private LicenseStatus licenseStatus = LicenseStatus.INACTIVE;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "school_id")
+    private School school;
 
-    private LocalDate licenseExpiry;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id")
+    private User teacher;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
