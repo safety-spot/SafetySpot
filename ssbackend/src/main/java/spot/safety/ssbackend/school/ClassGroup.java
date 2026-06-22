@@ -19,7 +19,12 @@ public class ClassGroup {
     @ManyToOne
     School school;
 
-    @ManyToMany(mappedBy = "classGroup")
+    @ManyToMany
+    @JoinTable(
+            name = "classgroup_students",
+            joinColumns = @JoinColumn(name = "classgroup_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
     List<Student> studentList;
 
     @ManyToOne
