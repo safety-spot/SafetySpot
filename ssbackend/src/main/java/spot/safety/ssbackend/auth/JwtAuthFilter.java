@@ -17,10 +17,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final SecurityUserDetailsService userDetailsService;
+    private final AuthTokenRepository authTokenRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil, SecurityUserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtUtil jwtUtil, SecurityUserDetailsService userDetailsService, AuthTokenRepository authTokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.authTokenRepository = authTokenRepository;
     }
 
     @Override
