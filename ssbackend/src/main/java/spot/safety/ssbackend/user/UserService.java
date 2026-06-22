@@ -8,9 +8,9 @@ import spot.safety.ssbackend.exception.EntityNotFoundException;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private UserRepository userRepository;
-    private StudentRepository studentRepository;
-    private TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
 
 
     public User findUserByName(String username) {
