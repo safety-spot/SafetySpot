@@ -27,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.shell:spring-shell-starter:4.0.2")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+    implementation("com.h2database:h2:2.2.224")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
