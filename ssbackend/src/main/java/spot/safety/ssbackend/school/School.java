@@ -30,8 +30,7 @@ public class School {
 
     public void activateLicense(String key) {
         this.licenseKey = key;
-        this.expirationDate = LocalDate.now();
-        this.expirationDate.plusMonths(12);
+        this.expirationDate = LocalDate.now().plusMonths(12);
         this.licenseStatus = LicenseStatus.ACTIVE;
     }
 
