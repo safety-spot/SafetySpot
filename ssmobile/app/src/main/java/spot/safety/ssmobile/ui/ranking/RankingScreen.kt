@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -105,14 +106,14 @@ private fun Podium(entries: List<LeaderboardEntryUi>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp),
+            .height(226.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.Bottom
     ) {
         second?.let {
             PodiumColumn(
                 entry = it,
-                height = 142.dp,
+                height = 166.dp,
                 color = Color(0xFFE8EDF3),
                 modifier = Modifier.weight(1f)
             )
@@ -120,7 +121,7 @@ private fun Podium(entries: List<LeaderboardEntryUi>) {
         first?.let {
             PodiumColumn(
                 entry = it,
-                height = 178.dp,
+                height = 196.dp,
                 color = Color(0xFFFFF2C2),
                 modifier = Modifier.weight(1f)
             )
@@ -128,7 +129,7 @@ private fun Podium(entries: List<LeaderboardEntryUi>) {
         third?.let {
             PodiumColumn(
                 entry = it,
-                height = 120.dp,
+                height = 154.dp,
                 color = Color(0xFFFFE2C7),
                 modifier = Modifier.weight(1f)
             )
@@ -168,11 +169,21 @@ private fun PodiumColumn(
         Spacer(modifier = Modifier.height(10.dp))
         Avatar(text = entry.avatarText, size = 52.dp)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = entry.name, color = BrandBlue, style = MaterialTheme.typography.labelLarge)
+        Text(
+            text = entry.name,
+            color = BrandBlue,
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
         Text(
             text = formatScore(entry.score),
             color = MutedText,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
