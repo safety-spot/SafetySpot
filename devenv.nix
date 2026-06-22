@@ -9,7 +9,11 @@
   # env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = with pkgs; [javaPackages.compiler.temurin-bin.jdk-25];
+  packages = with pkgs; [
+    javaPackages.compiler.temurin-bin.jdk-25
+    gradle_9
+    docker
+  ];
 
   # https://devenv.sh/languages/
   # languages.rust.enable = true;
@@ -34,10 +38,4 @@
 
   # See full reference at https://devenv.sh/reference/options/
   android.enable = true;
-
-  # https://devenv.sh/integrations/dotenv/
-  dotenv = {
-    enable = true;
-    filename = ".env.development";
-  };
 }
