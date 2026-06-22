@@ -412,9 +412,10 @@ fun SafetySpotBottomBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = 76.dp)
             .background(Color.White)
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 18.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TopLevelDestination.entries.forEach { destination ->
@@ -441,8 +442,8 @@ private fun BottomBarItem(
     ) {
         Box(
             modifier = Modifier
-                .size(24.dp)
-                .clip(RoundedCornerShape(6.dp))
+                .size(30.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .background(if (active) BrandGreen else Color(0xFFE3E8EF)),
             contentAlignment = Alignment.Center
         ) {
@@ -463,8 +464,8 @@ private fun BottomBarItem(
 }
 
 private fun bottomBarIconSize(label: String): Dp = when (label) {
-    "Szenarien" -> 17.dp
-    else -> 16.dp
+    "Szenarien" -> 21.dp
+    else -> 20.dp
 }
 
 @Preview(showBackground = true)
