@@ -25,7 +25,6 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    implementation("com.h2database:h2")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -37,9 +36,11 @@ dependencies {
 
     providedRuntime("org.apache.tomcat.embed:tomcat-embed-core")
 
+    runtimeOnly("com.h2database:h2")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
 
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
