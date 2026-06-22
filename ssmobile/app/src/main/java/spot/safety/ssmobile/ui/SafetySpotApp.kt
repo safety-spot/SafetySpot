@@ -24,8 +24,10 @@ import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
 import spot.safety.ssmobile.ui.navigation.Destinations
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
+import spot.safety.ssmobile.ui.profile.BadgeCollectionScreen
 import spot.safety.ssmobile.ui.profile.HelpFeedbackScreen
-import spot.safety.ssmobile.ui.profile.ProfileDetailScreen
+import spot.safety.ssmobile.ui.profile.MyScenariosScreen
+import spot.safety.ssmobile.ui.profile.ProfileProgressScreen
 import spot.safety.ssmobile.ui.profile.ProfileUi
 import spot.safety.ssmobile.ui.profile.ProfileScreen
 import spot.safety.ssmobile.ui.profile.SettingsScreen
@@ -138,40 +140,25 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(Destinations.PROFILE_PROGRESS) {
-                ProfileDetailScreen(
-                    title = "Mein Fortschritt",
-                    subtitle = "Hier landen spaeter deine abgeschlossenen Szenarien, XP und Lernziele.",
-                    items = if (completedScenarios.isEmpty()) {
-                        listOf("Noch kein Szenario abgeschlossen")
-                    } else {
-                        completedScenarios.map { "${it.title}: abgeschlossen" } +
-                            "Punkte: $sessionPoints"
-                    },
+                ProfileProgressScreen(
+                    profile = profile,
+                    completedScenarios = completedScenarios,
+                    totalScenarioCount = sampleScenarios.size,
                     onBackClick = { navController.popBackStack() }
                 )
             }
             composable(Destinations.PROFILE_BADGES) {
-                ProfileDetailScreen(
-                    title = "Abzeichen",
-                    subtitle = "Sammlung deiner Erfolge und Sicherheits-Meilensteine.",
-                    items = buildList {
-                        add("7 Tage Streak")
-                        add("Erste Aufgabe geschafft")
-                        if (completedScenarioIds.isNotEmpty()) {
-                            add("${completedScenarioIds.size} Szenario abgeschlossen")
-                        }
-                    },
+                BadgeCollectionScreen(
+                    completedScenarioCount = completedScenarioIds.size,
+                    streakDays = profile.streakDays,
                     onBackClick = { navController.popBackStack() }
                 )
             }
             composable(Destinations.PROFILE_SCENARIOS) {
-                ProfileDetailScreen(
-                    title = "Meine Szenarien",
-                    subtitle = "Szenarien, die du begonnen oder abgeschlossen hast.",
-                    items = if (completedScenarios.isEmpty()) {
-                        listOf("Noch keine abgeschlossenen Szenarien")
-                    } else {
-                        completedScenarios.map { it.title }
+                MyScenariosScreen(
+                    completedScenarios = completedScenarios,
+                    onScenarioClick = { scenario ->
+                        navController.navigate(Destinations.scenarioDetailRoute(scenario.id))
                     },
                     onBackClick = { navController.popBackStack() }
                 )
