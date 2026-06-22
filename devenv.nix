@@ -27,8 +27,8 @@
 
   # https://devenv.sh/tasks/
   tasks = {
-    "ss:test".exec = "(cd ssbackend && ./gradlew test)"; # todo: also test mobile and common
-    "ss:server".exec = "(cd ssbackend && ./gradlew build)"; # todo: start server
+    "ss:test".exec = "(cd ssbackend && ./gradlew test)";
+    "ss:server".exec = "(cd ssbackend && ./gradlew bootRun)";
     "ss:mobile".exec = "(cd ssmobile && ./gradlew run)"; # todo: start android emulator
   };
 
