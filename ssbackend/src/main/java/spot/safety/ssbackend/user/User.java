@@ -23,9 +23,8 @@ public abstract class User {
     @JoinColumn(name = "school_id")
     private School school;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<AuthToken> authTokens;
-
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
