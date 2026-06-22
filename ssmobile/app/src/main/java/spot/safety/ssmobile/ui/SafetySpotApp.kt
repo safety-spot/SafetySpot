@@ -30,6 +30,7 @@ import spot.safety.ssmobile.ui.profile.ProfileScreen
 import spot.safety.ssmobile.ui.ranking.LeaderboardEntryUi
 import spot.safety.ssmobile.ui.ranking.RankingScreen
 import spot.safety.ssmobile.ui.ranking.sampleLeaderboard
+import spot.safety.ssmobile.ui.scenario.ScenarioDetailScreen
 import spot.safety.ssmobile.ui.scenario.ScenarioPlayScreen
 import spot.safety.ssmobile.ui.scenarios.ScenariosScreen
 import spot.safety.ssmobile.ui.scenarios.sampleScenarios
@@ -101,7 +102,7 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                     points = sessionPoints,
                     completedScenarioCount = completedScenarioIds.size,
                     onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
-                    onContinueScenario = { navController.navigate(Destinations.scenarioPlayRoute(1)) },
+                    onContinueScenario = { navController.navigate(Destinations.scenarioDetailRoute(1)) },
                     onCategoryClick = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) }
                 )
             }
@@ -109,7 +110,7 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 ScenariosScreen(
                     completedScenarioIds = completedScenarioIds.toSet(),
                     onScenarioClick = { scenario ->
-                        navController.navigate(Destinations.scenarioPlayRoute(scenario.id))
+                        navController.navigate(Destinations.scenarioDetailRoute(scenario.id))
                     }
                 )
             }
@@ -186,6 +187,19 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                     title = "Hilfe & Feedback",
                     subtitle = "Hier koennen spaeter Fragen, Feedback und Support landen.",
                     items = listOf("FAQ", "Feedback senden", "Problem melden"),
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Destinations.SCENARIO_DETAIL,
+                arguments = listOf(navArgument(Destinations.SCENARIO_ID_ARG) { type = NavType.IntType })
+            ) { backStackEntry ->
+                val scenarioId = backStackEntry.arguments?.getInt(Destinations.SCENARIO_ID_ARG) ?: 1
+                val scenario = sampleScenarios.firstOrNull { it.id == scenarioId } ?: sampleScenarios.first()
+                ScenarioDetailScreen(
+                    scenario = scenario,
+                    isCompleted = scenarioId in completedScenarioIds,
+                    onStartClick = { navController.navigate(Destinations.scenarioPlayRoute(scenarioId)) },
                     onBackClick = { navController.popBackStack() }
                 )
             }

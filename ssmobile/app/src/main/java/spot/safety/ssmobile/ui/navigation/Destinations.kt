@@ -12,7 +12,9 @@ object Destinations {
     const val SETTINGS = "settings"
     const val HELP = "help"
     const val SCENARIO_ID_ARG = "scenarioId"
+    const val SCENARIO_DETAIL = "scenario_detail/{$SCENARIO_ID_ARG}"
     const val SCENARIO_PLAY = "scenario_play/{$SCENARIO_ID_ARG}"
 
+    fun scenarioDetailRoute(scenarioId: Int): String = "scenario_detail/$scenarioId"
     fun scenarioPlayRoute(scenarioId: Int): String = "scenario_play/$scenarioId"
 }
