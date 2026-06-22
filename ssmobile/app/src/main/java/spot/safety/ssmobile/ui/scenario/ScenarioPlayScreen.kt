@@ -45,14 +45,24 @@ import spot.safety.ssmobile.ui.theme.DangerPink
 import spot.safety.ssmobile.ui.theme.MutedText
 import spot.safety.ssmobile.ui.theme.PointsYellow
 import spot.safety.ssmobile.ui.theme.SafeGreenBg
+import spot.safety.ssmobile.ui.theme.SportGreen
+import spot.safety.ssmobile.ui.theme.SportGreenSoft
 import spot.safety.ssmobile.ui.theme.SsmobileTheme
+import spot.safety.ssmobile.ui.theme.TechnikPurple
+import spot.safety.ssmobile.ui.theme.TechnikPurpleSoft
 import spot.safety.ssmobile.ui.theme.TrafficRed
+import spot.safety.ssmobile.ui.theme.WerkraumOrange
+import spot.safety.ssmobile.ui.theme.WerkraumOrangeSoft
 
 data class ScenarioPlayUi(
     val category: String,
     val question: String,
     val instruction: String,
     val context: String,
+    val illustrationTitle: String,
+    val illustrationDescription: String,
+    val illustrationColor: Color,
+    val illustrationBackground: Color,
     val isDangerous: Boolean,
     val feedbackCorrect: String,
     val feedbackWrong: String,
@@ -117,7 +127,12 @@ fun ScenarioPlayScreen(
         Text(text = currentScenario.question, color = BrandBlue, style = MaterialTheme.typography.displaySmall)
         Text(text = currentScenario.instruction, color = MutedText, style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(18.dp))
-        LabIllustration()
+        ScenarioIllustration(
+            title = currentScenario.illustrationTitle,
+            description = currentScenario.illustrationDescription,
+            accentColor = currentScenario.illustrationColor,
+            backgroundColor = currentScenario.illustrationBackground
+        )
         Spacer(modifier = Modifier.height(16.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -262,7 +277,12 @@ private fun MascotBubble() {
 }
 
 @Composable
-private fun LabIllustration() {
+private fun ScenarioIllustration(
+    title: String,
+    description: String,
+    accentColor: Color,
+    backgroundColor: Color
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -274,7 +294,7 @@ private fun LabIllustration() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ChemieBlueSoft),
+                .background(backgroundColor),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -286,11 +306,11 @@ private fun LabIllustration() {
                         .border(1.dp, CardBorder, RoundedCornerShape(24.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Labor", color = ChemieBlueTint, style = MaterialTheme.typography.titleLarge)
+                    Text(text = title, color = accentColor, style = MaterialTheme.typography.titleLarge)
                 }
                 Spacer(modifier = Modifier.height(14.dp))
                 Text(
-                    text = "Max arbeitet mit Reagenzglas und Schutzbrille",
+                    text = description,
                     color = BrandBlue,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(horizontal = 24.dp)
@@ -422,6 +442,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Noah benutzt eine Saege, waehrend das Werkstueck locker auf dem Tisch liegt.",
+            illustrationTitle = "Werkbank",
+            illustrationDescription = "Noah steht an einer Werkbank mit Saege und Holzbrett",
+            illustrationColor = WerkraumOrange,
+            illustrationBackground = WerkraumOrangeSoft,
             isDangerous = true,
             feedbackCorrect = "Richtig. Werkstuecke muessen sicher eingespannt werden.",
             feedbackWrong = "Das ist gefaehrlich: Ein loses Werkstueck kann verrutschen.",
@@ -432,6 +456,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Mia traegt eine Schutzbrille, bevor sie Holz schleift.",
+            illustrationTitle = "Schutzbrille",
+            illustrationDescription = "Mia bereitet sich mit Schutzbrille auf Schleifarbeiten vor",
+            illustrationColor = WerkraumOrange,
+            illustrationBackground = WerkraumOrangeSoft,
             isDangerous = false,
             feedbackCorrect = "Genau. Die Schutzbrille schuetzt vor Staub und Splittern.",
             feedbackWrong = "Das ist eine sichere Schutzmassnahme.",
@@ -445,6 +473,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Die Klasse waermt sich vor dem Sprinttraining gemeinsam auf.",
+            illustrationTitle = "Sporthalle",
+            illustrationDescription = "Die Gruppe macht Aufwaermuebungen in der Sporthalle",
+            illustrationColor = SportGreen,
+            illustrationBackground = SportGreenSoft,
             isDangerous = false,
             feedbackCorrect = "Richtig. Aufwaermen senkt das Verletzungsrisiko.",
             feedbackWrong = "Das ist nicht gefaehrlich, sondern eine gute Vorbereitung.",
@@ -455,6 +487,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Jonas springt auf eine nasse Turnmatte.",
+            illustrationTitle = "Turnmatte",
+            illustrationDescription = "Eine nasse Matte liegt in der Sporthalle",
+            illustrationColor = SportGreen,
+            illustrationBackground = SportGreenSoft,
             isDangerous = true,
             feedbackCorrect = "Richtig. Nasse Matten koennen rutschen.",
             feedbackWrong = "Das ist gefaehrlich, weil die Matte keinen sicheren Halt gibt.",
@@ -468,6 +504,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Max schaut nach links und rechts, bevor er den Zebrastreifen betritt.",
+            illustrationTitle = "Zebrastreifen",
+            illustrationDescription = "Max wartet aufmerksam am Strassenrand",
+            illustrationColor = TrafficRed,
+            illustrationBackground = Color(0xFFFFEBEE),
             isDangerous = false,
             feedbackCorrect = "Genau. Auch am Zebrastreifen muss man aufmerksam bleiben.",
             feedbackWrong = "Das ist nicht gefaehrlich, sondern umsichtig.",
@@ -478,6 +518,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Mia laeuft zwischen parkenden Autos auf die Strasse.",
+            illustrationTitle = "Strasse",
+            illustrationDescription = "Parkende Autos verdecken die Sicht auf die Fahrbahn",
+            illustrationColor = TrafficRed,
+            illustrationBackground = Color(0xFFFFEBEE),
             isDangerous = true,
             feedbackCorrect = "Richtig. Andere Verkehrsteilnehmer sehen sie dort schlecht.",
             feedbackWrong = "Das ist gefaehrlich, weil sie spaet gesehen wird.",
@@ -491,6 +535,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Ein Kabel hat eine beschaedigte Isolierung und wird trotzdem benutzt.",
+            illustrationTitle = "Kabel",
+            illustrationDescription = "Ein defektes Kabel liegt neben einem elektrischen Geraet",
+            illustrationColor = TechnikPurple,
+            illustrationBackground = TechnikPurpleSoft,
             isDangerous = true,
             feedbackCorrect = "Richtig. Beschaedigte Kabel duerfen nicht verwendet werden.",
             feedbackWrong = "Das ist gefaehrlich: Stromschlag- und Brandgefahr.",
@@ -501,6 +549,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Paul schaltet das Geraet aus, bevor er den Stecker zieht.",
+            illustrationTitle = "Stecker",
+            illustrationDescription = "Paul trennt ein ausgeschaltetes Geraet sicher vom Strom",
+            illustrationColor = TechnikPurple,
+            illustrationBackground = TechnikPurpleSoft,
             isDangerous = false,
             feedbackCorrect = "Genau. Erst ausschalten, dann sicher trennen.",
             feedbackWrong = "Das ist nicht gefaehrlich, sondern richtiges Vorgehen.",
@@ -514,6 +566,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Max fuellt etwas Wasser in ein Reagenzglas, das noch Reste von Schwefelsaeure enthaelt.",
+            illustrationTitle = "Labor",
+            illustrationDescription = "Max arbeitet mit Reagenzglas und Schutzbrille",
+            illustrationColor = ChemieBlueTint,
+            illustrationBackground = ChemieBlueSoft,
             isDangerous = true,
             feedbackCorrect = "Richtig. Saeurereste koennen mit Wasser reagieren und spritzen.",
             feedbackWrong = "Das ist gefaehrlich: Saeurereste koennen reagieren und Verletzungen verursachen.",
@@ -524,6 +580,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Mia setzt ihre Schutzbrille auf, bevor sie mit den Chemikalien arbeitet.",
+            illustrationTitle = "Schutz",
+            illustrationDescription = "Mia setzt im Chemieraum ihre Schutzbrille auf",
+            illustrationColor = ChemieBlueTint,
+            illustrationBackground = ChemieBlueSoft,
             isDangerous = false,
             feedbackCorrect = "Genau. Die Schutzbrille reduziert das Risiko fuer Augenverletzungen.",
             feedbackWrong = "Das ist nicht gefaehrlich, sondern eine wichtige Schutzmassnahme.",
@@ -534,6 +594,10 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
             question = "Ist das gefaehrlich?",
             instruction = "Lies dir die Situation durch und entscheide.",
             context = "Jonas riecht direkt an einer unbekannten Fluessigkeit im Becherglas.",
+            illustrationTitle = "Becherglas",
+            illustrationDescription = "Ein Becherglas mit unbekannter Fluessigkeit steht auf dem Labortisch",
+            illustrationColor = ChemieBlueTint,
+            illustrationBackground = ChemieBlueSoft,
             isDangerous = true,
             feedbackCorrect = "Richtig. Unbekannte Stoffe duerfen nicht direkt eingeatmet werden.",
             feedbackWrong = "Das ist gefaehrlich: Daempfe koennen reizend oder giftig sein.",

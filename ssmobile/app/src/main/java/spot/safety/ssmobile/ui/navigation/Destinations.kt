@@ -6,6 +6,11 @@ object Destinations {
     const val SCENARIOS = "scenarios"
     const val RANKING = "ranking"
     const val PROFILE = "profile"
+    const val PROFILE_PROGRESS = "profile_progress"
+    const val PROFILE_BADGES = "profile_badges"
+    const val PROFILE_SCENARIOS = "profile_scenarios"
+    const val SETTINGS = "settings"
+    const val HELP = "help"
     const val SCENARIO_ID_ARG = "scenarioId"
     const val SCENARIO_PLAY = "scenario_play/{$SCENARIO_ID_ARG}"
 

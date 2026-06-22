@@ -52,6 +52,11 @@ data class ProfileUi(
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     profile: ProfileUi = sampleProfile,
+    onProgressClick: () -> Unit = {},
+    onBadgesClick: () -> Unit = {},
+    onMyScenariosClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onHelpClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
     Column(
@@ -66,17 +71,29 @@ fun ProfileScreen(
         ProfileCard(profile = profile)
         Spacer(modifier = Modifier.height(18.dp))
         ProfileMenuGroup(
-            items = listOf("Mein Fortschritt", "Abzeichen", "Meine Szenarien")
+            items = listOf(
+                ProfileMenuItem("Mein Fortschritt", onProgressClick),
+                ProfileMenuItem("Abzeichen", onBadgesClick),
+                ProfileMenuItem("Meine Szenarien", onMyScenariosClick)
+            )
         )
         Spacer(modifier = Modifier.height(12.dp))
         ProfileMenuGroup(
-            items = listOf("Einstellungen", "Hilfe & Feedback")
+            items = listOf(
+                ProfileMenuItem("Einstellungen", onSettingsClick),
+                ProfileMenuItem("Hilfe & Feedback", onHelpClick)
+            )
         )
         Spacer(modifier = Modifier.height(12.dp))
         LogoutRow(onClick = onLogoutClick)
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
+
+private data class ProfileMenuItem(
+    val label: String,
+    val onClick: () -> Unit
+)
 
 @Composable
 private fun ProfileHeader() {
@@ -156,7 +173,7 @@ private fun ProfileStat(value: String, label: String, modifier: Modifier = Modif
 }
 
 @Composable
-private fun ProfileMenuGroup(items: List<String>) {
+private fun ProfileMenuGroup(items: List<ProfileMenuItem>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -165,7 +182,7 @@ private fun ProfileMenuGroup(items: List<String>) {
     ) {
         Column {
             items.forEachIndexed { index, item ->
-                ProfileMenuRow(label = item)
+                ProfileMenuRow(label = item.label, onClick = item.onClick)
                 if (index != items.lastIndex) {
                     Box(
                         modifier = Modifier
@@ -180,11 +197,11 @@ private fun ProfileMenuGroup(items: List<String>) {
 }
 
 @Composable
-private fun ProfileMenuRow(label: String) {
+private fun ProfileMenuRow(label: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

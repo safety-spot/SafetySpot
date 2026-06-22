@@ -19,6 +19,7 @@ import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
 import spot.safety.ssmobile.ui.navigation.Destinations
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
+import spot.safety.ssmobile.ui.profile.ProfileDetailScreen
 import spot.safety.ssmobile.ui.profile.ProfileScreen
 import spot.safety.ssmobile.ui.ranking.RankingScreen
 import spot.safety.ssmobile.ui.scenario.ScenarioPlayScreen
@@ -81,6 +82,11 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             }
             composable(Destinations.PROFILE) {
                 ProfileScreen(
+                    onProgressClick = { navController.navigate(Destinations.PROFILE_PROGRESS) },
+                    onBadgesClick = { navController.navigate(Destinations.PROFILE_BADGES) },
+                    onMyScenariosClick = { navController.navigate(Destinations.PROFILE_SCENARIOS) },
+                    onSettingsClick = { navController.navigate(Destinations.SETTINGS) },
+                    onHelpClick = { navController.navigate(Destinations.HELP) },
                     onLogoutClick = {
                         navController.navigate(Destinations.AUTH) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -89,6 +95,46 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                             launchSingleTop = true
                         }
                     }
+                )
+            }
+            composable(Destinations.PROFILE_PROGRESS) {
+                ProfileDetailScreen(
+                    title = "Mein Fortschritt",
+                    subtitle = "Hier landen spaeter deine abgeschlossenen Szenarien, XP und Lernziele.",
+                    items = listOf("Chemieraum: 60 %", "Werkraum: 25 %", "Ranking: Platz 6"),
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.PROFILE_BADGES) {
+                ProfileDetailScreen(
+                    title = "Abzeichen",
+                    subtitle = "Sammlung deiner Erfolge und Sicherheits-Meilensteine.",
+                    items = listOf("Labor-Profi", "7 Tage Streak", "Erste Aufgabe geschafft"),
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.PROFILE_SCENARIOS) {
+                ProfileDetailScreen(
+                    title = "Meine Szenarien",
+                    subtitle = "Szenarien, die du begonnen oder abgeschlossen hast.",
+                    items = listOf("Chemieraum", "Werkraum", "Strassenverkehr"),
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.SETTINGS) {
+                ProfileDetailScreen(
+                    title = "Einstellungen",
+                    subtitle = "Platzhalter fuer App-Einstellungen und Kontooptionen.",
+                    items = listOf("Benachrichtigungen", "Darstellung", "Datenschutz"),
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.HELP) {
+                ProfileDetailScreen(
+                    title = "Hilfe & Feedback",
+                    subtitle = "Hier koennen spaeter Fragen, Feedback und Support landen.",
+                    items = listOf("FAQ", "Feedback senden", "Problem melden"),
+                    onBackClick = { navController.popBackStack() }
                 )
             }
             composable(
