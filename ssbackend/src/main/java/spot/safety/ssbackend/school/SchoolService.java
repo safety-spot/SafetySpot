@@ -9,7 +9,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SchoolService {
-    private SchoolRepository schoolRepository;
+    private final SchoolRepository schoolRepository;
 
     public School getSchoolByName(String name) {
         Optional<School> school = schoolRepository.findByName(name);

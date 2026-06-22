@@ -1783,3 +1783,278 @@ Each section below maps directly to a sprint/backlog epic.
 - Set up Azure App Service + Azure SQL via Azure Portal / Bicep
 - Configure environment variables (`JWT_SECRET`, `DB_USER`, `DB_PASSWORD`)
 - Smoke-test all endpoints against production
+
+---
+---
+
+# SafetySpot – Frontend (Android) Implementation Plan
+
+> **Scope:** Android mobile app (`ssmobile/`) — the thin client consuming the `ssbackend` REST API.
+> **Stack:** Kotlin · Jetpack Compose (Material 3) · Compose BOM `2026.02.01` · `minSdk 24` / `targetSdk 36` · Java 21 toolchain
+> **App module:** `:app` · **Namespace / appId:** `spot.safety.ssmobile`
+> **Shared module:** `sscommon` (pure-Kotlin JVM, included via `includeBuild("../sscommon")`) — home for API contract DTOs that are framework-agnostic.
+> **Architecture:** MVVM + unidirectional data flow (UDF), single-Activity Compose app, `Repository` pattern over a Retrofit API + Room cache.
+> **Chosen libraries:** Retrofit + Moshi (networking/JSON) · Hilt (DI) · Room (offline cache) · DataStore Preferences (token storage) · Kotlin Coroutines + Flow (async) · Coil (image loading) · Navigation-Compose (routing).
+> **Backend contract:** All endpoints under `/api/v1`, JWT Bearer auth. See **§5 REST API Endpoints** above — the frontend models and repositories mirror those DTOs exactly.
+
+The mockups in `docs/v1/*.md` drive the screen inventory:
+`SafetySpot_Anmelden` (auth/onboarding), `SafetySpot_home` (Start dashboard), `SafetySpot_szenarienanzeigen` (Szenarien browse), `SafetySpot_szenario` (gameplay), `SafetySpot_schulranking` (Ranking), `SafetySpot_profil` (Profil). Icon: `SafetySpotIcon`.
+
+---
+
+## F1. Build Configuration & Dependencies
+
+Extend `gradle/libs.versions.toml` and `app/build.gradle.kts` (do **not** hand-roll versions — add to the version catalog).
+
+**New version-catalog entries (`[versions]` / `[libraries]` / `[plugins]`):**
+
+| Concern | Library | Catalog alias |
+|---------|---------|---------------|
+| DI | `com.google.dagger:hilt-android` + compiler | `hilt.android`, `hilt.compiler` |
+| DI for Compose | `androidx.hilt:hilt-navigation-compose` | `androidx.hilt.navigation.compose` |
+| Navigation | `androidx.navigation:navigation-compose` | `androidx.navigation.compose` |
+| Networking | `com.squareup.retrofit2:retrofit` + `converter-moshi` | `retrofit`, `retrofit.moshi` |
+| JSON | `com.squareup.moshi:moshi-kotlin` + codegen | `moshi.kotlin`, `moshi.codegen` |
+| HTTP logging | `com.squareup.okhttp3:logging-interceptor` | `okhttp.logging` |
+| Offline cache | `androidx.room:room-runtime` + `room-ktx` + compiler | `room.runtime`, `room.ktx`, `room.compiler` |
+| Token storage | `androidx.datastore:datastore-preferences` | `androidx.datastore.preferences` |
+| Images | `io.coil-kt.coil3:coil-compose` + `coil-network-okhttp` | `coil.compose`, `coil.network` |
+| ViewModel-Compose | `androidx.lifecycle:lifecycle-viewmodel-compose` | `androidx.lifecycle.viewmodel.compose` |
+| Coroutines test | `org.jetbrains.kotlinx:kotlinx-coroutines-test` | `kotlinx.coroutines.test` |
+| MockWebServer | `com.squareup.okhttp3:mockwebserver` | `okhttp.mockwebserver` |
+| Turbine (Flow test) | `app.cash.turbine:turbine` | `turbine` |
+
+**Plugins to add:** `com.google.dagger.hilt.android`, `org.jetbrains.kotlin.plugin.serialization` (only if we later swap to kotlinx; Moshi codegen uses `com.google.devtools.ksp`), `androidx.room`, and **KSP** (`com.google.devtools.ksp`) for Moshi/Room/Hilt annotation processing.
+
+**Manifest changes (`app/src/main/AndroidManifest.xml`):**
+- Add `<uses-permission android:name="android.permission.INTERNET"/>`.
+- Set a custom `android:name=".SafetySpotApp"` `Application` class annotated `@HiltAndroidApp`.
+- Allow cleartext only for the local dev base URL via a debug-only network-security-config (prod uses HTTPS to Azure).
+
+**Build config fields:** expose `BUILD_CONFIG` `API_BASE_URL` per build type (`debug` → `http://10.0.2.2:8080/api/v1/` for the emulator hitting localhost; `release` → Azure App Service HTTPS URL).
+
+---
+
+## F2. Module & Package Structure
+
+```
+ssmobile/app/src/main/java/spot/safety/ssmobile
+├── SafetySpotApp.kt                 (@HiltAndroidApp)
+├── MainActivity.kt                  (single activity, hosts NavHost)
+├── di/
+│   ├── NetworkModule.kt             (Retrofit, OkHttp, Moshi, interceptors)
+│   ├── DatabaseModule.kt            (Room db + DAOs)
+│   ├── DataStoreModule.kt           (token DataStore)
+│   └── RepositoryModule.kt          (binds repo interfaces → impls)
+├── data/
+│   ├── remote/
+│   │   ├── api/                     (Retrofit service interfaces, one per controller)
+│   │   │   ├── AuthApi.kt
+│   │   │   ├── UserApi.kt
+│   │   │   ├── ScenarioApi.kt
+│   │   │   ├── TaskApi.kt
+│   │   │   ├── AttemptApi.kt
+│   │   │   ├── ProgressApi.kt
+│   │   │   ├── LeaderboardApi.kt
+│   │   │   └── CategoryApi.kt
+│   │   ├── dto/                     (request/response models mirroring §7 backend DTOs)
+│   │   ├── interceptor/
+│   │   │   ├── AuthInterceptor.kt   (adds Bearer token)
+│   │   │   └── TokenAuthenticator.kt(401 → refresh → retry)
+│   │   └── NetworkResult.kt         (sealed: Success/Error/Loading + ApiException mapping)
+│   ├── local/
+│   │   ├── SafetySpotDatabase.kt
+│   │   ├── dao/                     (ScenarioDao, CategoryDao, PendingAttemptDao, ProfileDao)
+│   │   └── entity/                  (Room @Entity cache rows)
+│   ├── mapper/                      (DTO ↔ domain ↔ entity mappers)
+│   └── repository/                  (impl classes)
+│       ├── AuthRepositoryImpl.kt
+│       ├── ScenarioRepositoryImpl.kt
+│       ├── AttemptRepositoryImpl.kt
+│       ├── ProgressRepositoryImpl.kt
+│       ├── LeaderboardRepositoryImpl.kt
+│       └── ProfileRepositoryImpl.kt
+├── domain/
+│   ├── model/                       (UI-facing domain models: User, Scenario, Task, Attempt, …)
+│   └── repository/                  (repository interfaces)
+├── ui/
+│   ├── theme/                       (existing — to be re-skinned, see F3)
+│   ├── components/                  (shared composables, see F3)
+│   ├── navigation/
+│   │   ├── SafetySpotNavHost.kt
+│   │   ├── Destinations.kt          (typed routes)
+│   │   └── BottomNavBar.kt
+│   ├── auth/        (AuthScreen, AuthViewModel, AuthUiState)
+│   ├── home/        (HomeScreen, HomeViewModel, HomeUiState)
+│   ├── scenarios/   (ScenariosScreen, ScenariosViewModel, ScenariosUiState)
+│   ├── scenario/    (ScenarioPlayScreen, ScenarioPlayViewModel, ScenarioPlayUiState)
+│   ├── ranking/     (RankingScreen, RankingViewModel, RankingUiState)
+│   └── profile/     (ProfileScreen, ProfileViewModel, ProfileUiState)
+└── util/            (Result extensions, formatters e.g. "2.450", date utils)
+```
+
+**`sscommon`** hosts pure-Kotlin, serialization-agnostic API contract data classes (the DTO shapes from §7) so the request/response models are defined once. Android-specific annotations (Moshi `@Json`, Room) live in `:app`, mapping to/from the `sscommon` contract types. (`sscommon`'s placeholder `Main.kt` is removed and replaced by a `contract/` package.)
+
+---
+
+## F3. Design System (Theme & Reusable Components)
+
+Re-skin the scaffolded `ui/theme` to match the mockups (currently the default purple Material starter).
+
+**Color palette (`Color.kt`) — derived from mockups:**
+- `BrandBlue` (dark blue title "Safety", headings) ≈ `#1B3A6B`
+- `BrandGreen` (primary CTA, active nav, "Spot") ≈ `#34C759` / `#2FB344`
+- `BrandCyan` (logo gradient top) ≈ `#4FC3F7`
+- `PointsYellow` (star/points) ≈ `#FFC53D`
+- Category accents: Chemie `BlueTint`, Werkraum `OrangeTint`, Sport `GreenTint`, Technik `PurpleTint`, Straßenverkehr `RedTint`
+- Difficulty: `DifficultyEasy` (green), `DifficultyMedium` (amber), `DifficultyHard` (red)
+- Answer buttons: `DangerPink` bg / red icon, `SafeGreen` bg / green check
+- Background gradient: light pastel blue → faint mint green (used on `AuthScreen`)
+
+**`Theme.kt`:** replace dynamic-color default with a fixed brand `lightColorScheme` (primary = `BrandGreen`, secondary = `BrandBlue`, tertiary = `PointsYellow`); keep an optional dark scheme. Disable `dynamicColor` by default so branding is consistent. Rename `SsmobileTheme` → keep name (used in MainActivity) but supply brand colors.
+
+**`Type.kt`:** define typography scale — bold display for greetings/titles, medium for card labels, etc.
+
+**Reusable components (`ui/components/`):**
+- `PillButton` (solid green / outlined variants — Anmelden/Registrieren, filter tabs)
+- `SafetySpotBottomBar` (4 tabs: Start, Szenarien, Ranking, Profil with active-green state)
+- `MetricCard` (level badge card, points card)
+- `StreakRow`, `ProgressBar` (XP / scenario completion)
+- `CategoryTile` (colored icon block + scenario count)
+- `ScenarioCard` (icon, title, subtitle, difficulty chip, task count, "Neu" tag)
+- `DifficultyChip`, `TagChip`
+- `PodiumColumn` (gold/silver/bronze), `LeaderboardRow` (with self-highlight)
+- `SearchBar`, `FilterTabRow`
+- `GradientBackground`, `SectionHeader` (title + "Alle anzeigen" link)
+- `LoadingIndicator`, `ErrorState`, `EmptyState`
+
+A `LocalNumberFormat` / `formatScore()` util renders scores with German thousands separator ("2.450").
+
+---
+
+## F4. Networking & Auth Token Handling
+
+- **`NetworkModule`** builds an `OkHttpClient` with: `AuthInterceptor` (injects `Authorization: Bearer <accessToken>` from DataStore for protected calls), `HttpLoggingInterceptor` (debug only), and a `TokenAuthenticator` that, on `401`, calls `POST /api/v1/auth/refresh`, stores the new tokens, and retries once; on refresh failure it clears tokens and emits a global "logout" signal.
+- **`TokenManager`** wraps DataStore: `accessToken`, `refreshToken`, `userId`, `role`, `expiresIn`; exposed as `Flow<AuthState>` consumed by the NavHost to decide start destination (logged-in vs. Anmelden) and by a guest mode flag.
+- **`NetworkResult<T>`** sealed type; a `safeApiCall { }` helper maps HTTP errors to the backend error envelope (`{status,error,message,timestamp}` from §11) into typed `ApiException`s (`InvalidCredentials`, `UsernameTaken`, `ScenarioLocked`, `NotFound`, `Forbidden`, `Validation`, `Network`).
+- **Guest mode** ("Als Gast ausprobieren"): no token; only public/cached content is shown; attempt submission is disabled with a prompt to register.
+
+---
+
+## F5. Domain Models & DTO Mapping
+
+Mirror the backend DTOs (§7) as Moshi `@JsonClass(generateAdapter=true)` data classes in `data/remote/dto`, then map to clean `domain/model` types:
+
+| Domain model | Backed by endpoints |
+|--------------|--------------------|
+| `AuthSession(accessToken, refreshToken, expiresIn, userId, role)` | `POST /auth/login`, `/auth/refresh` |
+| `UserProfile(id, displayName, username, role, level, xp, xpForNextLevel, points, streakDays, badges)` | `GET /users/{id}`, `GET /progress`, `GET /stats/student/{id}` |
+| `Category(id, name, color, iconKey, scenarioCount)` | `GET /categories` |
+| `ScenarioSummary(id, title, subtitle, categoryKey, difficulty, taskCount, isNew, status, completed)` | `GET /scenarios` |
+| `ScenarioDetail(... + tasks)` | `GET /scenarios/{id}`, `GET /scenarios/{id}/tasks` |
+| `Task(id, type, prompt, contextText, imageUrl, options, points)` | task DTOs |
+| `Attempt(id, scenarioId, scoreEarned, scoreMax, answers, completedAt)` | `POST /attempts`, `/answers`, `/complete` |
+| `ProgressSummary(continueScenario, percentComplete, perScenario[])` | `GET /progress` |
+| `LeaderboardEntry(rank, displayName, score, isCurrentUser, avatarKey)` + `scope` (CLASS/SCHOOL/WORLD) | `GET /leaderboard`, `/class/{id}`, `/school/{id}` |
+
+> **Contract gap to flag for backend:** mockups reference fields not yet in §5 — `streakDays`, `badges` count, `level`/`rank` title ("Sicherheitsprofi"), category `color`/`iconKey`, scenario `subtitle` + `isNew`, leaderboard avatar, and a "continue/resume" pointer in `GET /progress`. These should be added to the backend response DTOs (or derived client-side where trivial). Tracked as **Epic F8**.
+
+---
+
+## F6. Screens (mockup → implementation)
+
+Each screen = `@Composable XScreen(state, onEvent)` (stateless, previewable) + `XViewModel` (exposes `StateFlow<XUiState>`, handles events) + `XUiState` (Loading/Content/Error). All wired through Hilt + `hiltViewModel()`.
+
+### F6.1 `AuthScreen` — `SafetySpot_Anmelden`
+Gradient background, centered `SafetySpotIcon`, "Safety**Spot**" title + slogan *"Lern. Sicher. Stark."*, three actions: **Anmelden** (→ login form / sheet), **Registrieren** (→ register form), **Als Gast ausprobieren** (sets guest mode → Home). Login form posts to `/auth/login`, stores tokens, navigates to Home. Validation + `InvalidCredentials` error surfacing.
+
+### F6.2 `HomeScreen` — `SafetySpot_home`
+Header greeting *"Hallo, {firstName}!"* + notification bell (alert dot). Two `MetricCard`s: Level badge ("12" / "Sicherheitsprofi") and Points ("2.450" + star). `StreakRow` ("7 Tage in Folge"). **Weitermachen** resume banner (category graphic, title, subtopic, 60% `ProgressBar`, **Fortsetzen** → ScenarioPlay). **Kategorien** grid (`CategoryTile` × N) + "Alle anzeigen" → Szenarien. Data from `GET /progress` + `GET /categories`. Bottom bar: Start active.
+
+### F6.3 `ScenariosScreen` — `SafetySpot_szenarienanzeigen`
+Title, `SearchBar` (+ filter icon), `FilterTabRow` (Alle / Neu / Beliebt / Abgeschlossen), vertical list of `ScenarioCard`s (icon, title, subtitle, "Neu" tag, `DifficultyChip`, task count). Backed by `GET /scenarios?status=PUBLISHED&search=&filter=`. Tapping a card → ScenarioPlay (or detail). Bottom bar: Szenarien active.
+
+### F6.4 `ScenarioPlayScreen` — `SafetySpot_szenario`
+Top header: back arrow, **"3 / 10"** step indicator/progress, reward tracker (gold star "120"). Category tag, mascot, bold question *"Ist das gefährlich?"* + instructions, illustration (`Coil`, `imageUrl`), context statement, two large decision buttons (**Gefährlich** pink/✗, **Nicht gefährlich** green/✓) — generalized to render any `TaskType` (boolean/single-choice/multi-choice). Flow: `POST /attempts` (start) → per-task `POST /attempts/{id}/answers` (shows `wasCorrect`/`feedbackText`/`pointsEarned`) → advance → `POST /attempts/{id}/complete` → results summary. Scoring is server-side; UI only reflects responses. Offline: queue answers as `PendingAttempt`.
+
+### F6.5 `RankingScreen` — `SafetySpot_schulranking`
+Scope tabs **Klasse / Schule / Weltweit** (pills). `Podium` for top 3 (gold/silver/bronze columns, avatars, scores) + scrollable `LeaderboardRow` list (ranks 4–8…), current user row highlighted light-green. Backed by `GET /leaderboard`, `/leaderboard/class/{id}`, `/leaderboard/school/{id}`. Bottom bar: Ranking active.
+
+### F6.6 `ProfileScreen` — `SafetySpot_profil`
+Header "Profil" + settings gear. Identity card: avatar, full name, "Level 12" + XP `ProgressBar` ("2.450 / 3.000 XP"), three stat columns (Punkte / Tage Streak / Abzeichen). Nav list blocks: Progress (*Mein Fortschritt*, *Abzeichen*, *Meine Szenarien*), Support (*Einstellungen*, *Hilfe & Feedback*), and **Abmelden** (red, clears tokens → Auth, `POST /auth/logout`). Backed by `GET /users/{id}` + `GET /stats/student/{id}`. Bottom bar: Profil active.
+
+---
+
+## F7. Navigation
+
+- Single `NavHost` (`SafetySpotNavHost`) with typed destinations: `Auth`, `Home`, `Scenarios`, `ScenarioPlay(scenarioId)`, `Ranking`, `Profile` (+ later: `ScenarioResult`, `Settings`, `Badges`).
+- `SafetySpotBottomBar` shown only on the four top-level tab destinations (Home/Scenarios/Ranking/Profile), hidden on Auth and ScenarioPlay.
+- **Start destination** decided by `TokenManager.authState`: authenticated/guest → `Home`, else → `Auth`.
+- Global logout (token cleared / refresh failed) pops back stack to `Auth`.
+
+---
+
+## F8. Offline Cache & Sync (Room)
+
+Per the project spec ("app may cache scenarios locally and sync pending attempts when back online"):
+- **Cache** categories, scenario summaries/details, and the last profile snapshot in Room; repositories follow a single-source-of-truth pattern (expose `Flow` from Room, refresh from network).
+- **`PendingAttempt` / `PendingAnswer`** tables queue answers submitted while offline; a `SyncWorker` (WorkManager — optional add) flushes them to `/attempts/.../answers` + `/complete` when connectivity returns.
+- Guest mode reads only cached/public content.
+
+---
+
+## F9. Testing (TDD)
+
+Mirror the backend's TDD discipline.
+- **Unit (`src/test`)**: ViewModels (via `kotlinx-coroutines-test` + Turbine for `StateFlow`), repositories (MockWebServer for Retrofit, in-memory Room), mappers, formatters (`formatScore`). Fake repositories for ViewModel tests.
+- **Compose UI (`src/androidTest`)**: `createAndroidComposeRule` per screen — assert mockup elements render (e.g., Auth shows all three buttons; Home shows level/points/streak; bottom bar highlights active tab; ScenarioPlay shows 2 decision buttons and advances on answer). Replace the placeholder `ExampleInstrumentedTest`/`ExampleUnitTest`.
+- **Contract tests**: Moshi adapters round-trip the §5 JSON example payloads.
+- Commands: `./gradlew :app:testDebugUnitTest` (unit), `./gradlew :app:connectedDebugAndroidTest` (instrumented, needs emulator), `./gradlew :app:lintDebug`.
+
+---
+
+## F10. Frontend Backlog Item Groups (Epics)
+
+### Epic F1 — Project Foundation & Build
+- Add libraries to version catalog; apply Hilt/KSP/Room plugins in `app/build.gradle.kts`
+- `SafetySpotApp` (`@HiltAndroidApp`), manifest INTERNET permission, BuildConfig `API_BASE_URL` per build type
+- `NetworkModule`, `DatabaseModule`, `DataStoreModule`, `RepositoryModule`
+- `NetworkResult` + `safeApiCall` + `ApiException` mapping; replace example tests with a base smoke test
+
+### Epic F2 — Design System
+- Re-skin `Color.kt` / `Theme.kt` / `Type.kt` to brand palette
+- Build shared components (`PillButton`, `BottomBar`, `MetricCard`, `ScenarioCard`, `CategoryTile`, `ProgressBar`, `DifficultyChip`, `PodiumColumn`, `LeaderboardRow`, `SearchBar`, `FilterTabRow`, `GradientBackground`, state composables) with `@Preview`s + Compose UI tests
+
+### Epic F3 — Auth & Navigation Shell
+- DTOs + `AuthApi` + `AuthRepository`; `TokenManager` (DataStore); `AuthInterceptor` + `TokenAuthenticator`
+- `AuthScreen` + `AuthViewModel` (login / register / guest)
+- `SafetySpotNavHost`, `BottomNavBar`, start-destination logic, global logout
+- Tests: AuthViewModel, token refresh flow, nav start destination
+
+### Epic F4 — Home Dashboard
+- `CategoryApi`/`ProgressApi`, repositories, mappers; `HomeViewModel` + `HomeScreen`
+- Resume banner, metric cards, streak, category grid; tests
+
+### Epic F5 — Scenarios Browse
+- `ScenarioApi` + repository (with Room cache); `ScenariosViewModel` + `ScenariosScreen`
+- Search + filter tabs; tests
+
+### Epic F6 — Scenario Gameplay
+- `AttemptApi`/`TaskApi` + `AttemptRepository`; `ScenarioPlayViewModel` + `ScenarioPlayScreen`
+- Generalized task rendering, per-answer feedback, completion + result summary; tests
+
+### Epic F7 — Ranking & Profile
+- `LeaderboardApi`/`UserApi`/stats repositories; `RankingViewModel`+`RankingScreen`, `ProfileViewModel`+`ProfileScreen`
+- Scope tabs, podium, self-highlight; profile identity card + logout; tests
+
+### Epic F8 — Backend Contract Alignment
+- Coordinate added response fields (streak, badges, level title, category color/icon, scenario subtitle/isNew, resume pointer, leaderboard avatar) — see §F5 gap note
+- Update DTOs/mappers once backend ships them
+
+### Epic F9 — Offline Cache & Sync
+- Room entities/DAOs for scenarios, categories, profile; SSOT repositories
+- `PendingAttempt` queue + sync on reconnect (optional `SyncWorker`)
+
+### Epic F10 — Polish & Release
+- Loading/error/empty states everywhere; accessibility (content descriptions for icons/mascot), large-text support
+- App icon from `SafetySpotIcon`; release `API_BASE_URL` → Azure; R8/shrink config; device smoke test

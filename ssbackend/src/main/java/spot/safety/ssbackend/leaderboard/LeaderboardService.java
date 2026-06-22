@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
 public class LeaderboardService {
-    private LeaderboardRepository leaderboardRepository;
+    private final LeaderboardRepository leaderboardRepository;
 
     public void newLeaderboard(SchoolClass schoolClass) {
         Leaderboard leaderboard = new Leaderboard(

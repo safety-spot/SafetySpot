@@ -2,7 +2,7 @@ package spot.safety.ssbackend.leaderboard;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import spot.safety.ssbackend.user.User;
+import spot.safety.ssbackend.user.Student;
 
 @Entity
 @Data
@@ -12,13 +12,13 @@ public class LeaderboardEntry {
     private long id;
 
     @ManyToOne
-    private User user;
+    private Student student;
 
     private int totalPoints;
     private int rank;
 
-    public LeaderboardEntry(User user, int totalPoints, int rank) {
-        this.user = user;
+    public LeaderboardEntry(Student student, int totalPoints, int rank) {
+        this.student = student;
         this.totalPoints = totalPoints;
         this.rank = rank;
     }

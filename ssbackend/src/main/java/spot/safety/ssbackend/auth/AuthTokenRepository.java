@@ -7,3 +7,4 @@ import java.util.List;
 public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
     List<AuthToken> findByToken(String token);
 }
+

@@ -17,10 +17,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final SecurityUserDetailsService userDetailsService;
+    private final AuthTokenRepository authTokenRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil, SecurityUserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtUtil jwtUtil, SecurityUserDetailsService userDetailsService, AuthTokenRepository authTokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.authTokenRepository = authTokenRepository;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        if (jwtUtil.isTokenValid(token)) {
+        if (jwtUtil.isTokenValid(token) && !authTokenRepository.findByToken(token).isEmpty()) {
             String username = jwtUtil.extractUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

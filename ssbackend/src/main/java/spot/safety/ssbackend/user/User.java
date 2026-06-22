@@ -1,56 +1,52 @@
 package spot.safety.ssbackend.user;
 
 import jakarta.persistence.*;
-import lombok.*;
-import spot.safety.ssbackend.enums.Role;
+import lombok.Data;
+import spot.safety.ssbackend.auth.AuthToken;
+import spot.safety.ssbackend.enums.UserRole;
 import spot.safety.ssbackend.school.School;
-import spot.safety.ssbackend.school.SchoolClass;
 
-import java.time.Instant;
+import java.util.List;
 
 @Entity
-@Table(name = "users")
-@Getter
-@Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = {"school", "schoolClass"})
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
-
+@Data
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private long id;
 
-    @Column(nullable = false, unique = true, length = 50)
     private String username;
+    private String pwdHash;
 
-    @Column(nullable = false)
-    private String passwordHash;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne
     @JoinColumn(name = "school_id")
     private School school;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "class_id")
-    private SchoolClass schoolClass;
+    @OneToMany(mappedBy = "user")
+    private List<AuthToken> authTokens;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean active = true;
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
 
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+    public User(String username, String pwdHash, School school, UserRole userRole) {
+        this.username = username;
+        this.pwdHash = pwdHash;
+        this.school = school;
+        this.userRole = userRole;
+    }
 
-    private Instant lastLoginAt;
+    public User() {
+    }
 
-    @PrePersist
-    void onCreate() { this.createdAt = Instant.now(); }
+    public boolean login() {
+        return false;
+    }
+
+    public void logout() {
+    }
+
+    public void resetPassword(String newHash) {
+        this.pwdHash = newHash;
+    }
 }
