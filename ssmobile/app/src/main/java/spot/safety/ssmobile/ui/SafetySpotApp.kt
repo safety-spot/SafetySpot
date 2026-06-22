@@ -11,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import spot.safety.ssmobile.ui.auth.AuthScreen
 import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
@@ -22,6 +23,7 @@ import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.SsmobileTheme
 
 private sealed interface AppScreen {
+    data object Auth : AppScreen
     data object TopLevel : AppScreen
     data object ScenarioPlay : AppScreen
 }
@@ -29,7 +31,7 @@ private sealed interface AppScreen {
 @Composable
 fun SafetySpotApp(modifier: Modifier = Modifier) {
     var activeDestination by rememberSaveable { mutableStateOf(TopLevelDestination.HOME) }
-    var appScreen by remember { mutableStateOf<AppScreen>(AppScreen.TopLevel) }
+    var appScreen by remember { mutableStateOf<AppScreen>(AppScreen.Auth) }
     val showBottomBar = appScreen == AppScreen.TopLevel
 
     Scaffold(
@@ -48,6 +50,14 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
         }
     ) { innerPadding ->
         when (appScreen) {
+            AppScreen.Auth -> AuthScreen(
+                modifier = Modifier.padding(innerPadding),
+                onAuthenticated = {
+                    activeDestination = TopLevelDestination.HOME
+                    appScreen = AppScreen.TopLevel
+                }
+            )
+
             AppScreen.ScenarioPlay -> ScenarioPlayScreen(
                 modifier = Modifier.padding(innerPadding),
                 onBackClick = { appScreen = AppScreen.TopLevel }
@@ -71,7 +81,8 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
 
                 TopLevelDestination.PROFILE -> ProfileScreen(
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
+                    onLogoutClick = { appScreen = AppScreen.Auth }
                 )
             }
         }
