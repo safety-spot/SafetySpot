@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -30,6 +32,7 @@ import spot.safety.ssmobile.ui.theme.SsmobileTheme
 @Composable
 fun SafetySpotApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val completedScenarioIds = remember { mutableStateListOf<Int>() }
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val activeDestination = TopLevelDestination.entries.firstOrNull { it.route == currentRoute }
@@ -72,6 +75,7 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             }
             composable(Destinations.SCENARIOS) {
                 ScenariosScreen(
+                    completedScenarioIds = completedScenarioIds.toSet(),
                     onScenarioClick = { scenario ->
                         navController.navigate(Destinations.scenarioPlayRoute(scenario.id))
                     }
@@ -144,6 +148,11 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 val scenarioId = backStackEntry.arguments?.getInt(Destinations.SCENARIO_ID_ARG) ?: 1
                 ScenarioPlayScreen(
                     scenarioId = scenarioId,
+                    onScenarioCompleted = {
+                        if (scenarioId !in completedScenarioIds) {
+                            completedScenarioIds.add(scenarioId)
+                        }
+                    },
                     onBackClick = { navController.popBackStack() }
                 )
             }

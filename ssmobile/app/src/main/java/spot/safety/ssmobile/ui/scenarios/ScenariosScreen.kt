@@ -71,6 +71,7 @@ private enum class ScenarioFilter(val label: String) {
 fun ScenariosScreen(
     modifier: Modifier = Modifier,
     scenarios: List<ScenarioUi> = sampleScenarios,
+    completedScenarioIds: Set<Int> = emptySet(),
     onScenarioClick: (ScenarioUi) -> Unit = {}
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -87,7 +88,7 @@ fun ScenariosScreen(
                 ScenarioFilter.ALL -> true
                 ScenarioFilter.NEW -> scenario.isNew
                 ScenarioFilter.POPULAR -> scenario.taskCount >= 8
-                ScenarioFilter.COMPLETED -> false
+                ScenarioFilter.COMPLETED -> scenario.id in completedScenarioIds
             }
         }
 
@@ -151,7 +152,7 @@ fun ScenariosScreen(
                     difficultyLabel = scenario.difficultyLabel,
                     difficultyColor = scenario.difficultyColor,
                     taskCount = scenario.taskCount,
-                    isNew = scenario.isNew,
+                    isNew = scenario.isNew && scenario.id !in completedScenarioIds,
                     accentColor = scenario.accentColor,
                     backgroundColor = scenario.backgroundColor,
                     iconText = scenario.iconText,
@@ -168,7 +169,11 @@ fun ScenariosScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Keine Szenarien gefunden.",
+                        text = if (selectedFilter == ScenarioFilter.COMPLETED) {
+                            "Noch keine Szenarien abgeschlossen."
+                        } else {
+                            "Keine Szenarien gefunden."
+                        },
                         color = BrandBlue,
                         style = MaterialTheme.typography.bodyMedium
                     )
