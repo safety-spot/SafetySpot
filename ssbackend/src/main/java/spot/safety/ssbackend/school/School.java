@@ -16,6 +16,7 @@ public class School {
 
    private String name;
    private String licenseKey;
+   @Enumerated(EnumType.STRING)
    private LicenseStatus licenseStatus;
    private LocalDate expirationDate;
 
