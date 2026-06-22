@@ -24,9 +24,11 @@ import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
 import spot.safety.ssmobile.ui.navigation.Destinations
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
+import spot.safety.ssmobile.ui.profile.HelpFeedbackScreen
 import spot.safety.ssmobile.ui.profile.ProfileDetailScreen
 import spot.safety.ssmobile.ui.profile.ProfileUi
 import spot.safety.ssmobile.ui.profile.ProfileScreen
+import spot.safety.ssmobile.ui.profile.SettingsScreen
 import spot.safety.ssmobile.ui.ranking.LeaderboardEntryUi
 import spot.safety.ssmobile.ui.ranking.RankingScreen
 import spot.safety.ssmobile.ui.ranking.sampleLeaderboard
@@ -175,20 +177,10 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(Destinations.SETTINGS) {
-                ProfileDetailScreen(
-                    title = "Einstellungen",
-                    subtitle = "Platzhalter fuer App-Einstellungen und Kontooptionen.",
-                    items = listOf("Benachrichtigungen", "Darstellung", "Datenschutz"),
-                    onBackClick = { navController.popBackStack() }
-                )
+                SettingsScreen(onBackClick = { navController.popBackStack() })
             }
             composable(Destinations.HELP) {
-                ProfileDetailScreen(
-                    title = "Hilfe & Feedback",
-                    subtitle = "Hier koennen spaeter Fragen, Feedback und Support landen.",
-                    items = listOf("FAQ", "Feedback senden", "Problem melden"),
-                    onBackClick = { navController.popBackStack() }
-                )
+                HelpFeedbackScreen(onBackClick = { navController.popBackStack() })
             }
             composable(
                 route = Destinations.SCENARIO_DETAIL,
