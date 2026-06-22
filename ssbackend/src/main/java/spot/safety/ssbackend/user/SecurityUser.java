@@ -15,6 +15,10 @@ public class SecurityUser implements UserDetails {
         this.user = user;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public String getUsername() {
         return user.getUsername();
@@ -22,31 +26,16 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPwdHash();
+        return user.getPasswordHash();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getUserRole().name()));
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isActive();
     }
 }

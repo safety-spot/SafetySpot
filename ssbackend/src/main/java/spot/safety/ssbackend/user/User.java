@@ -1,52 +1,56 @@
 package spot.safety.ssbackend.user;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import spot.safety.ssbackend.auth.AuthToken;
-import spot.safety.ssbackend.enums.UserRole;
+import lombok.*;
+import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.school.School;
+import spot.safety.ssbackend.school.SchoolClass;
 
-import java.util.List;
+import java.time.Instant;
 
 @Entity
-@Data
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class User {
+@Table(name = "users")
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"school", "schoolClass"})
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    private Long id;
 
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
-    private String pwdHash;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "school_id")
     private School school;
 
-    @OneToMany(mappedBy = "user")
-    private List<AuthToken> authTokens;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id")
+    private SchoolClass schoolClass;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole userRole;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean active = true;
 
-    public User(String username, String pwdHash, School school, UserRole userRole) {
-        this.username = username;
-        this.pwdHash = pwdHash;
-        this.school = school;
-        this.userRole = userRole;
-    }
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 
-    public User() {
-    }
+    private Instant lastLoginAt;
 
-    public boolean login() {
-        return false;
-    }
-
-    public void logout() {
-    }
-
-    public void resetPassword(String newHash) {
-        this.pwdHash = newHash;
-    }
+    @PrePersist
+    void onCreate() { this.createdAt = Instant.now(); }
 }

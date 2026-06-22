@@ -15,21 +15,15 @@ import spot.safety.ssbackend.dto.LeaderboardRequest;
 public class LeaderboardController {
     private final LeaderboardService leaderboardService;
 
-    @PostMapping("/classGroup")
+    @PostMapping("/schoolClass")
     public ResponseEntity<Leaderboard> getLeaderboard(@RequestBody LeaderboardRequest request) {
-       Leaderboard leaderboard = leaderboardService.getLeaderboard(request.schoolClass());
-       return ResponseEntity
-               .status(HttpStatus.OK)
-               .body(leaderboard);
+        Leaderboard leaderboard = leaderboardService.getLeaderboard(request.schoolClass());
+        return ResponseEntity.status(HttpStatus.OK).body(leaderboard);
     }
 
     @PostMapping("/new")
-    public ResponseEntity<String> newLeaberboard(@RequestBody LeaderboardRequest request) {
+    public ResponseEntity<String> newLeaderboard(@RequestBody LeaderboardRequest request) {
         leaderboardService.newLeaderboard(request.schoolClass());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("Creation successful");
+        return ResponseEntity.status(HttpStatus.OK).body("Creation successful");
     }
-
-
 }

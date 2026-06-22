@@ -1,29 +1,18 @@
 package spot.safety.ssbackend.user;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import spot.safety.ssbackend.enums.UserRole;
-import spot.safety.ssbackend.exception.EntityNotFoundException;
+import spot.safety.ssbackend.dto.user.CreateUserRequest;
+import spot.safety.ssbackend.dto.user.ResetPasswordRequest;
+import spot.safety.ssbackend.dto.user.UpdateUserRequest;
+import spot.safety.ssbackend.dto.user.UserResponse;
 
-@Service
-@RequiredArgsConstructor
-public class UserService {
-    private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final TeacherRepository teacherRepository;
+import java.util.List;
 
-    public User findUserByName(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-    }
-
-    public void newUser(User user) {
-        if (user.getUserRole() == UserRole.STUDENT) {
-            Student student = new Student(user.getUsername(), user.getPwdHash(), user.getSchool(), user.getUserRole());
-            studentRepository.save(student);
-        } else {
-            Teacher teacher = new Teacher(user.getUsername(), user.getPwdHash(), user.getSchool(), user.getUserRole());
-            teacherRepository.save(teacher);
-        }
-    }
+public interface UserService {
+    UserResponse createUser(CreateUserRequest request, UserPrincipal actor);
+    UserResponse getUserById(Long id, UserPrincipal actor);
+    List<UserResponse> getUsers(Long classId, UserPrincipal actor);
+    UserResponse updateUser(Long id, UpdateUserRequest request, UserPrincipal actor);
+    void deactivateUser(Long id, UserPrincipal actor);
+    void resetPassword(Long id, ResetPasswordRequest request, UserPrincipal actor);
+    User findByUsername(String username);
 }
