@@ -34,4 +34,10 @@
 
   # See full reference at https://devenv.sh/reference/options/
   android.enable = true;
+
+  # https://devenv.sh/integrations/dotenv/
+  dotenv = {
+    enable = true;
+    filename = ".env.development";
+  };
 }
