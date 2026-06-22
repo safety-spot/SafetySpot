@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -28,7 +29,7 @@ private sealed interface AppScreen {
 @Composable
 fun SafetySpotApp(modifier: Modifier = Modifier) {
     var activeDestination by rememberSaveable { mutableStateOf(TopLevelDestination.HOME) }
-    var appScreen by rememberSaveable { mutableStateOf<AppScreen>(AppScreen.TopLevel) }
+    var appScreen by remember { mutableStateOf<AppScreen>(AppScreen.TopLevel) }
     val showBottomBar = appScreen == AppScreen.TopLevel
 
     Scaffold(
