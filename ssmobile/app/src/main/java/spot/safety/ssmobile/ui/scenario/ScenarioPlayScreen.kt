@@ -62,7 +62,8 @@ data class ScenarioPlayUi(
 @Composable
 fun ScenarioPlayScreen(
     modifier: Modifier = Modifier,
-    scenarios: List<ScenarioPlayUi> = sampleScenarioTasks,
+    scenarioId: Int = 1,
+    scenarios: List<ScenarioPlayUi> = tasksForScenario(scenarioId),
     onBackClick: () -> Unit = {}
 ) {
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -414,38 +415,132 @@ private fun ScenarioResultScreen(
     }
 }
 
-val sampleScenarioTasks = listOf(
-    ScenarioPlayUi(
-    category = "Chemieraum",
-    question = "Ist das gefaehrlich?",
-    instruction = "Lies dir die Situation durch und entscheide.",
-        context = "Max fuellt etwas Wasser in ein Reagenzglas, das noch Reste von Schwefelsaeure enthaelt.",
-        isDangerous = true,
-        feedbackCorrect = "Richtig. Saeurereste koennen mit Wasser reagieren und spritzen.",
-        feedbackWrong = "Das ist gefaehrlich: Saeurereste koennen reagieren und Verletzungen verursachen.",
-        points = 40
-    ),
-    ScenarioPlayUi(
-        category = "Chemieraum",
-        question = "Ist das gefaehrlich?",
-        instruction = "Lies dir die Situation durch und entscheide.",
-        context = "Mia setzt ihre Schutzbrille auf, bevor sie mit den Chemikalien arbeitet.",
-        isDangerous = false,
-        feedbackCorrect = "Genau. Die Schutzbrille reduziert das Risiko fuer Augenverletzungen.",
-        feedbackWrong = "Das ist nicht gefaehrlich, sondern eine wichtige Schutzmassnahme.",
-        points = 40
-    ),
-    ScenarioPlayUi(
-        category = "Chemieraum",
-        question = "Ist das gefaehrlich?",
-        instruction = "Lies dir die Situation durch und entscheide.",
-        context = "Jonas riecht direkt an einer unbekannten Fluessigkeit im Becherglas.",
-        isDangerous = true,
-        feedbackCorrect = "Richtig. Unbekannte Stoffe duerfen nicht direkt eingeatmet werden.",
-        feedbackWrong = "Das ist gefaehrlich: Daempfe koennen reizend oder giftig sein.",
-        points = 40
+fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) {
+    2 -> listOf(
+        ScenarioPlayUi(
+            category = "Werkraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Noah benutzt eine Saege, waehrend das Werkstueck locker auf dem Tisch liegt.",
+            isDangerous = true,
+            feedbackCorrect = "Richtig. Werkstuecke muessen sicher eingespannt werden.",
+            feedbackWrong = "Das ist gefaehrlich: Ein loses Werkstueck kann verrutschen.",
+            points = 40
+        ),
+        ScenarioPlayUi(
+            category = "Werkraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Mia traegt eine Schutzbrille, bevor sie Holz schleift.",
+            isDangerous = false,
+            feedbackCorrect = "Genau. Die Schutzbrille schuetzt vor Staub und Splittern.",
+            feedbackWrong = "Das ist eine sichere Schutzmassnahme.",
+            points = 40
+        )
     )
-)
+
+    3 -> listOf(
+        ScenarioPlayUi(
+            category = "Sportunterricht",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Die Klasse waermt sich vor dem Sprinttraining gemeinsam auf.",
+            isDangerous = false,
+            feedbackCorrect = "Richtig. Aufwaermen senkt das Verletzungsrisiko.",
+            feedbackWrong = "Das ist nicht gefaehrlich, sondern eine gute Vorbereitung.",
+            points = 40
+        ),
+        ScenarioPlayUi(
+            category = "Sportunterricht",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Jonas springt auf eine nasse Turnmatte.",
+            isDangerous = true,
+            feedbackCorrect = "Richtig. Nasse Matten koennen rutschen.",
+            feedbackWrong = "Das ist gefaehrlich, weil die Matte keinen sicheren Halt gibt.",
+            points = 40
+        )
+    )
+
+    4 -> listOf(
+        ScenarioPlayUi(
+            category = "Strassenverkehr",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Max schaut nach links und rechts, bevor er den Zebrastreifen betritt.",
+            isDangerous = false,
+            feedbackCorrect = "Genau. Auch am Zebrastreifen muss man aufmerksam bleiben.",
+            feedbackWrong = "Das ist nicht gefaehrlich, sondern umsichtig.",
+            points = 40
+        ),
+        ScenarioPlayUi(
+            category = "Strassenverkehr",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Mia laeuft zwischen parkenden Autos auf die Strasse.",
+            isDangerous = true,
+            feedbackCorrect = "Richtig. Andere Verkehrsteilnehmer sehen sie dort schlecht.",
+            feedbackWrong = "Das ist gefaehrlich, weil sie spaet gesehen wird.",
+            points = 40
+        )
+    )
+
+    5 -> listOf(
+        ScenarioPlayUi(
+            category = "Technikraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Ein Kabel hat eine beschaedigte Isolierung und wird trotzdem benutzt.",
+            isDangerous = true,
+            feedbackCorrect = "Richtig. Beschaedigte Kabel duerfen nicht verwendet werden.",
+            feedbackWrong = "Das ist gefaehrlich: Stromschlag- und Brandgefahr.",
+            points = 40
+        ),
+        ScenarioPlayUi(
+            category = "Technikraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Paul schaltet das Geraet aus, bevor er den Stecker zieht.",
+            isDangerous = false,
+            feedbackCorrect = "Genau. Erst ausschalten, dann sicher trennen.",
+            feedbackWrong = "Das ist nicht gefaehrlich, sondern richtiges Vorgehen.",
+            points = 40
+        )
+    )
+
+    else -> listOf(
+        ScenarioPlayUi(
+            category = "Chemieraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Max fuellt etwas Wasser in ein Reagenzglas, das noch Reste von Schwefelsaeure enthaelt.",
+            isDangerous = true,
+            feedbackCorrect = "Richtig. Saeurereste koennen mit Wasser reagieren und spritzen.",
+            feedbackWrong = "Das ist gefaehrlich: Saeurereste koennen reagieren und Verletzungen verursachen.",
+            points = 40
+        ),
+        ScenarioPlayUi(
+            category = "Chemieraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Mia setzt ihre Schutzbrille auf, bevor sie mit den Chemikalien arbeitet.",
+            isDangerous = false,
+            feedbackCorrect = "Genau. Die Schutzbrille reduziert das Risiko fuer Augenverletzungen.",
+            feedbackWrong = "Das ist nicht gefaehrlich, sondern eine wichtige Schutzmassnahme.",
+            points = 40
+        ),
+        ScenarioPlayUi(
+            category = "Chemieraum",
+            question = "Ist das gefaehrlich?",
+            instruction = "Lies dir die Situation durch und entscheide.",
+            context = "Jonas riecht direkt an einer unbekannten Fluessigkeit im Becherglas.",
+            isDangerous = true,
+            feedbackCorrect = "Richtig. Unbekannte Stoffe duerfen nicht direkt eingeatmet werden.",
+            feedbackWrong = "Das ist gefaehrlich: Daempfe koennen reizend oder giftig sein.",
+            points = 40
+        )
+    )
+}
 
 @Preview(showBackground = true)
 @Composable

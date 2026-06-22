@@ -48,6 +48,7 @@ import spot.safety.ssmobile.ui.theme.WerkraumOrange
 import spot.safety.ssmobile.ui.theme.WerkraumOrangeSoft
 
 data class ScenarioUi(
+    val id: Int,
     val title: String,
     val subtitle: String,
     val difficultyLabel: String,
@@ -180,6 +181,7 @@ fun ScenariosScreen(
 
 val sampleScenarios = listOf(
     ScenarioUi(
+        id = 1,
         title = "Chemieraum",
         subtitle = "Gefaehrliche Stoffe",
         difficultyLabel = "Mittel",
@@ -191,6 +193,7 @@ val sampleScenarios = listOf(
         iconText = "C"
     ),
     ScenarioUi(
+        id = 2,
         title = "Werkraum",
         subtitle = "Maschinen sicher nutzen",
         difficultyLabel = "Leicht",
@@ -202,6 +205,7 @@ val sampleScenarios = listOf(
         iconText = "W"
     ),
     ScenarioUi(
+        id = 3,
         title = "Sportunterricht",
         subtitle = "Verletzungsgefahr",
         difficultyLabel = "Leicht",
@@ -213,6 +217,7 @@ val sampleScenarios = listOf(
         iconText = "S"
     ),
     ScenarioUi(
+        id = 4,
         title = "Strassenverkehr",
         subtitle = "Sicher unterwegs",
         difficultyLabel = "Mittel",
@@ -224,6 +229,7 @@ val sampleScenarios = listOf(
         iconText = "V"
     ),
     ScenarioUi(
+        id = 5,
         title = "Technikraum",
         subtitle = "Elektrische Geraete",
         difficultyLabel = "Schwer",

@@ -8,10 +8,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import spot.safety.ssmobile.ui.auth.AuthScreen
 import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
@@ -63,13 +65,15 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             composable(Destinations.HOME) {
                 HomeScreen(
                     onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
-                    onContinueScenario = { navController.navigate(Destinations.SCENARIO_PLAY) },
+                    onContinueScenario = { navController.navigate(Destinations.scenarioPlayRoute(1)) },
                     onCategoryClick = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) }
                 )
             }
             composable(Destinations.SCENARIOS) {
                 ScenariosScreen(
-                    onScenarioClick = { navController.navigate(Destinations.SCENARIO_PLAY) }
+                    onScenarioClick = { scenario ->
+                        navController.navigate(Destinations.scenarioPlayRoute(scenario.id))
+                    }
                 )
             }
             composable(Destinations.RANKING) {
@@ -87,8 +91,13 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                     }
                 )
             }
-            composable(Destinations.SCENARIO_PLAY) {
+            composable(
+                route = Destinations.SCENARIO_PLAY,
+                arguments = listOf(navArgument(Destinations.SCENARIO_ID_ARG) { type = NavType.IntType })
+            ) { backStackEntry ->
+                val scenarioId = backStackEntry.arguments?.getInt(Destinations.SCENARIO_ID_ARG) ?: 1
                 ScenarioPlayScreen(
+                    scenarioId = scenarioId,
                     onBackClick = { navController.popBackStack() }
                 )
             }
