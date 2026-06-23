@@ -1,7 +1,12 @@
 package spot.safety.ssbackend;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(StatsController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc
 class StatsControllerTest {
 
     @Autowired
@@ -63,6 +69,25 @@ class StatsControllerTest {
                 .school(School.builder().id(1L).name("School").build())
                 .active(true)
                 .build());
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // Since filters are now enabled, the mocked JwtAuthFilter must be told
+        // to pass the request along the chain instead of swallowing/blocking it.
+        org.mockito.Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("teacher"))
+                .thenReturn(teacherPrincipal());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("admin"))
+                .thenReturn(adminPrincipal());
     }
 
     @Test
