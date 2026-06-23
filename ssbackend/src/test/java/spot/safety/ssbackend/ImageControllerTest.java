@@ -1,5 +1,11 @@
 package spot.safety.ssbackend;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithUserDetails;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +33,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -34,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ImageController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc
 class ImageControllerTest {
 
     @Autowired
@@ -75,6 +83,25 @@ class ImageControllerTest {
         return new SecurityUser(user);
     }
 
+    @BeforeEach
+    void setUp() throws Exception {
+        // Since filters are now enabled, the mocked JwtAuthFilter must be told
+        // to pass the request along the chain instead of swallowing/blocking it.
+        org.mockito.Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("teacher"))
+                .thenReturn(teacherPrincipal());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("student"))
+                .thenReturn(studentPrincipal());
+    }
+
     @Test
     void createImage_returnsCreatedImage() throws Exception {
         when(imageService.createImage(any(), any())).thenReturn(new ImageResponse(
@@ -104,7 +131,7 @@ class ImageControllerTest {
 
     @Test
     void getImage_returnsSingleImage() throws Exception {
-        when(imageService.getImage(1L, any())).thenReturn(new ImageResponse(
+        when(imageService.getImage(eq(1L), any())).thenReturn(new ImageResponse(
                 1L, "title", "desc", "https://example.test/1.png", "Chemie", TagValue.DANGEROUS,
                 10L, "teacher", Instant.now(), Instant.now()));
 

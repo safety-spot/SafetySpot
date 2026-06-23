@@ -1,10 +1,10 @@
 package spot.safety.ssbackend.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolService;
 import spot.safety.ssbackend.user.User;

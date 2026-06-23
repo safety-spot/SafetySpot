@@ -1,5 +1,10 @@
 package spot.safety.ssbackend;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TagController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc
 class TagControllerTest {
 
     @Autowired
@@ -47,16 +53,51 @@ class TagControllerTest {
     @MockitoBean
     private SecurityUserDetailsService userDetailsService;
 
+    private SecurityUser teacherPrincipal() {
+        var user = User.builder()
+                .id(1L)
+                .username("teacher")
+                .role(Role.TEACHER)
+                .school(School.builder().id(1L).name("School").build())
+                .active(true)
+                .build();
+        return new SecurityUser(user);
+    }
+
+    private SecurityUser studentPrincipal() {
+        var user = User.builder()
+                .id(2L)
+                .username("student")
+                .role(Role.STUDENT)
+                .school(School.builder().id(1L).name("School").build())
+                .active(true)
+                .build();
+        return new SecurityUser(user);
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // Since filters are now enabled, the mocked JwtAuthFilter must be told
+        // to pass the request along the chain instead of swallowing/blocking it.
+        org.mockito.Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("teacher"))
+                .thenReturn(teacherPrincipal());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("student"))
+                .thenReturn(studentPrincipal());
+    }
+
     @Test
     void submitTag_asTeacher_returns403() throws Exception {
         mockMvc.perform(post("/api/v1/images/1/tag")
-                        .with(user(new SecurityUser(User.builder()
-                                .id(1L)
-                                .username("teacher")
-                                .role(Role.TEACHER)
-                                .school(School.builder().id(1L).name("School").build())
-                                .active(true)
-                                .build())))
+                        .with(user(teacherPrincipal()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new SubmitTagRequest(TagValue.SAFE))))
                 .andExpect(status().isForbidden());
@@ -65,13 +106,7 @@ class TagControllerTest {
     @Test
     void submitTag_invalidTagValue_returns400() throws Exception {
         mockMvc.perform(post("/api/v1/images/1/tag")
-                        .with(user(new SecurityUser(User.builder()
-                                .id(2L)
-                                .username("student")
-                                .role(Role.STUDENT)
-                                .school(School.builder().id(1L).name("School").build())
-                                .active(true)
-                                .build())))
+                        .with(user(studentPrincipal()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"tag\":\"NOT_A_TAG\"}"))
                 .andExpect(status().isBadRequest());
@@ -83,13 +118,7 @@ class TagControllerTest {
                 .when(tagService).submitTag(any(), any(), any());
 
         mockMvc.perform(post("/api/v1/images/1/tag")
-                        .with(user(new SecurityUser(User.builder()
-                                .id(2L)
-                                .username("student")
-                                .role(Role.STUDENT)
-                                .school(School.builder().id(1L).name("School").build())
-                                .active(true)
-                                .build())))
+                        .with(user(studentPrincipal()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new SubmitTagRequest(TagValue.SAFE))))
                 .andExpect(status().isConflict());

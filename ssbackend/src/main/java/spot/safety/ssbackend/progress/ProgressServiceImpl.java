@@ -1,12 +1,12 @@
 package spot.safety.ssbackend.progress;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.progress.ProgressEntryResponse;
 import spot.safety.ssbackend.dto.progress.ProgressSummaryResponse;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.repository.ImageTagRepository;
 import spot.safety.ssbackend.user.UserPrincipal;
 
