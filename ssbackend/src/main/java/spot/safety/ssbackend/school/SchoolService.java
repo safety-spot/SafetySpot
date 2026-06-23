@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.dto.school.CreateSchool;
 import spot.safety.ssbackend.dto.school.UpdateSchoolRequest;
 import spot.safety.ssbackend.exception.EntityNotFoundException;
-import spot.safety.ssbackend.user.SecurityUser;
 
 import java.util.List;
 import java.util.Optional;
