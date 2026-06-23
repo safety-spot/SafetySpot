@@ -4,14 +4,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,54 +23,55 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
+import spot.safety.ssmobile.SsmobileApplication
 import spot.safety.ssmobile.ui.auth.AuthScreen
+import spot.safety.ssmobile.ui.auth.AuthViewModel
 import spot.safety.ssmobile.ui.components.SafetySpotBottomBar
 import spot.safety.ssmobile.ui.home.HomeScreen
+import spot.safety.ssmobile.ui.home.HomeViewModel
 import spot.safety.ssmobile.ui.navigation.Destinations
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
 import spot.safety.ssmobile.ui.profile.BadgeCollectionScreen
 import spot.safety.ssmobile.ui.profile.HelpFeedbackScreen
 import spot.safety.ssmobile.ui.profile.MyScenariosScreen
 import spot.safety.ssmobile.ui.profile.ProfileProgressScreen
-import spot.safety.ssmobile.ui.profile.ProfileUi
 import spot.safety.ssmobile.ui.profile.ProfileScreen
+import spot.safety.ssmobile.ui.profile.ProfileViewModel
 import spot.safety.ssmobile.ui.profile.SettingsScreen
-import spot.safety.ssmobile.ui.ranking.LeaderboardEntryUi
+import sampleProfile
 import spot.safety.ssmobile.ui.ranking.RankingScreen
-import spot.safety.ssmobile.ui.ranking.sampleLeaderboard
+import spot.safety.ssmobile.ui.ranking.RankingViewModel
 import spot.safety.ssmobile.ui.scenario.ScenarioDetailScreen
 import spot.safety.ssmobile.ui.scenario.ScenarioPlayScreen
+import spot.safety.ssmobile.ui.scenario.ScenarioPlayViewModel
 import spot.safety.ssmobile.ui.scenarios.ScenariosScreen
+import spot.safety.ssmobile.ui.scenarios.ScenariosViewModel
 import spot.safety.ssmobile.ui.scenarios.sampleScenarios
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.SsmobileTheme
 
 @Composable
 fun SafetySpotApp(modifier: Modifier = Modifier) {
+    val app = LocalContext.current.applicationContext as SsmobileApplication
     val navController = rememberNavController()
-    val completedScenarioIds = remember { mutableStateListOf<Int>() }
-    var sessionPoints by remember { mutableIntStateOf(2450) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.factory(app.authRepository))
+    val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory(app.imageRepository, app.progressRepository, app.tokenStore))
+    val scenariosViewModel: ScenariosViewModel = viewModel(factory = ScenariosViewModel.factory(app.imageRepository))
+    val rankingViewModel: RankingViewModel = viewModel(factory = RankingViewModel.factory(app.leaderboardRepository, app.tokenStore))
+    val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.factory(app.progressRepository, app.tokenStore))
+
+    // Session state for local completion tracking (used for profile/badges screens)
+    val completedScenarioCategories = remember { mutableStateListOf<String>() }
+    var sessionPoints by remember { mutableIntStateOf(0) }
     val completedScenarios by remember {
-        derivedStateOf { sampleScenarios.filter { it.id in completedScenarioIds } }
+        derivedStateOf {
+            sampleScenarios.filter { it.category in completedScenarioCategories }
+        }
     }
-    val sessionLevel = 12 + (sessionPoints - 2450).coerceAtLeast(0) / 120
-    val sessionBadges = 24 + completedScenarioIds.size
-    val leaderboardEntries = remember(sessionPoints) {
-        sampleLeaderboard
-            .filterNot { it.isCurrentUser }
-            .plus(LeaderboardEntryUi(0, "Du (Max)", sessionPoints, "M", isCurrentUser = true))
-            .sortedByDescending { it.score }
-            .mapIndexed { index, entry -> entry.copy(rank = index + 1) }
-    }
-    val profile = ProfileUi(
-        fullName = "Max Mustermann",
-        level = sessionLevel,
-        currentXp = sessionPoints,
-        nextLevelXp = 3000,
-        points = sessionPoints,
-        streakDays = 7,
-        badges = sessionBadges
-    )
+
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val activeDestination = TopLevelDestination.entries.firstOrNull { it.route == currentRoute }
@@ -92,6 +97,7 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
         ) {
             composable(Destinations.AUTH) {
                 AuthScreen(
+                    authViewModel = authViewModel,
                     onAuthenticated = {
                         navController.navigate(Destinations.HOME) {
                             popUpTo(Destinations.AUTH) { inclusive = true }
@@ -102,34 +108,38 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             }
             composable(Destinations.HOME) {
                 HomeScreen(
-                    level = sessionLevel,
-                    points = sessionPoints,
-                    completedScenarioCount = completedScenarioIds.size,
+                    homeViewModel = homeViewModel,
                     onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
-                    onContinueScenario = { navController.navigate(Destinations.scenarioDetailRoute(1)) },
+                    onContinueScenario = { navController.navigate(Destinations.scenarioDetailRoute("Chemieraum")) },
                     onCategoryClick = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) }
                 )
             }
             composable(Destinations.SCENARIOS) {
+                val uiState by scenariosViewModel.uiState.collectAsState()
                 ScenariosScreen(
-                    completedScenarioIds = completedScenarioIds.toSet(),
+                    scenarios = uiState.scenarios.ifEmpty { sampleScenarios },
+                    completedScenarioIds = completedScenarios.map { it.id }.toSet(),
                     onScenarioClick = { scenario ->
-                        navController.navigate(Destinations.scenarioDetailRoute(scenario.id))
+                        val cat = scenario.category.ifEmpty { scenario.title }
+                        navController.navigate(Destinations.scenarioDetailRoute(cat))
                     }
                 )
             }
             composable(Destinations.RANKING) {
-                RankingScreen(entries = leaderboardEntries)
+                RankingScreen(rankingViewModel = rankingViewModel)
             }
             composable(Destinations.PROFILE) {
                 ProfileScreen(
-                    profile = profile,
+                    profileViewModel = profileViewModel,
                     onProgressClick = { navController.navigate(Destinations.PROFILE_PROGRESS) },
                     onBadgesClick = { navController.navigate(Destinations.PROFILE_BADGES) },
                     onMyScenariosClick = { navController.navigate(Destinations.PROFILE_SCENARIOS) },
                     onSettingsClick = { navController.navigate(Destinations.SETTINGS) },
                     onHelpClick = { navController.navigate(Destinations.HELP) },
                     onLogoutClick = {
+                        coroutineScope.launch {
+                            app.authRepository.logout()
+                        }
                         navController.navigate(Destinations.AUTH) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 inclusive = true
@@ -140,6 +150,8 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(Destinations.PROFILE_PROGRESS) {
+                val vmState by profileViewModel.state.collectAsState()
+                val profile = vmState.profile ?: sampleProfile
                 ProfileProgressScreen(
                     profile = profile,
                     completedScenarios = completedScenarios,
@@ -148,8 +160,10 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(Destinations.PROFILE_BADGES) {
+                val vmState by profileViewModel.state.collectAsState()
+                val profile = vmState.profile ?: sampleProfile
                 BadgeCollectionScreen(
-                    completedScenarioCount = completedScenarioIds.size,
+                    completedScenarioCount = completedScenarioCategories.size,
                     streakDays = profile.streakDays,
                     onBackClick = { navController.popBackStack() }
                 )
@@ -158,7 +172,8 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 MyScenariosScreen(
                     completedScenarios = completedScenarios,
                     onScenarioClick = { scenario ->
-                        navController.navigate(Destinations.scenarioDetailRoute(scenario.id))
+                        val cat = scenario.category.ifEmpty { scenario.title }
+                        navController.navigate(Destinations.scenarioDetailRoute(cat))
                     },
                     onBackClick = { navController.popBackStack() }
                 )
@@ -171,29 +186,40 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             }
             composable(
                 route = Destinations.SCENARIO_DETAIL,
-                arguments = listOf(navArgument(Destinations.SCENARIO_ID_ARG) { type = NavType.IntType })
+                arguments = listOf(navArgument(Destinations.SCENARIO_CATEGORY_ARG) { type = NavType.StringType })
             ) { backStackEntry ->
-                val scenarioId = backStackEntry.arguments?.getInt(Destinations.SCENARIO_ID_ARG) ?: 1
-                val scenario = sampleScenarios.firstOrNull { it.id == scenarioId } ?: sampleScenarios.first()
+                val encodedCategory = backStackEntry.arguments?.getString(Destinations.SCENARIO_CATEGORY_ARG) ?: ""
+                val category = java.net.URLDecoder.decode(encodedCategory, "UTF-8")
+                val uiState by scenariosViewModel.uiState.collectAsState()
+                val scenario = uiState.scenarios.firstOrNull { it.category == category }
+                    ?: sampleScenarios.firstOrNull { it.category == category }
+                    ?: sampleScenarios.first()
                 ScenarioDetailScreen(
                     scenario = scenario,
-                    isCompleted = scenarioId in completedScenarioIds,
-                    onStartClick = { navController.navigate(Destinations.scenarioPlayRoute(scenarioId)) },
+                    isCompleted = category in completedScenarioCategories,
+                    onStartClick = { navController.navigate(Destinations.scenarioPlayRoute(category)) },
                     onBackClick = { navController.popBackStack() }
                 )
             }
             composable(
                 route = Destinations.SCENARIO_PLAY,
-                arguments = listOf(navArgument(Destinations.SCENARIO_ID_ARG) { type = NavType.IntType })
+                arguments = listOf(navArgument(Destinations.SCENARIO_CATEGORY_ARG) { type = NavType.StringType })
             ) { backStackEntry ->
-                val scenarioId = backStackEntry.arguments?.getInt(Destinations.SCENARIO_ID_ARG) ?: 1
+                val encodedCategory = backStackEntry.arguments?.getString(Destinations.SCENARIO_CATEGORY_ARG) ?: ""
+                val category = java.net.URLDecoder.decode(encodedCategory, "UTF-8")
+                val playViewModel: ScenarioPlayViewModel = viewModel(
+                    key = "play_$category",
+                    factory = ScenarioPlayViewModel.factory(app.imageRepository, category)
+                )
                 ScenarioPlayScreen(
-                    scenarioId = scenarioId,
+                    category = category,
+                    viewModel = playViewModel,
                     onScenarioCompleted = { earnedPoints ->
-                        if (scenarioId !in completedScenarioIds) {
-                            sessionPoints += earnedPoints
-                            completedScenarioIds.add(scenarioId)
+                        sessionPoints += earnedPoints
+                        if (category !in completedScenarioCategories) {
+                            completedScenarioCategories.add(category)
                         }
+                        homeViewModel.load()
                     },
                     onBackClick = { navController.popBackStack() }
                 )
@@ -216,6 +242,6 @@ private fun androidx.navigation.NavHostController.navigateToTopLevel(destination
 @Composable
 private fun SafetySpotAppPreview() {
     SsmobileTheme {
-        SafetySpotApp()
+        // Preview uses sample data; SsmobileApplication not available in preview
     }
 }

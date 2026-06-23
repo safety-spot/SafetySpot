@@ -22,6 +22,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +55,7 @@ data class ProfileUi(
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     profile: ProfileUi = sampleProfile,
+    profileViewModel: ProfileViewModel? = null,
     onProgressClick: () -> Unit = {},
     onBadgesClick: () -> Unit = {},
     onMyScenariosClick: () -> Unit = {},
@@ -59,6 +63,8 @@ fun ProfileScreen(
     onHelpClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
+    val vmState by (profileViewModel?.state ?: MutableStateFlow(ProfileViewState(isLoading = false))).collectAsState()
+    val displayProfile = vmState.profile ?: profile
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -68,7 +74,7 @@ fun ProfileScreen(
     ) {
         ProfileHeader()
         Spacer(modifier = Modifier.height(18.dp))
-        ProfileCard(profile = profile)
+        ProfileCard(profile = displayProfile)
         Spacer(modifier = Modifier.height(18.dp))
         ProfileMenuGroup(
             items = listOf(

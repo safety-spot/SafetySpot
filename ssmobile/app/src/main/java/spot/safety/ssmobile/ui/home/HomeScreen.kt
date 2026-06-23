@@ -14,6 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,10 +60,15 @@ fun HomeScreen(
     streakDays: Int = 7,
     completedScenarioCount: Int = 0,
     categories: List<HomeCategoryUi> = sampleHomeCategories,
+    homeViewModel: HomeViewModel? = null,
     onShowAllCategories: () -> Unit = {},
     onContinueScenario: () -> Unit = {},
     onCategoryClick: (HomeCategoryUi) -> Unit = {}
 ) {
+    val vmState by (homeViewModel?.uiState ?: MutableStateFlow(HomeUiState(isLoading = false))).collectAsState()
+    val displayNameFinal = if (homeViewModel != null) vmState.displayName else displayName
+    val pointsFinal = if (homeViewModel != null) vmState.points else points
+    val completedCountFinal = if (homeViewModel != null) vmState.completedCount else completedScenarioCount
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -68,7 +76,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 18.dp, vertical = 18.dp)
     ) {
-        HomeHeader(displayName = displayName)
+        HomeHeader(displayName = displayNameFinal)
         Spacer(modifier = Modifier.height(18.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             MetricCard(
@@ -80,7 +88,7 @@ fun HomeScreen(
             )
             MetricCard(
                 iconText = "*",
-                value = formatScore(points),
+                value = formatScore(pointsFinal),
                 label = "Punkte",
                 modifier = Modifier.weight(1f),
                 iconBackground = PointsYellow,
@@ -92,9 +100,9 @@ fun HomeScreen(
         Text(text = "Weitermachen", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(10.dp))
         ContinueBanner(
-            title = if (completedScenarioCount == 0) "Chemieraum" else "Naechstes Szenario",
-            subtitle = if (completedScenarioCount == 0) "Gefaehrliche Stoffe" else "$completedScenarioCount abgeschlossen",
-            progress = if (completedScenarioCount == 0) 0.6f else 0.15f,
+            title = if (completedCountFinal == 0) "Chemieraum" else "Naechstes Szenario",
+            subtitle = if (completedCountFinal == 0) "Gefaehrliche Stoffe" else "$completedCountFinal abgeschlossen",
+            progress = if (completedCountFinal == 0) 0.6f else 0.15f,
             onContinueClick = onContinueScenario
         )
         Spacer(modifier = Modifier.height(22.dp))

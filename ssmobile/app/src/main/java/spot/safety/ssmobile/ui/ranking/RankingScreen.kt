@@ -21,7 +21,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -60,11 +62,14 @@ private enum class RankingScope(val label: String) {
 @Composable
 fun RankingScreen(
     modifier: Modifier = Modifier,
-    entries: List<LeaderboardEntryUi> = sampleLeaderboard
+    entries: List<LeaderboardEntryUi> = sampleLeaderboard,
+    rankingViewModel: RankingViewModel? = null
 ) {
+    val vmState by (rankingViewModel?.uiState ?: MutableStateFlow(RankingUiState(isLoading = false))).collectAsState()
+    val displayEntries = vmState.entries.ifEmpty { entries }
     var selectedScope by rememberSaveable { mutableStateOf(RankingScope.CLASS) }
-    val podiumEntries = entries.take(3)
-    val listEntries = entries.drop(3)
+    val podiumEntries = displayEntries.take(3)
+    val listEntries = displayEntries.drop(3)
 
     Column(
         modifier = modifier

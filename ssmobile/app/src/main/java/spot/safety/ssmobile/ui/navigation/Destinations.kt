@@ -11,10 +11,12 @@ object Destinations {
     const val PROFILE_SCENARIOS = "profile_scenarios"
     const val SETTINGS = "settings"
     const val HELP = "help"
-    const val SCENARIO_ID_ARG = "scenarioId"
-    const val SCENARIO_DETAIL = "scenario_detail/{$SCENARIO_ID_ARG}"
-    const val SCENARIO_PLAY = "scenario_play/{$SCENARIO_ID_ARG}"
+    const val SCENARIO_CATEGORY_ARG = "scenarioCategory"
+    const val SCENARIO_DETAIL = "scenario_detail/{$SCENARIO_CATEGORY_ARG}"
+    const val SCENARIO_PLAY = "scenario_play/{$SCENARIO_CATEGORY_ARG}"
 
-    fun scenarioDetailRoute(scenarioId: Int): String = "scenario_detail/$scenarioId"
-    fun scenarioPlayRoute(scenarioId: Int): String = "scenario_play/$scenarioId"
+    fun scenarioDetailRoute(category: String): String = "scenario_detail/${category.encodeUrl()}"
+    fun scenarioPlayRoute(category: String): String = "scenario_play/${category.encodeUrl()}"
+
+    private fun String.encodeUrl() = java.net.URLEncoder.encode(this, "UTF-8")
 }

@@ -16,16 +16,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,6 +37,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.BrandBlue
@@ -55,6 +60,7 @@ import spot.safety.ssmobile.ui.theme.WerkraumOrange
 import spot.safety.ssmobile.ui.theme.WerkraumOrangeSoft
 
 data class ScenarioPlayUi(
+    val imageId: Long = 0L,
     val category: String,
     val question: String,
     val instruction: String,
@@ -63,6 +69,7 @@ data class ScenarioPlayUi(
     val illustrationDescription: String,
     val illustrationColor: Color,
     val illustrationBackground: Color,
+    val imageUrl: String? = null,
     val isDangerous: Boolean,
     val feedbackCorrect: String,
     val feedbackWrong: String,
@@ -72,19 +79,43 @@ data class ScenarioPlayUi(
 @Composable
 fun ScenarioPlayScreen(
     modifier: Modifier = Modifier,
-    scenarioId: Int = 1,
-    scenarios: List<ScenarioPlayUi> = tasksForScenario(scenarioId),
+    category: String = "",
+    viewModel: ScenarioPlayViewModel? = null,
     onScenarioCompleted: (Int) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val vmState by (viewModel?.uiState ?: MutableStateFlow(ScenarioPlayUiState(isLoading = false))).collectAsState()
+    val scenarios = if (viewModel != null) vmState.tasks else tasksForScenario(category)
+
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
     var selectedDangerous by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var earnedPoints by rememberSaveable { mutableIntStateOf(0) }
     var isComplete by rememberSaveable { mutableStateOf(false) }
+    // Server result fields (set after submitTag)
+    var serverCorrect by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var serverFeedback by rememberSaveable { mutableStateOf("") }
+    var serverPoints by rememberSaveable { mutableIntStateOf(0) }
+    var isSubmitting by rememberSaveable { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    if (vmState.isLoading && viewModel != null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Lädt...", color = BrandBlue, style = MaterialTheme.typography.bodyLarge)
+        }
+        return
+    }
+
+    if (scenarios.isEmpty()) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Keine Aufgaben gefunden.", color = BrandBlue, style = MaterialTheme.typography.bodyLarge)
+        }
+        return
+    }
 
     val currentScenario = scenarios[currentIndex]
     val selectedAnswer = selectedDangerous
-    val wasCorrect = selectedAnswer?.let { it == currentScenario.isDangerous }
+    // Use server result when available (ViewModel mode), otherwise fall back to local check
+    val wasCorrect: Boolean? = if (viewModel != null) serverCorrect else selectedAnswer?.let { it == currentScenario.isDangerous }
 
     if (isComplete) {
         ScenarioResultScreen(
@@ -96,6 +127,9 @@ fun ScenarioPlayScreen(
                 selectedDangerous = null
                 earnedPoints = 0
                 isComplete = false
+                serverCorrect = null
+                serverFeedback = ""
+                serverPoints = 0
             },
             modifier = modifier
         )
@@ -156,8 +190,20 @@ fun ScenarioPlayScreen(
                 backgroundColor = DangerPink,
                 contentColor = TrafficRed,
                 selected = selectedAnswer == true,
-                enabled = selectedAnswer == null,
-                onClick = { selectedDangerous = true },
+                enabled = selectedAnswer == null && !isSubmitting,
+                onClick = {
+                    selectedDangerous = true
+                    if (viewModel != null) {
+                        isSubmitting = true
+                        coroutineScope.launch {
+                            val result = viewModel.submitTag(currentScenario.imageId, true)
+                            serverCorrect = result.correct
+                            serverFeedback = result.feedback
+                            serverPoints = result.points
+                            isSubmitting = false
+                        }
+                    }
+                },
                 modifier = Modifier.weight(1f)
             )
             DecisionButton(
@@ -166,31 +212,47 @@ fun ScenarioPlayScreen(
                 backgroundColor = SafeGreenBg,
                 contentColor = BrandGreen,
                 selected = selectedAnswer == false,
-                enabled = selectedAnswer == null,
-                onClick = { selectedDangerous = false },
+                enabled = selectedAnswer == null && !isSubmitting,
+                onClick = {
+                    selectedDangerous = false
+                    if (viewModel != null) {
+                        isSubmitting = true
+                        coroutineScope.launch {
+                            val result = viewModel.submitTag(currentScenario.imageId, false)
+                            serverCorrect = result.correct
+                            serverFeedback = result.feedback
+                            serverPoints = result.points
+                            isSubmitting = false
+                        }
+                    }
+                },
                 modifier = Modifier.weight(1f)
             )
         }
         if (wasCorrect != null) {
+            val feedbackText = if (viewModel != null) serverFeedback
+                else if (wasCorrect) currentScenario.feedbackCorrect else currentScenario.feedbackWrong
+            val pointsEarned = if (viewModel != null) serverPoints
+                else if (wasCorrect) currentScenario.points else 0
             Spacer(modifier = Modifier.height(16.dp))
             FeedbackCard(
                 correct = wasCorrect,
-                text = if (wasCorrect) currentScenario.feedbackCorrect else currentScenario.feedbackWrong,
-                points = if (wasCorrect) currentScenario.points else 0
+                text = feedbackText,
+                points = pointsEarned
             )
             Spacer(modifier = Modifier.height(14.dp))
             Button(
                 onClick = {
-                    if (wasCorrect) {
-                        earnedPoints += currentScenario.points
-                    }
+                    earnedPoints += pointsEarned
                     if (currentIndex == scenarios.lastIndex) {
-                        val finalPoints = earnedPoints + if (wasCorrect) currentScenario.points else 0
-                        onScenarioCompleted(finalPoints)
+                        onScenarioCompleted(earnedPoints)
                         isComplete = true
                     } else {
                         currentIndex += 1
                         selectedDangerous = null
+                        serverCorrect = null
+                        serverFeedback = ""
+                        serverPoints = 0
                     }
                 },
                 modifier = Modifier
@@ -438,8 +500,8 @@ private fun ScenarioResultScreen(
     }
 }
 
-fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) {
-    2 -> listOf(
+fun tasksForScenario(category: String): List<ScenarioPlayUi> = when {
+    category.contains("Werk", ignoreCase = true) -> listOf(
         ScenarioPlayUi(
             category = "Werkraum",
             question = "Ist das gefaehrlich?",
@@ -470,7 +532,7 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
         )
     )
 
-    3 -> listOf(
+    category.contains("Sport", ignoreCase = true) -> listOf(
         ScenarioPlayUi(
             category = "Sportunterricht",
             question = "Ist das gefaehrlich?",
@@ -501,7 +563,7 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
         )
     )
 
-    4 -> listOf(
+    category.contains("Strass", ignoreCase = true) || category.contains("Verkehr", ignoreCase = true) -> listOf(
         ScenarioPlayUi(
             category = "Strassenverkehr",
             question = "Ist das gefaehrlich?",
@@ -532,7 +594,7 @@ fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) 
         )
     )
 
-    5 -> listOf(
+    category.contains("Technik", ignoreCase = true) -> listOf(
         ScenarioPlayUi(
             category = "Technikraum",
             question = "Ist das gefaehrlich?",

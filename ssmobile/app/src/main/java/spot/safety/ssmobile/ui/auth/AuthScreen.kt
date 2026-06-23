@@ -18,13 +18,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -58,12 +62,28 @@ private enum class AuthMode {
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel? = null,
     onAuthenticated: () -> Unit = {}
 ) {
+    val uiState by (authViewModel?.uiState ?: MutableStateFlow(AuthUiState())).collectAsState()
     var mode by rememberSaveable { mutableStateOf(AuthMode.ACTIONS) }
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var schoolName by rememberSaveable { mutableStateOf("") }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Navigate when authenticated via ViewModel
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) onAuthenticated()
+    }
+
+    // Show API errors in the form
+    LaunchedEffect(uiState.error) {
+        if (uiState.error != null) {
+            errorMessage = uiState.error
+            authViewModel?.clearError()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -103,10 +123,11 @@ fun AuthScreen(
 
             AuthMode.LOGIN -> AuthForm(
                 title = "Anmelden",
-                primaryLabel = "Anmelden",
+                primaryLabel = if (uiState.isLoading) "..." else "Anmelden",
                 username = username,
                 password = password,
                 errorMessage = errorMessage,
+                isLoading = uiState.isLoading,
                 onUsernameChange = {
                     username = it
                     errorMessage = null
@@ -118,6 +139,9 @@ fun AuthScreen(
                 onPrimaryClick = {
                     if (username.isBlank() || password.isBlank()) {
                         errorMessage = "Bitte Benutzername und Passwort eingeben."
+                    } else if (authViewModel != null) {
+                        errorMessage = null
+                        authViewModel.login(username, password)
                     } else {
                         onAuthenticated()
                     }
@@ -130,10 +154,13 @@ fun AuthScreen(
 
             AuthMode.REGISTER -> AuthForm(
                 title = "Registrieren",
-                primaryLabel = "Registrieren",
+                primaryLabel = if (uiState.isLoading) "..." else "Registrieren",
                 username = username,
                 password = password,
+                schoolName = schoolName,
                 errorMessage = errorMessage,
+                isLoading = uiState.isLoading,
+                showSchoolName = true,
                 onUsernameChange = {
                     username = it
                     errorMessage = null
@@ -142,9 +169,16 @@ fun AuthScreen(
                     password = it
                     errorMessage = null
                 },
+                onSchoolNameChange = {
+                    schoolName = it
+                    errorMessage = null
+                },
                 onPrimaryClick = {
-                    if (username.isBlank() || password.length < 4) {
-                        errorMessage = "Bitte Benutzername und ein laengeres Passwort eingeben."
+                    if (username.isBlank() || password.length < 4 || schoolName.isBlank()) {
+                        errorMessage = "Bitte alle Felder ausfullen (mind. 4 Zeichen Passwort)."
+                    } else if (authViewModel != null) {
+                        errorMessage = null
+                        authViewModel.register(username, password, schoolName)
                     } else {
                         onAuthenticated()
                     }
@@ -255,7 +289,11 @@ private fun AuthForm(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onPrimaryClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    schoolName: String = "",
+    showSchoolName: Boolean = false,
+    isLoading: Boolean = false,
+    onSchoolNameChange: (String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -278,18 +316,32 @@ private fun AuthForm(
             label = "Passwort",
             isPassword = true
         )
+        if (showSchoolName) {
+            AuthTextField(
+                value = schoolName,
+                onValueChange = onSchoolNameChange,
+                label = "Schule"
+            )
+        }
         errorMessage?.let {
             Text(text = it, color = TrafficRed, style = MaterialTheme.typography.labelMedium)
         }
-        Button(
-            onClick = onPrimaryClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(99.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BrandGreen)
-        ) {
-            Text(text = primaryLabel, style = MaterialTheme.typography.labelLarge)
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                color = BrandGreen
+            )
+        } else {
+            Button(
+                onClick = onPrimaryClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(99.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandGreen)
+            ) {
+                Text(text = primaryLabel, style = MaterialTheme.typography.labelLarge)
+            }
         }
         Text(
             text = "Zurueck",

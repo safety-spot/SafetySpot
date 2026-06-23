@@ -57,7 +57,8 @@ data class ScenarioUi(
     val isNew: Boolean,
     val accentColor: Color,
     val backgroundColor: Color,
-    val iconText: String
+    val iconText: String,
+    val category: String = ""
 )
 
 private enum class ScenarioFilter(val label: String) {
@@ -195,7 +196,8 @@ val sampleScenarios = listOf(
         isNew = true,
         accentColor = ChemieBlueTint,
         backgroundColor = ChemieBlueSoft,
-        iconText = "C"
+        iconText = "C",
+        category = "Chemieraum"
     ),
     ScenarioUi(
         id = 2,
@@ -207,7 +209,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = WerkraumOrange,
         backgroundColor = WerkraumOrangeSoft,
-        iconText = "W"
+        iconText = "W",
+        category = "Werkraum"
     ),
     ScenarioUi(
         id = 3,
@@ -219,7 +222,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = SportGreen,
         backgroundColor = SportGreenSoft,
-        iconText = "S"
+        iconText = "S",
+        category = "Sportunterricht"
     ),
     ScenarioUi(
         id = 4,
@@ -231,7 +235,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = TrafficRed,
         backgroundColor = Color(0xFFFFEBEE),
-        iconText = "V"
+        iconText = "V",
+        category = "Strassenverkehr"
     ),
     ScenarioUi(
         id = 5,
@@ -243,7 +248,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = TechnikPurple,
         backgroundColor = TechnikPurpleSoft,
-        iconText = "T"
+        iconText = "T",
+        category = "Technikraum"
     )
 )
 
