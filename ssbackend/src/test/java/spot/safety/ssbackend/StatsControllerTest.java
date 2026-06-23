@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import spot.safety.ssbackend.auth.JwtAuthFilter;
@@ -77,7 +78,7 @@ class StatsControllerTest {
 
     @Test
     void classStats_wrongClass_returns403() throws Exception {
-        when(statsService.getClassStats(any(), any())).thenThrow(new spot.safety.ssbackend.exception.AccessDeniedException("nope"));
+        when(statsService.getClassStats(any(), any())).thenThrow(new AccessDeniedException("nope"));
 
         mockMvc.perform(get("/api/v1/stats/class/99").with(user(teacherPrincipal())))
                 .andExpect(status().isForbidden());

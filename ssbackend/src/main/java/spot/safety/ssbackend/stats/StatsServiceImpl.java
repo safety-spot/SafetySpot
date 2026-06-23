@@ -1,13 +1,13 @@
 package spot.safety.ssbackend.stats;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.stats.ClassStatsResponse;
 import spot.safety.ssbackend.dto.stats.ImageStatsResponse;
 import spot.safety.ssbackend.dto.stats.StudentStatEntry;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.model.Image;
 import spot.safety.ssbackend.model.ImageTag;
