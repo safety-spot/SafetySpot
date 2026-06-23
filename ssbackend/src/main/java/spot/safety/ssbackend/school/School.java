@@ -45,4 +45,5 @@ public class School {
         this.licenseExpiry = LocalDate.now().plusMonths(12);
         this.licenseStatus = LicenseStatus.ACTIVE;
     }
+
 }

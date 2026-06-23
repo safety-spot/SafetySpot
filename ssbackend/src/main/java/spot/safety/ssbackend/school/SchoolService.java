@@ -2,6 +2,7 @@ package spot.safety.ssbackend.school;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import spot.safety.ssbackend.dto.school.CreateSchool;
 import spot.safety.ssbackend.dto.school.UpdateSchoolRequest;
 import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.user.SecurityUser;
@@ -23,10 +24,6 @@ public class SchoolService {
         return school.get();
     }
 
-    public void newSchool(School school) {
-        schoolRepository.save(school);
-    }
-
     public School getSchoolById(long id) {
         Optional<School> school = schoolRepository.findById(id);
         if (school.isEmpty())
@@ -39,10 +36,26 @@ public class SchoolService {
         return schoolRepository.findAll();
     }
 
-    public void updateSchool(Integer id, UpdateSchoolRequest request) {
-        School school = schoolRepository.getSchoolById(id.longValue());
+    public void updateSchool(long id, UpdateSchoolRequest request) {
+        School school = schoolRepository.getSchoolById(id);
 
         school.activateLicense(request.licenseKey());
         school.setName(request.name());
+        schoolRepository.save(school);
+    }
+
+    public void activateLicense(long id, String key) {
+        School school = schoolRepository.getSchoolById(id);
+        school.activateLicense(key);
+        schoolRepository.save(school);
+    }
+
+    public School createSchool(CreateSchool reqSchool) {
+        School school = new School();
+        school.setName(reqSchool.name());
+        school.activateLicense(reqSchool.licenseKey());
+
+        schoolRepository.save(school);
+        return school;
     }
 }
