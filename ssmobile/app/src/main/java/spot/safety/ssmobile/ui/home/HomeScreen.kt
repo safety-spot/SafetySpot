@@ -69,6 +69,20 @@ fun HomeScreen(
     val displayNameFinal = if (homeViewModel != null) vmState.displayName else displayName
     val pointsFinal = if (homeViewModel != null) vmState.points else points
     val completedCountFinal = if (homeViewModel != null) vmState.completedCount else completedScenarioCount
+    val categoriesFinal = if (homeViewModel != null) {
+        vmState.categories.map { category ->
+            val (accent, background, icon) = categoryStyle(category)
+            HomeCategoryUi(
+                name = category,
+                scenarioCount = vmState.categoryCounts[category] ?: 0,
+                accentColor = accent,
+                backgroundColor = background,
+                iconText = icon
+            )
+        }
+    } else {
+        categories
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -100,8 +114,8 @@ fun HomeScreen(
         Text(text = "Weitermachen", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(10.dp))
         ContinueBanner(
-            title = if (completedCountFinal == 0) "Chemieraum" else "Naechstes Szenario",
-            subtitle = if (completedCountFinal == 0) "Gefaehrliche Stoffe" else "$completedCountFinal abgeschlossen",
+            title = categoriesFinal.firstOrNull()?.name ?: "Keine Szenarien",
+            subtitle = if (completedCountFinal == 0) "Starte mit der ersten Aufgabe" else "$completedCountFinal abgeschlossen",
             progress = if (completedCountFinal == 0) 0.6f else 0.15f,
             onContinueClick = onContinueScenario
         )
@@ -112,7 +126,7 @@ fun HomeScreen(
             onActionClick = onShowAllCategories
         )
         Spacer(modifier = Modifier.height(10.dp))
-        categories.chunked(2).forEach { rowItems ->
+        categoriesFinal.chunked(2).forEach { rowItems ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -151,6 +165,14 @@ private fun HomeHeader(displayName: String) {
         )
         Text(text = "!", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
     }
+}
+
+private fun categoryStyle(category: String): Triple<Color, Color, String> = when {
+    category.contains("Chemie", ignoreCase = true) -> Triple(ChemieBlueTint, ChemieBlueSoft, "C")
+    category.contains("Werk", ignoreCase = true) -> Triple(WerkraumOrange, WerkraumOrangeSoft, "W")
+    category.contains("Sport", ignoreCase = true) -> Triple(SportGreen, SportGreenSoft, "S")
+    category.contains("Technik", ignoreCase = true) -> Triple(TechnikPurple, TechnikPurpleSoft, "T")
+    else -> Triple(ChemieBlueTint, ChemieBlueSoft, category.firstOrNull()?.uppercaseChar()?.toString() ?: "?")
 }
 
 val sampleHomeCategories = listOf(

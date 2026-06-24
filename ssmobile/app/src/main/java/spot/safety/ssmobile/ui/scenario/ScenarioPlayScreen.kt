@@ -35,8 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
@@ -166,7 +168,8 @@ fun ScenarioPlayScreen(
             title = currentScenario.illustrationTitle,
             description = currentScenario.illustrationDescription,
             accentColor = currentScenario.illustrationColor,
-            backgroundColor = currentScenario.illustrationBackground
+            backgroundColor = currentScenario.illustrationBackground,
+            imageUrl = currentScenario.imageUrl
         )
         Spacer(modifier = Modifier.height(16.dp))
         Card(
@@ -243,9 +246,10 @@ fun ScenarioPlayScreen(
             Spacer(modifier = Modifier.height(14.dp))
             Button(
                 onClick = {
+                    val totalEarnedPoints = earnedPoints + pointsEarned
                     earnedPoints += pointsEarned
                     if (currentIndex == scenarios.lastIndex) {
-                        onScenarioCompleted(earnedPoints)
+                        onScenarioCompleted(totalEarnedPoints)
                         isComplete = true
                     } else {
                         currentIndex += 1
@@ -346,7 +350,8 @@ private fun ScenarioIllustration(
     title: String,
     description: String,
     accentColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
+    imageUrl: String?
 ) {
     Card(
         modifier = Modifier
@@ -362,7 +367,15 @@ private fun ScenarioIllustration(
                 .background(backgroundColor),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (!imageUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = description.ifBlank { title },
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
                         .size(112.dp)
@@ -380,6 +393,7 @@ private fun ScenarioIllustration(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
+                }
             }
         }
     }

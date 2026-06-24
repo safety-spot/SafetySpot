@@ -16,6 +16,7 @@ data class HomeUiState(
     val points: Int = 0,
     val completedCount: Int = 0,
     val categories: List<String> = emptyList(),
+    val categoryCounts: Map<String, Int> = emptyMap(),
     val error: String? = null
 )
 
@@ -39,13 +40,18 @@ class HomeViewModel(
             var points = 0
             var completedCount = 0
             var categories = emptyList<String>()
+            var categoryCounts = emptyMap<String, Int>()
 
             progressRepository.getSummary().onSuccess {
                 points = (it.correctCount * 40).toInt()
                 completedCount = it.totalTagged.toInt()
             }
             imageRepository.getImages().onSuccess { images ->
-                categories = images.mapNotNull { it.category }.distinct()
+                categoryCounts = images
+                    .map { it.category ?: "Allgemein" }
+                    .groupingBy { it }
+                    .eachCount()
+                categories = categoryCounts.keys.toList()
             }
 
             _uiState.value = HomeUiState(
@@ -53,7 +59,8 @@ class HomeViewModel(
                 displayName = name,
                 points = points,
                 completedCount = completedCount,
-                categories = categories
+                categories = categories,
+                categoryCounts = categoryCounts
             )
         }
     }

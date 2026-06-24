@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import spot.safety.ssmobile.data.model.TagValue
+import spot.safety.ssmobile.data.network.ApiClient
 import spot.safety.ssmobile.data.repository.ImageRepository
 import spot.safety.ssmobile.ui.theme.ChemieBlueSoft
 import spot.safety.ssmobile.ui.theme.ChemieBlueTint
@@ -53,7 +55,7 @@ class ScenarioPlayViewModel(
                             illustrationDescription = img.description ?: "",
                             illustrationColor = accent,
                             illustrationBackground = bg,
-                            imageUrl = img.imageUrl,
+                            imageUrl = img.imageUrl?.toBackendImageUrl(),
                             isDangerous = false,
                             feedbackCorrect = "Richtig!",
                             feedbackWrong = "Leider falsch.",
@@ -69,7 +71,7 @@ class ScenarioPlayViewModel(
     }
 
     suspend fun submitTag(imageId: Long, isDangerous: Boolean): TagResult {
-        val tag = if (isDangerous) "DANGEROUS" else "SAFE"
+        val tag = if (isDangerous) TagValue.DANGEROUS else TagValue.SAFE
         return imageRepository.submitTag(imageId, tag)
             .map { response ->
                 TagResult(
@@ -87,6 +89,11 @@ class ScenarioPlayViewModel(
         category.contains("Sport", ignoreCase = true) -> SportGreen to SportGreenSoft
         category.contains("Technik", ignoreCase = true) -> TechnikPurple to TechnikPurpleSoft
         else -> ChemieBlueTint to ChemieBlueSoft
+    }
+
+    private fun String.toBackendImageUrl(): String {
+        if (startsWith("http://") || startsWith("https://")) return this
+        return ApiClient.BASE_URL.trimEnd('/') + "/" + trimStart('/')
     }
 
     companion object {

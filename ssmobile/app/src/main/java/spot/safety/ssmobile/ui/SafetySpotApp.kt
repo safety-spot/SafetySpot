@@ -1,8 +1,11 @@
 package spot.safety.ssmobile.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -12,6 +15,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,7 +43,7 @@ import spot.safety.ssmobile.ui.profile.ProfileProgressScreen
 import spot.safety.ssmobile.ui.profile.ProfileScreen
 import spot.safety.ssmobile.ui.profile.ProfileViewModel
 import spot.safety.ssmobile.ui.profile.SettingsScreen
-import sampleProfile
+import spot.safety.ssmobile.ui.profile.sampleProfile
 import spot.safety.ssmobile.ui.ranking.RankingScreen
 import spot.safety.ssmobile.ui.ranking.RankingViewModel
 import spot.safety.ssmobile.ui.scenario.ScenarioDetailScreen
@@ -49,6 +53,7 @@ import spot.safety.ssmobile.ui.scenarios.ScenariosScreen
 import spot.safety.ssmobile.ui.scenarios.ScenariosViewModel
 import spot.safety.ssmobile.ui.scenarios.sampleScenarios
 import spot.safety.ssmobile.ui.theme.AppBackground
+import spot.safety.ssmobile.ui.theme.BrandBlue
 import spot.safety.ssmobile.ui.theme.SsmobileTheme
 
 @Composable
@@ -71,6 +76,7 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
             sampleScenarios.filter { it.category in completedScenarioCategories }
         }
     }
+    val startDestination = if (app.authRepository.isLoggedIn) Destinations.HOME else Destinations.AUTH
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -92,13 +98,17 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Destinations.AUTH,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Destinations.AUTH) {
                 AuthScreen(
                     authViewModel = authViewModel,
                     onAuthenticated = {
+                        homeViewModel.load()
+                        scenariosViewModel.load()
+                        rankingViewModel.load()
+                        profileViewModel.load()
                         navController.navigate(Destinations.HOME) {
                             popUpTo(Destinations.AUTH) { inclusive = true }
                             launchSingleTop = true
@@ -107,17 +117,24 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(Destinations.HOME) {
+                val homeState by homeViewModel.uiState.collectAsState()
                 HomeScreen(
                     homeViewModel = homeViewModel,
                     onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
-                    onContinueScenario = { navController.navigate(Destinations.scenarioDetailRoute("Chemieraum")) },
-                    onCategoryClick = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) }
+                    onContinueScenario = {
+                        homeState.categories.firstOrNull()?.let { category ->
+                            navController.navigate(Destinations.scenarioDetailRoute(category))
+                        }
+                    },
+                    onCategoryClick = { category ->
+                        navController.navigate(Destinations.scenarioDetailRoute(category.name))
+                    }
                 )
             }
             composable(Destinations.SCENARIOS) {
                 val uiState by scenariosViewModel.uiState.collectAsState()
                 ScenariosScreen(
-                    scenarios = uiState.scenarios.ifEmpty { sampleScenarios },
+                    scenarios = uiState.scenarios,
                     completedScenarioIds = completedScenarios.map { it.id }.toSet(),
                     onScenarioClick = { scenario ->
                         val cat = scenario.category.ifEmpty { scenario.title }
@@ -139,6 +156,7 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                     onLogoutClick = {
                         coroutineScope.launch {
                             app.authRepository.logout()
+                            authViewModel.clearAuthentication()
                         }
                         navController.navigate(Destinations.AUTH) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -192,14 +210,22 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 val category = java.net.URLDecoder.decode(encodedCategory, "UTF-8")
                 val uiState by scenariosViewModel.uiState.collectAsState()
                 val scenario = uiState.scenarios.firstOrNull { it.category == category }
-                    ?: sampleScenarios.firstOrNull { it.category == category }
-                    ?: sampleScenarios.first()
-                ScenarioDetailScreen(
-                    scenario = scenario,
-                    isCompleted = category in completedScenarioCategories,
-                    onStartClick = { navController.navigate(Destinations.scenarioPlayRoute(category)) },
-                    onBackClick = { navController.popBackStack() }
-                )
+                if (scenario == null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Dieses Szenario ist im Backend nicht verfuegbar.",
+                            color = BrandBlue,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                } else {
+                    ScenarioDetailScreen(
+                        scenario = scenario,
+                        isCompleted = category in completedScenarioCategories,
+                        onStartClick = { navController.navigate(Destinations.scenarioPlayRoute(category)) },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
             }
             composable(
                 route = Destinations.SCENARIO_PLAY,

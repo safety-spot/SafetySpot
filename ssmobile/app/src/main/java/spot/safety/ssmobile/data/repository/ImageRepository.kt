@@ -3,6 +3,7 @@ package spot.safety.ssmobile.data.repository
 import spot.safety.ssmobile.data.model.ImageResponse
 import spot.safety.ssmobile.data.model.SubmitTagRequest
 import spot.safety.ssmobile.data.model.TagResponse
+import spot.safety.ssmobile.data.model.TagValue
 import spot.safety.ssmobile.data.network.SafetySpotApi
 
 class ImageRepository(private val api: SafetySpotApi) {
@@ -15,7 +16,7 @@ class ImageRepository(private val api: SafetySpotApi) {
         api.getImage(id)
     }
 
-    suspend fun submitTag(imageId: Long, tag: String): Result<TagResponse> = runCatching {
+    suspend fun submitTag(imageId: Long, tag: TagValue): Result<TagResponse> = runCatching {
         api.submitTag(imageId, SubmitTagRequest(tag))
     }
 }

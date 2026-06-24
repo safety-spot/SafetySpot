@@ -45,6 +45,10 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
+    fun clearAuthentication() {
+        _uiState.value = AuthUiState()
+    }
+
     companion object {
         fun factory(authRepository: AuthRepository): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {

@@ -24,9 +24,13 @@ class AuthRepository(private val api: SafetySpotApi, private val tokenStore: Tok
     }
 
     suspend fun logout(): Result<Unit> = runCatching {
-        val token = tokenStore.token ?: return@runCatching
-        api.logout(LogoutRequest(token))
-        tokenStore.clear()
+        try {
+            tokenStore.token?.let { token ->
+                api.logout(LogoutRequest(token))
+            }
+        } finally {
+            tokenStore.clear()
+        }
     }
 
     val isLoggedIn: Boolean get() = tokenStore.token != null

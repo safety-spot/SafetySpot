@@ -117,8 +117,7 @@ fun AuthScreen(
                 onRegisterClick = {
                     errorMessage = null
                     mode = AuthMode.REGISTER
-                },
-                onGuestClick = onAuthenticated
+                }
             )
 
             AuthMode.LOGIN -> AuthForm(
@@ -235,8 +234,7 @@ private fun BrandTitle() {
 @Composable
 private fun AuthActions(
     onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit,
-    onGuestClick: () -> Unit
+    onRegisterClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -267,15 +265,6 @@ private fun AuthActions(
         ) {
             Text(text = "Registrieren", style = MaterialTheme.typography.labelLarge)
         }
-        Text(
-            text = "Als Gast ausprobieren",
-            color = BrandBlue,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier
-                .clip(RoundedCornerShape(99.dp))
-                .clickable(onClick = onGuestClick)
-                .padding(horizontal = 18.dp, vertical = 12.dp)
-        )
     }
 }
 
