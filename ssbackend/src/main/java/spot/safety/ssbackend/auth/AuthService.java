@@ -5,6 +5,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.enums.Role;
+import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolService;
 import spot.safety.ssbackend.user.User;
@@ -47,7 +48,15 @@ public class AuthService {
     }
 
     public boolean register(String username, String password, String schoolName, Role role) {
-        School school = schoolService.getSchoolByName(schoolName);
+        // TODO: Implement proper school initialization. See https://github.com/safety-spot/SafetySpot/issues/57.
+        School school;
+        try {
+            school = schoolService.getSchoolByName(schoolName);
+        }
+        catch (EntityNotFoundException e) {
+            school = School.builder().name(schoolName).build();
+            schoolService.newSchool(school);
+        }
         User user = User.builder()
                 .username(username)
                 .passwordHash(passwordEncoder.encode(password))
