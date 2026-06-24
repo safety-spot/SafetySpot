@@ -24,7 +24,12 @@ public class AdminShellCommands {
             demoDataService.seedDatabase();
             return "Success: Successfully planted demo data in the database!";
         } catch (Exception e) {
-            return "Error: Failed to seed data: " + e.getMessage();
+            StringBuilder s = new StringBuilder();
+            for (StackTraceElement traceElement : e.getStackTrace())
+                s.append("\tat ").append(traceElement).append("\n");
+
+            return s + "Error: Failed to seed data: " + e.getMessage();
+
         }
     }
 }
