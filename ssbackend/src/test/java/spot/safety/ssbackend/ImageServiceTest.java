@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
 import spot.safety.ssbackend.dto.image.UpdateImageRequest;
 import spot.safety.ssbackend.enums.Role;
@@ -19,7 +20,6 @@ import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.user.User;
 import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserRepository;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 
 import java.time.Instant;
 import java.util.List;

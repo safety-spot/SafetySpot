@@ -1,9 +1,15 @@
 package spot.safety.ssbackend;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import spot.safety.ssbackend.auth.JwtAuthFilter;
@@ -30,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(StatsController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc
 class StatsControllerTest {
 
     @Autowired
@@ -64,6 +71,25 @@ class StatsControllerTest {
                 .build());
     }
 
+    @BeforeEach
+    void setUp() throws Exception {
+        // Since filters are now enabled, the mocked JwtAuthFilter must be told
+        // to pass the request along the chain instead of swallowing/blocking it.
+        org.mockito.Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("teacher"))
+                .thenReturn(teacherPrincipal());
+
+        org.mockito.Mockito.when(userDetailsService.loadUserByUsername("admin"))
+                .thenReturn(adminPrincipal());
+    }
+
     @Test
     void classStats_returnsOverview() throws Exception {
         when(statsService.getClassStats(any(), any())).thenReturn(new ClassStatsResponse(
@@ -77,7 +103,7 @@ class StatsControllerTest {
 
     @Test
     void classStats_wrongClass_returns403() throws Exception {
-        when(statsService.getClassStats(any(), any())).thenThrow(new spot.safety.ssbackend.exception.AccessDeniedException("nope"));
+        when(statsService.getClassStats(any(), any())).thenThrow(new AccessDeniedException("nope"));
 
         mockMvc.perform(get("/api/v1/stats/class/99").with(user(teacherPrincipal())))
                 .andExpect(status().isForbidden());

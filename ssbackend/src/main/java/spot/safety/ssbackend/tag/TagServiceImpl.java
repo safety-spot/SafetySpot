@@ -1,12 +1,12 @@
 package spot.safety.ssbackend.tag;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.tag.SubmitTagRequest;
 import spot.safety.ssbackend.dto.tag.TagResponse;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.exception.DuplicateTagException;
 import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.model.Image;

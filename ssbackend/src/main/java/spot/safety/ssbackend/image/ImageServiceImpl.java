@@ -1,6 +1,7 @@
 package spot.safety.ssbackend.image;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
@@ -8,7 +9,6 @@ import spot.safety.ssbackend.dto.image.ImageResponse;
 import spot.safety.ssbackend.dto.image.ImageTagResultResponse;
 import spot.safety.ssbackend.dto.image.UpdateImageRequest;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.model.Image;
 import spot.safety.ssbackend.model.ImageTag;
