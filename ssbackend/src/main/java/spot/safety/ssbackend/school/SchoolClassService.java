@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.dto.school.UpdateSchoolClass;
 import spot.safety.ssbackend.dto.user.UserResponse;
 import spot.safety.ssbackend.enums.Role;
+import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.exception.DuplicateTagException;
 import spot.safety.ssbackend.user.SecurityUser;
 import spot.safety.ssbackend.user.UserPrincipal;
@@ -22,7 +23,9 @@ public class SchoolClassService {
 
    public SchoolClass newClass(long id, String name, SecurityUser principal) {
       School school = schoolService.getSchoolById(id);
-      if(id != principal.getUser().getSchool().getId());
+      if(id != principal.getUser().getSchool().getId()) {
+         throw new AccessDeniedException("User does not have access rights to this school");
+      }
 
       if (schoolClassRepository.existsByNameAndSchoolId(name, id)) {
          throw new DuplicateTagException("A class named '" + name + "' already exists in this school");
@@ -53,6 +56,9 @@ public class SchoolClassService {
    public void updateClass (long id, SecurityUser principal, UpdateSchoolClass request) {
       SchoolClass schoolClass = schoolClassRepository.findById(id)
               .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
+      if(id != principal.getUser().getSchool().getId()) {
+         throw new AccessDeniedException("User does not have access rights to this school");
+      }
       if (request.name() != null) {
          schoolClass.setName(request.name());
       }
