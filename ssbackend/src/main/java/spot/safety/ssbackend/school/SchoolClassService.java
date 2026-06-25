@@ -1,6 +1,7 @@
 package spot.safety.ssbackend.school;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.dto.school.UpdateSchoolClass;
 import spot.safety.ssbackend.dto.user.UserResponse;
@@ -19,8 +20,9 @@ public class SchoolClassService {
    private final SchoolService schoolService;
    private final UserService userService;
 
-   public SchoolClass newClass(long id, String name) {
+   public SchoolClass newClass(long id, String name, SecurityUser principal) {
       School school = schoolService.getSchoolById(id);
+      if(id != principal.getUser().getSchool().getId());
 
       if (schoolClassRepository.existsByNameAndSchoolId(name, id)) {
          throw new DuplicateTagException("A class named '" + name + "' already exists in this school");
