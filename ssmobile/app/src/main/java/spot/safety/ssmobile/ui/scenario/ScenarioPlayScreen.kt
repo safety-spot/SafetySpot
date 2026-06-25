@@ -3,6 +3,7 @@ package spot.safety.ssmobile.ui.scenario
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,11 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.data.repository.ImageRepository
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
 import spot.safety.ssmobile.ui.theme.AppBackground
@@ -90,6 +94,8 @@ fun ScenarioPlayScreen(
 ) {
     val vmState by (viewModel?.uiState ?: MutableStateFlow(ScenarioPlayUiState(isLoading = false))).collectAsState()
     val scenarios = /*if (viewModel != null)*/ vmState.tasks //else tasksForScenario(category)
+    val completedBeforeCount = if (viewModel != null) vmState.completedBeforeCount else 0
+    val totalTaskCount = if (viewModel != null && vmState.totalTaskCount > 0) vmState.totalTaskCount else scenarios.size
 
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
     var selectedDangerous by rememberSaveable { mutableStateOf<Boolean?>(null) }
@@ -148,8 +154,8 @@ fun ScenarioPlayScreen(
             .padding(horizontal = 18.dp, vertical = 18.dp)
     ) {
         ScenarioPlayHeader(
-            currentStep = currentIndex + 1,
-            totalSteps = scenarios.size,
+            currentStep = completedBeforeCount + currentIndex + 1,
+            totalSteps = totalTaskCount,
             points = earnedPoints,
             onBackClick = onBackClick
         )
@@ -167,6 +173,7 @@ fun ScenarioPlayScreen(
         Text(text = currentScenario.instruction, color = MutedText, style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(18.dp))
         ScenarioIllustration(
+            category = currentScenario.category,
             title = currentScenario.illustrationTitle,
             description = currentScenario.illustrationDescription,
             accentColor = currentScenario.illustrationColor,
@@ -318,7 +325,16 @@ private fun ScenarioPlayHeader(
                 .padding(horizontal = 12.dp, vertical = 9.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "* $points", color = PointsYellow, style = MaterialTheme.typography.labelLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_points_star),
+                    contentDescription = "Punkte",
+                    modifier = Modifier.size(18.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(modifier = Modifier.size(5.dp))
+                Text(text = points.toString(), color = PointsYellow, style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }
@@ -350,6 +366,7 @@ private fun MascotBubble() {
 
 @Composable
 private fun ScenarioIllustration(
+    category: String,
     title: String,
     description: String,
     accentColor: Color,
@@ -371,16 +388,28 @@ private fun ScenarioIllustration(
                 .background(backgroundColor),
             contentAlignment = Alignment.Center
         ) {
+            val categoryImageResId = when {
+                category.isChemistryCategory() -> R.drawable.category_chemistry
+                category.isSportsCategory() -> R.drawable.category_sports
+                category.isTechnologyCategory() -> R.drawable.category_technology
+                category.isTrafficCategory() -> R.drawable.category_traffic
+                else -> null
+            }
             if (!imageUrl.isNullOrBlank()) {
                 AsyncImage(
                     model = imageRepository.requestImageData(LocalContext.current, imageUrl),
                     contentDescription = description.ifBlank { title },
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    onError = { state ->
-                        // dbg point
-                        assert(false)
-                    }
+                )
+            } else if (categoryImageResId != null) {
+                Image(
+                    painter = painterResource(id = categoryImageResId),
+                    contentDescription = description.ifBlank { title },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(28.dp),
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -521,6 +550,20 @@ private fun ScenarioResultScreen(
         )
     }
 }
+
+private fun String.isChemistryCategory(): Boolean =
+    contains("chem", ignoreCase = true) || contains("chemie", ignoreCase = true)
+
+private fun String.isSportsCategory(): Boolean =
+    contains("sport", ignoreCase = true)
+
+private fun String.isTechnologyCategory(): Boolean =
+    contains("tech", ignoreCase = true)
+
+private fun String.isTrafficCategory(): Boolean =
+    contains("traffic", ignoreCase = true) ||
+        contains("verkehr", ignoreCase = true) ||
+        contains("strass", ignoreCase = true)
 /*
 
 @Preview(showBackground = true)

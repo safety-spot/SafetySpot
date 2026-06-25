@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -81,6 +82,11 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val activeDestination = TopLevelDestination.entries.firstOrNull { it.route == currentRoute }
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == Destinations.HOME) {
+            homeViewModel.load()
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -121,10 +127,8 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 HomeScreen(
                     homeViewModel = homeViewModel,
                     onShowAllCategories = { navController.navigateToTopLevel(TopLevelDestination.SCENARIOS) },
-                    onContinueScenario = {
-                        homeState.categories.firstOrNull()?.let { category ->
-                            navController.navigate(Destinations.scenarioDetailRoute(category))
-                        }
+                    onContinueScenario = { category ->
+                        navController.navigate(Destinations.scenarioPlayRoute(category))
                     },
                     onCategoryClick = { category ->
                         navController.navigate(Destinations.scenarioDetailRoute(category.name))
@@ -235,7 +239,12 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                 val category = java.net.URLDecoder.decode(encodedCategory, "UTF-8")
                 val playViewModel: ScenarioPlayViewModel = viewModel(
                     key = "play_$category",
-                    factory = ScenarioPlayViewModel.factory(app.imageRepository, category)
+                    factory = ScenarioPlayViewModel.factory(
+                        app.imageRepository,
+                        app.progressRepository,
+                        app.tokenStore,
+                        category
+                    )
                 )
                 ScenarioPlayScreen(
                     category = category,
@@ -247,7 +256,10 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                         }
                         homeViewModel.load()
                     },
-                    onBackClick = { navController.popBackStack() },
+                    onBackClick = {
+                        homeViewModel.load()
+                        navController.popBackStack()
+                    },
                     imageRepository = app.imageRepository
                 )
             }

@@ -17,6 +17,9 @@ data class HomeUiState(
     val completedCount: Int = 0,
     val categories: List<String> = emptyList(),
     val categoryCounts: Map<String, Int> = emptyMap(),
+    val continueCategory: String? = null,
+    val continueAnsweredCount: Int = 0,
+    val continueTaskCount: Int = 0,
     val error: String? = null
 )
 
@@ -41,10 +44,17 @@ class HomeViewModel(
             var completedCount = 0
             var categories = emptyList<String>()
             var categoryCounts = emptyMap<String, Int>()
+            var continueCategory: String? = null
+            var continueAnsweredCount = 0
+            var continueTaskCount = 0
+            var taggedImageIds = tokenStore.taggedImageIds()
 
             progressRepository.getSummary().onSuccess {
                 points = (it.correctCount * 40).toInt()
                 completedCount = it.totalTagged.toInt()
+            }
+            progressRepository.getHistory().onSuccess { entries ->
+                taggedImageIds = taggedImageIds + entries.map { it.imageId }.toSet()
             }
             imageRepository.getImages().onSuccess { images ->
                 categoryCounts = images
@@ -52,6 +62,20 @@ class HomeViewModel(
                     .groupingBy { it }
                     .eachCount()
                 categories = categoryCounts.keys.toList()
+                val imagesByCategory = images.groupBy { it.category ?: "Allgemein" }
+                val lastCategory = tokenStore.lastScenarioCategory
+                val continueImages = lastCategory
+                    ?.let { category -> imagesByCategory.entries.firstOrNull { it.key == category } }
+                    ?.takeIf { (_, categoryImages) -> categoryImages.any { it.id !in taggedImageIds } }
+                    ?: imagesByCategory.entries.firstOrNull { (_, categoryImages) ->
+                        categoryImages.any { it.id !in taggedImageIds }
+                    }
+                continueCategory = continueImages?.key
+                continueTaskCount = continueImages?.value?.size ?: 0
+                continueAnsweredCount = continueImages
+                    ?.value
+                    ?.count { it.id in taggedImageIds }
+                    ?: 0
             }
 
             _uiState.value = HomeUiState(
@@ -60,7 +84,10 @@ class HomeViewModel(
                 points = points,
                 completedCount = completedCount,
                 categories = categories,
-                categoryCounts = categoryCounts
+                categoryCounts = categoryCounts,
+                continueCategory = continueCategory,
+                continueAnsweredCount = continueAnsweredCount,
+                continueTaskCount = continueTaskCount
             )
         }
     }

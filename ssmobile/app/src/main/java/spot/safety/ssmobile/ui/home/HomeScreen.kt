@@ -62,7 +62,7 @@ fun HomeScreen(
     categories: List<HomeCategoryUi> = sampleHomeCategories,
     homeViewModel: HomeViewModel? = null,
     onShowAllCategories: () -> Unit = {},
-    onContinueScenario: () -> Unit = {},
+    onContinueScenario: (String) -> Unit = {},
     onCategoryClick: (HomeCategoryUi) -> Unit = {}
 ) {
     val vmState by (homeViewModel?.uiState ?: MutableStateFlow(HomeUiState(isLoading = false))).collectAsState()
@@ -83,6 +83,13 @@ fun HomeScreen(
     } else {
         categories
     }
+    val continueCategory = if (homeViewModel != null) {
+        vmState.continueCategory
+    } else {
+        categories.firstOrNull()?.name
+    }
+    val continueAnsweredCount = if (homeViewModel != null) vmState.continueAnsweredCount else 0
+    val continueTaskCount = if (homeViewModel != null) vmState.continueTaskCount else categories.firstOrNull()?.scenarioCount ?: 0
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -114,10 +121,21 @@ fun HomeScreen(
         Text(text = "Weitermachen", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(10.dp))
         ContinueBanner(
-            title = categoriesFinal.firstOrNull()?.name ?: "Keine Szenarien",
-            subtitle = if (completedCountFinal == 0) "Starte mit der ersten Aufgabe" else "$completedCountFinal abgeschlossen",
-            progress = if (completedCountFinal == 0) 0.6f else 0.15f,
-            onContinueClick = onContinueScenario
+            title = continueCategory ?: "Keine Szenarien",
+            subtitle = if (continueCategory == null) {
+                "Es sind aktuell keine Aufgaben verfuegbar"
+            } else if (continueTaskCount > 0) {
+                "Aufgabe ${continueAnsweredCount + 1} von $continueTaskCount"
+            } else if (completedCountFinal == 0) {
+                "Starte mit der ersten Aufgabe"
+            } else {
+                "$completedCountFinal beantwortet"
+            },
+            progress = if (continueTaskCount == 0) 0f else continueAnsweredCount.toFloat() / continueTaskCount.toFloat(),
+            enabled = continueCategory != null,
+            onContinueClick = {
+                continueCategory?.let(onContinueScenario)
+            }
         )
         Spacer(modifier = Modifier.height(22.dp))
         SectionHeader(

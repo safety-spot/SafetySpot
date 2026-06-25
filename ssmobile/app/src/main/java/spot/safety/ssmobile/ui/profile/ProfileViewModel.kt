@@ -48,10 +48,25 @@ class ProfileViewModel(
                     )
                 }
                 .onFailure {
-                    _state.value = ProfileViewState(isLoading = false, error = it.message)
+                    _state.value = ProfileViewState(
+                        isLoading = false,
+                        profile = emptyProfile(tokenStore.username ?: "Benutzer"),
+                        error = it.message
+                    )
                 }
         }
     }
+
+    private fun emptyProfile(username: String): ProfileUi =
+        ProfileUi(
+            fullName = username,
+            level = 1,
+            currentXp = 0,
+            nextLevelXp = 500,
+            points = 0,
+            streakDays = 0,
+            badges = 0
+        )
 
     companion object {
         fun factory(progressRepository: ProgressRepository, tokenStore: TokenStore): ViewModelProvider.Factory =
