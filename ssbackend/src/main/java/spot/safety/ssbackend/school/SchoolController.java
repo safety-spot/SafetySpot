@@ -21,14 +21,14 @@ public class SchoolController {
 
     // GET
 
-    // @GetMapping
-    // @PreAuthorize("hasAnyAuthority('ADMIN')")
-    // public ResponseEntity<List<School>> getAllSchools(
-    // ) {
-    //     return ResponseEntity
-    //             .status(HttpStatus.OK)
-    //             .body(schoolService.getAllSchools());
-    // }
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public ResponseEntity<List<School>> getAllSchools(
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(schoolService.getAllSchools());
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -43,7 +43,7 @@ public class SchoolController {
     public ResponseEntity<String> updateSchool(
             @PathVariable long id,
             @RequestBody @Valid UpdateSchoolRequest request
-            ) {
+    ) {
         schoolService.updateSchool(id, request);
         return ResponseEntity.ok("All good");
     }
@@ -62,7 +62,7 @@ public class SchoolController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<School> newSchool (
+    public ResponseEntity<School> newSchool(
             @RequestBody @Valid CreateSchool reqSchool) {
         School school = schoolService.createSchool(reqSchool);
         return ResponseEntity

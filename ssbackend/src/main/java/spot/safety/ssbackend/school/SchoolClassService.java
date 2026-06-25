@@ -1,12 +1,11 @@
 package spot.safety.ssbackend.school;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.dto.school.UpdateSchoolClass;
 import spot.safety.ssbackend.dto.user.UserResponse;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.exception.DuplicateTagException;
 import spot.safety.ssbackend.user.SecurityUser;
 import spot.safety.ssbackend.user.UserPrincipal;

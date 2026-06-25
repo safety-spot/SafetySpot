@@ -27,7 +27,7 @@ public class SchoolClassController {
     public ResponseEntity<SchoolClass> newClass(
             @RequestBody @Valid CreateClass reqClass,
             @AuthenticationPrincipal SecurityUser principal) {
-       SchoolClass schoolClass = schoolClassService.newClass(reqClass.schoolId(), reqClass.name(), principal);
+        SchoolClass schoolClass = schoolClassService.newClass(reqClass.schoolId(), reqClass.name(), principal);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(schoolClass);
     }
@@ -54,7 +54,7 @@ public class SchoolClassController {
 
     @GetMapping("/{id}/students")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<UserResponse>> getStudents (
+    public ResponseEntity<List<UserResponse>> getStudents(
             @PathVariable Long id,
             @AuthenticationPrincipal SecurityUser principal) {
         return ResponseEntity
@@ -66,11 +66,11 @@ public class SchoolClassController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
-    public ResponseEntity<String> updateClass (
+    public ResponseEntity<String> updateClass(
             @PathVariable Long id,
             @AuthenticationPrincipal SecurityUser principal,
             @RequestBody @Valid UpdateSchoolClass request
-            ) {
+    ) {
 
         schoolClassService.updateClass(id, principal, request);
         return ResponseEntity

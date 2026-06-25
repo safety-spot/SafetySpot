@@ -59,7 +59,7 @@ class SchoolClassServiceTest {
     void newClass_createsAndSavesClass() {
         when(schoolService.getSchoolById(1L)).thenReturn(sampleSchool());
         when(schoolClassRepository.existsByNameAndSchoolId("Class A", 1L)).thenReturn(false);
-        SchoolClass result = schoolClassService.newClass(1L, "Class A");
+        SchoolClass result = schoolClassService.newClass(1L, "Class A", adminPrincipal());
 
         assertThat(result.getName()).isEqualTo("Class A");
         assertThat(result.getSchool().getId()).isEqualTo(1L);
@@ -70,7 +70,7 @@ class SchoolClassServiceTest {
     void newClass_duplicateName_throws() {
         when(schoolService.getSchoolById(1L)).thenReturn(sampleSchool());
         when(schoolClassRepository.existsByNameAndSchoolId("Class A", 1L)).thenReturn(true);
-        assertThatThrownBy(() -> schoolClassService.newClass(1L, "Class A"))
+        assertThatThrownBy(() -> schoolClassService.newClass(1L, "Class A", adminPrincipal()))
                 .isInstanceOf(DuplicateTagException.class);
 
         verify(schoolClassRepository, never()).save(any());

@@ -1,5 +1,9 @@
 package spot.safety.ssbackend;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -59,6 +63,19 @@ class SchoolClassControllerTest {
                 .id(3L).username("student").role(Role.STUDENT).active(true).build());
     }
 
+    @BeforeEach
+    void setUp() throws Exception {
+        // Since filters are now enabled, the mocked JwtAuthFilter must be told
+        // to pass the request along the chain instead of swallowing/blocking it.
+        org.mockito.Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
+    }
+
     private SchoolClass sampleClass() {
         return SchoolClass.builder()
                 .id(1L)
@@ -77,22 +94,22 @@ class SchoolClassControllerTest {
 
     @Test
     void newClass_asAdmin_returnsCreatedClass() throws Exception {
-        when(schoolClassService.newClass(1L, "Class A")).thenReturn(sampleClass());
+        when(schoolClassService.newClass(eq(2L), eq("Class A"), any())).thenReturn(sampleClass());
 
         String body = """
-                {"schoolId":1,"name":"Class A"}
+                {"schoolId":2,"name":"Class A"}
                 """;
 
         mockMvc.perform(post("/api/v1/classes")
                         .with(user(adminPrincipal())).with(csrf())
                         .contentType("application/json").content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Class A"));
     }
 
     @Test
     void newClass_asTeacher_returnsOk() throws Exception {
-        when(schoolClassService.newClass(1L, "Class A")).thenReturn(sampleClass());
+        when(schoolClassService.newClass(eq(1L), eq("Class A"), any())).thenReturn(sampleClass());
 
         String body = """
                 {"schoolId":1,"name":"Class A"}
@@ -101,7 +118,7 @@ class SchoolClassControllerTest {
         mockMvc.perform(post("/api/v1/classes")
                         .with(user(teacherPrincipal())).with(csrf())
                         .contentType("application/json").content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test

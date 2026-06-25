@@ -1,5 +1,9 @@
 package spot.safety.ssbackend;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -62,6 +66,19 @@ class SchoolControllerTest {
     private SecurityUser studentPrincipal() {
         return new SecurityUser(User.builder()
                 .id(3L).username("student").role(Role.STUDENT).active(true).build());
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // Since filters are now enabled, the mocked JwtAuthFilter must be told
+        // to pass the request along the chain instead of swallowing/blocking it.
+        org.mockito.Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
     }
 
     private School sampleSchool() {
@@ -137,11 +154,11 @@ class SchoolControllerTest {
     void activateLicense_asAdmin_returnsOk() throws Exception {
         mockMvc.perform(post("/api/v1/schools/1/activate-license")
                         .with(user(adminPrincipal())).with(csrf())
-                        .contentType("application/json").content("\"KEY-123\""))
+                        .contentType("application/json").content("KEY-123"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("All good"));
 
-        verify(schoolService).activateLicense(eq(1L), eq("KEY-123"));
+        verify(schoolService).activateLicense(eq(1L), eq("KEY-123"), any());
     }
 
     @Test
@@ -171,7 +188,7 @@ class SchoolControllerTest {
         mockMvc.perform(post("/api/v1/schools")
                         .with(user(adminPrincipal())).with(csrf())
                         .contentType("application/json").content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Sample School"));
     }
 

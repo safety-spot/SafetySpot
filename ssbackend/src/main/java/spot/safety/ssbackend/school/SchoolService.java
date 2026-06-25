@@ -1,10 +1,10 @@
 package spot.safety.ssbackend.school;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import spot.safety.ssbackend.dto.school.CreateSchool;
 import spot.safety.ssbackend.dto.school.UpdateSchoolRequest;
-import spot.safety.ssbackend.exception.AccessDeniedException;
 import spot.safety.ssbackend.exception.EntityNotFoundException;
 import spot.safety.ssbackend.user.SecurityUser;
 
