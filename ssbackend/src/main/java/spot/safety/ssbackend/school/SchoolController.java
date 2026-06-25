@@ -66,7 +66,7 @@ public class SchoolController {
             @RequestBody @Valid CreateSchool reqSchool) {
         School school = schoolService.createSchool(reqSchool);
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.CREATED)
                 .body(school);
     }
 }
