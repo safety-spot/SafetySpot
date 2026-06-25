@@ -36,7 +36,9 @@ public class SchoolClassService {
    }
 
    public List<SchoolClass> getClasses(SecurityUser principal) {
-      return principal.getAuthorities().contains(Role.ADMIN) ? schoolClassRepository.findAll() : List.of(schoolClassRepository.findSchoolClassByTeacher_Id(principal.getUser().getId()));
+      return principal.getUser().getRole() == Role.ADMIN
+              ? schoolClassRepository.findAll()
+              : schoolClassRepository.findAllByTeacherId(principal.getUser().getId());
    }
 
    public int getAmountOfStudent(long id, SecurityUser principal) {
