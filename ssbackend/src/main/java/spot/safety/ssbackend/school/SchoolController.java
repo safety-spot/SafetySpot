@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SchoolController {
     private final SchoolService schoolService;
-    private final SchoolClassService classGroupService;
 
     // GET
 
