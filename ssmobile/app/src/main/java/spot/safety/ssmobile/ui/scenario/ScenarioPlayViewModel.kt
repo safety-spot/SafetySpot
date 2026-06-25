@@ -7,9 +7,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import spot.safety.ssmobile.data.TokenStore
 import spot.safety.ssmobile.data.model.TagValue
 import spot.safety.ssmobile.data.network.ApiClient
 import spot.safety.ssmobile.data.repository.ImageRepository
+import spot.safety.ssmobile.data.repository.ProgressRepository
 import spot.safety.ssmobile.ui.theme.ChemieBlueSoft
 import spot.safety.ssmobile.ui.theme.ChemieBlueTint
 import spot.safety.ssmobile.ui.theme.SportGreen
@@ -22,6 +25,8 @@ import spot.safety.ssmobile.ui.theme.WerkraumOrangeSoft
 data class ScenarioPlayUiState(
     val isLoading: Boolean = true,
     val tasks: List<ScenarioPlayUi> = emptyList(),
+    val completedBeforeCount: Int = 0,
+    val totalTaskCount: Int = 0,
     val error: String? = null
 )
 
@@ -29,6 +34,8 @@ data class TagResult(val correct: Boolean, val feedback: String, val points: Int
 
 class ScenarioPlayViewModel(
     private val imageRepository: ImageRepository,
+    private val progressRepository: ProgressRepository,
+    private val tokenStore: TokenStore,
     private val category: String
 ) : ViewModel() {
 
@@ -36,15 +43,24 @@ class ScenarioPlayViewModel(
     val uiState: StateFlow<ScenarioPlayUiState> = _uiState
 
     init {
+        tokenStore.lastScenarioCategory = category
         load()
     }
 
     private fun load() {
         viewModelScope.launch {
+            val taggedImageIds = tokenStore.taggedImageIds() +
+                (progressRepository.getHistory()
+                    .getOrNull()
+                    ?.map { it.imageId }
+                    ?.toSet()
+                    ?: emptySet())
             imageRepository.getImages(category)
                 .onSuccess { images ->
-                    val tasks = images.map { img ->
-                        val (accent, bg) = categoryColors(img.category ?: "")
+                    val remainingImages = images.filter { it.id !in taggedImageIds }
+                    val tasks = remainingImages
+                        .map { img ->
+                            val (accent, bg) = categoryColors(img.category ?: "")
                         ScenarioPlayUi(
                             imageId = img.id,
                             category = img.category ?: "Allgemein",
@@ -62,7 +78,12 @@ class ScenarioPlayViewModel(
                             points = 40
                         )
                     }
-                    _uiState.value = ScenarioPlayUiState(isLoading = false, tasks = tasks)
+                    _uiState.value = ScenarioPlayUiState(
+                        isLoading = false,
+                        tasks = tasks,
+                        completedBeforeCount = images.size - remainingImages.size,
+                        totalTaskCount = images.size
+                    )
                 }
                 .onFailure {
                     _uiState.value = ScenarioPlayUiState(isLoading = false, error = it.message)
@@ -72,15 +93,42 @@ class ScenarioPlayViewModel(
 
     suspend fun submitTag(imageId: Long, isDangerous: Boolean): TagResult {
         val tag = if (isDangerous) TagValue.DANGEROUS else TagValue.SAFE
+        tokenStore.lastScenarioCategory = category
         return imageRepository.submitTag(imageId, tag)
             .map { response ->
+                tokenStore.addTaggedImageId(imageId)
                 TagResult(
                     correct = response.correct,
                     feedback = response.feedback ?: if (response.correct) "Richtig!" else "Falsch!",
                     points = if (response.correct) 40 else 0
                 )
             }
-            .getOrElse { TagResult(correct = false, feedback = "Fehler beim Senden.", points = 0) }
+            .getOrElse { error ->
+                when ((error as? HttpException)?.code()) {
+                    409 -> {
+                        tokenStore.addTaggedImageId(imageId)
+                        TagResult(
+                            correct = false,
+                            feedback = "Diese Aufgabe wurde bereits beantwortet.",
+                            points = 0
+                        )
+                    }
+                    401 -> TagResult(correct = false, feedback = "Nicht angemeldet. Bitte neu einloggen.", points = 0)
+                    403 -> TagResult(correct = false, feedback = "Dein Account darf diese Aufgabe nicht beantworten.", points = 0)
+                    404 -> TagResult(correct = false, feedback = "Diese Aufgabe wurde im Backend nicht gefunden.", points = 0)
+                    500 -> TagResult(correct = false, feedback = "Backend-Fehler beim Speichern der Antwort.", points = 0)
+                    null -> TagResult(
+                        correct = false,
+                        feedback = error.localizedMessage ?: "Netzwerkfehler beim Senden.",
+                        points = 0
+                    )
+                    else -> TagResult(
+                        correct = false,
+                        feedback = "Fehler beim Senden: HTTP ${(error as HttpException).code()}",
+                        points = 0
+                    )
+                }
+            }
     }
 
     private fun categoryColors(category: String): Pair<Color, Color> = when {
@@ -97,11 +145,16 @@ class ScenarioPlayViewModel(
     }
 
     companion object {
-        fun factory(imageRepository: ImageRepository, category: String): ViewModelProvider.Factory =
+        fun factory(
+            imageRepository: ImageRepository,
+            progressRepository: ProgressRepository,
+            tokenStore: TokenStore,
+            category: String
+        ): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    ScenarioPlayViewModel(imageRepository, category) as T
+                    ScenarioPlayViewModel(imageRepository, progressRepository, tokenStore, category) as T
             }
     }
 }

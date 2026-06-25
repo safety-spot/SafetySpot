@@ -140,7 +140,7 @@ private fun ProfileCard(profile: ProfileUi) {
                     .background(BrandGreen.copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Max", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
+                Text(text = profile.fullName.initials(), color = BrandBlue, style = MaterialTheme.typography.titleLarge)
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = profile.fullName, color = BrandBlue, style = MaterialTheme.typography.titleLarge)
@@ -269,6 +269,17 @@ val sampleProfile = ProfileUi(
     streakDays = 7,
     badges = 24
 )
+
+private fun String.initials(): String {
+    val parts = trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+    return when {
+        parts.size >= 2 -> "${parts.first().first()}${parts.last().first()}".uppercase()
+        parts.size == 1 -> parts.first().take(2).uppercase()
+        else -> "?"
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
