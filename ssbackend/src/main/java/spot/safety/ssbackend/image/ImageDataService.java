@@ -15,5 +15,11 @@ public interface ImageDataService {
      * Load image data as a Spring Resource for serving.
      */
     Resource loadAsResource(Long id);
+
+    /**
+     * Store binary data (bytes) for an existing Image. Filename is provided for reference
+     * (not required for storage) and can be used by callers that want to preserve extension.
+     */
+    void storeBytes(Long id, byte[] data, String filename, UserPrincipal actor);
 }
 

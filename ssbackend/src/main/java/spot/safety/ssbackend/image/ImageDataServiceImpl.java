@@ -61,6 +61,33 @@ public class ImageDataServiceImpl implements ImageDataService {
     }
 
     @Override
+    public void storeBytes(Long id, byte[] data, String filename, UserPrincipal actor) {
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Image not found: " + id));
+
+        // only uploader or admin can store/replace binary
+        boolean isOwner = image.getUploadedBy().getId().equals(actor.id());
+        boolean isAdmin = actor.role().name().equals("ADMIN");
+        if (!isOwner && !isAdmin) {
+            throw new org.springframework.security.access.AccessDeniedException("Not image owner");
+        }
+
+        try {
+            Path root = rootPath();
+            Files.createDirectories(root);
+
+            Path dest = root.resolve(String.valueOf(id));
+            Files.write(dest, data);
+
+            // update imageUrl to point to our data endpoint
+            image.setImageUrl("/api/v1/images/" + id + "/data");
+            imageRepository.save(image);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file for image: " + id, e);
+        }
+    }
+
+    @Override
     public Resource loadAsResource(Long id) {
         Path file = rootPath().resolve(String.valueOf(id));
         if (!Files.exists(file)) {
