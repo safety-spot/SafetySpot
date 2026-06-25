@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
@@ -369,10 +370,13 @@ private fun ScenarioIllustration(
         ) {
             if (!imageUrl.isNullOrBlank()) {
                 AsyncImage(
-                    model = imageUrl,
+                    model = "https://w.wallhaven.cc/full/w5/wallhaven-w5m6yr.jpg",
                     contentDescription = description.ifBlank { title },
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    onError = { state ->
+                        // dbg point
+                    }
                 )
             } else {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
