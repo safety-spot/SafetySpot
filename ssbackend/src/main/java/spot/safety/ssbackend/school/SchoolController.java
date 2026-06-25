@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import spot.safety.ssbackend.dto.school.CreateSchool;
 import spot.safety.ssbackend.dto.school.UpdateSchoolRequest;
+import spot.safety.ssbackend.user.SecurityUser;
 
 import java.util.List;
 
@@ -19,18 +21,18 @@ public class SchoolController {
 
     // GET
 
-    @GetMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<List<School>> getAllSchools(
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(schoolService.getAllSchools());
-    }
+    // @GetMapping
+    // @PreAuthorize("hasAnyAuthority('ADMIN')")
+    // public ResponseEntity<List<School>> getAllSchools(
+    // ) {
+    //     return ResponseEntity
+    //             .status(HttpStatus.OK)
+    //             .body(schoolService.getAllSchools());
+    // }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<School> getSchoolById(@PathVariable int id) {
+    public ResponseEntity<School> getSchoolById(@PathVariable long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(schoolService.getSchoolById(id));
@@ -52,8 +54,9 @@ public class SchoolController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<String> activateLicense(
             @PathVariable long id,
-            @RequestBody @Valid String licenseKey) {
-        schoolService.activateLicense(id, licenseKey);
+            @RequestBody @Valid String licenseKey,
+            @AuthenticationPrincipal SecurityUser principal) {
+        schoolService.activateLicense(id, licenseKey, principal);
         return ResponseEntity.ok("All good");
     }
 
