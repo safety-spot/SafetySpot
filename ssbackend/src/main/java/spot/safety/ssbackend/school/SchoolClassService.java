@@ -23,8 +23,8 @@ public class SchoolClassService {
    public SchoolClass newClass(long id, String name) {
       School school = schoolService.getSchoolById(id);
 
-      if(schoolClassRepository.findByName(name).isPresent()) {
-         throw new DuplicateTagException("A class named " + name + "already exists");
+      if (schoolClassRepository.existsByNameAndSchoolId(name, id)) {
+         throw new DuplicateTagException("A class named '" + name + "' already exists in this school");
       }
 
       SchoolClass schoolClass = new SchoolClass();
