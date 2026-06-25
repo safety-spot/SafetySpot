@@ -59,7 +59,8 @@ class ScenarioPlayViewModel(
                             isDangerous = false,
                             feedbackCorrect = "Richtig!",
                             feedbackWrong = "Leider falsch.",
-                            points = 40
+                            points = 40,
+                            imageRepository,
                         )
                     }
                     _uiState.value = ScenarioPlayUiState(isLoading = false, tasks = tasks)

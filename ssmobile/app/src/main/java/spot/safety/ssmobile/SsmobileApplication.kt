@@ -21,7 +21,7 @@ class SsmobileApplication : Application() {
         tokenStore = TokenStore(this)
         val api = ApiClient.create(tokenStore)
         authRepository = AuthRepository(api, tokenStore)
-        imageRepository = ImageRepository(api)
+        imageRepository = ImageRepository(api, tokenStore)
         leaderboardRepository = LeaderboardRepository(api)
         progressRepository = ProgressRepository(api)
     }

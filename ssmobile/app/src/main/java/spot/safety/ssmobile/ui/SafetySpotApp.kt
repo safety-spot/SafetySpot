@@ -247,7 +247,8 @@ fun SafetySpotApp(modifier: Modifier = Modifier) {
                         }
                         homeViewModel.load()
                     },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    imageRepository = app.imageRepository
                 )
             }
         }
