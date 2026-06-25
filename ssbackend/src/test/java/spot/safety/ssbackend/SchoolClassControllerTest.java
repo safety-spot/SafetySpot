@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import spot.safety.ssbackend.auth.JwtAuthFilter;
 import spot.safety.ssbackend.auth.SecurityConfig;
 import spot.safety.ssbackend.auth.SecurityUserDetailsService;
-import spot.safety.ssbackend.dto.school.CreateClass;
 import spot.safety.ssbackend.dto.user.UserResponse;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.school.School;

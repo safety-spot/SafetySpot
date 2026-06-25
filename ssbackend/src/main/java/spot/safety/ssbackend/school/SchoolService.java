@@ -36,15 +36,20 @@ public class SchoolService {
     }
 
     public void updateSchool(long id, UpdateSchoolRequest request) {
-        School school = schoolRepository.getSchoolById(id);
+        School school = getSchoolById(id);
 
-        school.activateLicense(request.licenseKey());
-        school.setName(request.name());
+        if (request.licenseKey() != null) {
+            school.activateLicense(request.licenseKey());
+        }
+        if (request.name() != null) {
+            school.setName(request.name());
+        }
+
         schoolRepository.save(school);
     }
 
     public void activateLicense(long id, String key) {
-        School school = schoolRepository.getSchoolById(id);
+        School school = getSchoolById(id);
         school.activateLicense(key);
         schoolRepository.save(school);
     }

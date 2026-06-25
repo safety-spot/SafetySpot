@@ -69,7 +69,7 @@ public class SchoolClassController {
     public ResponseEntity<String> updateClass (
             @PathVariable Long id,
             @AuthenticationPrincipal SecurityUser principal,
-            @RequestBody UpdateSchoolClass request
+            @RequestBody @Valid UpdateSchoolClass request
             ) {
 
         schoolClassService.updateClass(id, principal, request);

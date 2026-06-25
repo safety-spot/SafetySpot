@@ -6,7 +6,6 @@ import spot.safety.ssbackend.dto.school.UpdateSchoolClass;
 import spot.safety.ssbackend.dto.user.UserResponse;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.exception.DuplicateTagException;
-import spot.safety.ssbackend.exception.UsernameAlreadyTakenException;
 import spot.safety.ssbackend.user.SecurityUser;
 import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserService;
@@ -54,7 +53,8 @@ public class SchoolClassService {
               .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
       if (request.name() != null) {
          schoolClass.setName(request.name());
-      } else if (request.teacherId() != null) {
+      }
+      if (request.teacherId() != null) {
          UserResponse ur = userService.getUserById(request.teacherId(), UserPrincipal.from(principal.getUser()));
          schoolClass.setTeacher(userService.findByUsername(ur.username()));
       }
@@ -62,13 +62,16 @@ public class SchoolClassService {
       schoolClassRepository.save(schoolClass);
    }
 
-   public void deleteClass (long id, SecurityUser principal) {
+   public void deleteClass(long id, SecurityUser principal) {
+      SchoolClass schoolClass = schoolClassRepository.findById(id)
+              .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
+
       int amount = userService.getUsers(id, UserPrincipal.from(principal.getUser())).size();
-      if(amount != 0) {
-         throw new UsernameAlreadyTakenException("Class still has students");
+      if (amount != 0) {
+         throw new DuplicateTagException("Class still has students");
       }
 
-      schoolClassRepository.delete(schoolClassRepository.findSchoolClassesById(id));
+      schoolClassRepository.delete(schoolClass);
    }
 
 }

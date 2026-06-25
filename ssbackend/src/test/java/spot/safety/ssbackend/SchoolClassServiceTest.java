@@ -1,6 +1,5 @@
 package spot.safety.ssbackend;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,7 +9,6 @@ import spot.safety.ssbackend.dto.school.UpdateSchoolClass;
 import spot.safety.ssbackend.dto.user.UserResponse;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.exception.DuplicateTagException;
-import spot.safety.ssbackend.exception.UsernameAlreadyTakenException;
 import spot.safety.ssbackend.school.*;
 import spot.safety.ssbackend.user.SecurityUser;
 import spot.safety.ssbackend.user.User;
@@ -47,12 +45,12 @@ class SchoolClassServiceTest {
 
     private SecurityUser adminPrincipal() {
         return new SecurityUser(User.builder()
-                .id(1L).username("admin").role(Role.ADMIN).active(true).build());
+                .id(1L).username("admin").role(Role.ADMIN).school(sampleSchool()).active(true).build());
     }
 
     private SecurityUser teacherPrincipal() {
         return new SecurityUser(User.builder()
-                .id(2L).username("teacher").role(Role.TEACHER).active(true).build());
+                .id(2L).username("teacher").role(Role.TEACHER).school(sampleSchool()).active(true).build());
     }
 
     // newClass
@@ -60,8 +58,7 @@ class SchoolClassServiceTest {
     @Test
     void newClass_createsAndSavesClass() {
         when(schoolService.getSchoolById(1L)).thenReturn(sampleSchool());
-        when(schoolClassRepository.findByName("Class A")).thenReturn(Optional.empty());
-
+        when(schoolClassRepository.existsByNameAndSchoolId("Class A", 1L)).thenReturn(false);
         SchoolClass result = schoolClassService.newClass(1L, "Class A");
 
         assertThat(result.getName()).isEqualTo("Class A");
@@ -72,8 +69,7 @@ class SchoolClassServiceTest {
     @Test
     void newClass_duplicateName_throws() {
         when(schoolService.getSchoolById(1L)).thenReturn(sampleSchool());
-        when(schoolClassRepository.findByName("Class A")).thenReturn(Optional.of(new SchoolClass()));
-
+        when(schoolClassRepository.existsByNameAndSchoolId("Class A", 1L)).thenReturn(true);
         assertThatThrownBy(() -> schoolClassService.newClass(1L, "Class A"))
                 .isInstanceOf(DuplicateTagException.class);
 
@@ -95,12 +91,12 @@ class SchoolClassServiceTest {
 
     @Test
     void getClasses_asTeacher_returnsOwnClasses() {
-        SchoolClass teacherClass = new SchoolClass();
-        when(schoolClassRepository.findSchoolClassByTeacher_Id(2L)).thenReturn(teacherClass);
+        List<SchoolClass> teacherClasses = List.of(new SchoolClass());
+        when(schoolClassRepository.findAllByTeacherId(2L)).thenReturn(teacherClasses);
 
         List<SchoolClass> result = schoolClassService.getClasses(teacherPrincipal());
 
-        assertThat(result).containsExactly(teacherClass);
+        assertThat(result).isEqualTo(teacherClasses);
         verify(schoolClassRepository, never()).findAll();
     }
 
@@ -132,8 +128,7 @@ class SchoolClassServiceTest {
     @Test
     void updateClass_withName_updatesNameAndSaves() {
         SchoolClass existing = SchoolClass.builder().id(1L).name("Old Name").build();
-        when(schoolClassRepository.findSchoolClassesById(1L)).thenReturn(existing);
-
+        when(schoolClassRepository.findById(1L)).thenReturn(Optional.of(existing));
         UpdateSchoolClass request = new UpdateSchoolClass("New Name", null);
 
         schoolClassService.updateClass(1L, teacherPrincipal(), request);
@@ -146,8 +141,7 @@ class SchoolClassServiceTest {
     @Test
     void updateClass_withTeacherId_updatesTeacherAndSaves() {
         SchoolClass existing = SchoolClass.builder().id(1L).name("Class A").build();
-        when(schoolClassRepository.findSchoolClassesById(1L)).thenReturn(existing);
-
+        when(schoolClassRepository.findById(1L)).thenReturn(Optional.of(existing));
         UserResponse ur = new UserResponse(5L, "newteacher", Role.TEACHER, 1L, null, true,
                 Instant.parse("2026-01-01T00:00:00Z"), null);
         when(userService.getUserById(eq(5L), any())).thenReturn(ur);
@@ -169,7 +163,7 @@ class SchoolClassServiceTest {
     void deleteClass_noStudents_deletesClass() {
         when(userService.getUsers(eq(1L), any())).thenReturn(List.of());
         SchoolClass existing = SchoolClass.builder().id(1L).build();
-        when(schoolClassRepository.findSchoolClassesById(1L)).thenReturn(existing);
+        when(schoolClassRepository.findById(1L)).thenReturn(Optional.of(existing));
 
         schoolClassService.deleteClass(1L, adminPrincipal());
 
@@ -179,9 +173,11 @@ class SchoolClassServiceTest {
     @Test
     void deleteClass_hasStudents_throwsAndDoesNotDelete() {
         when(userService.getUsers(eq(1L), any())).thenReturn(List.of(mock(UserResponse.class)));
+        when(schoolClassRepository.findById(1L)).thenReturn(Optional.of(SchoolClass.builder().id(1L).build()));
 
         assertThatThrownBy(() -> schoolClassService.deleteClass(1L, adminPrincipal()))
-                .isInstanceOf(UsernameAlreadyTakenException.class);
+                .isInstanceOf(DuplicateTagException.class)
+                .hasMessage("Class still has students");
 
         verify(schoolClassRepository, never()).delete(any());
     }
