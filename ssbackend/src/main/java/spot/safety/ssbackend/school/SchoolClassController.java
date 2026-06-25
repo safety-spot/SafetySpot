@@ -28,7 +28,7 @@ public class SchoolClassController {
             @RequestBody @Valid CreateClass reqClass,
             @AuthenticationPrincipal SecurityUser principal) {
        SchoolClass schoolClass = schoolClassService.newClass(reqClass.schoolId(), reqClass.name(), principal);
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(schoolClass);
     }
 
