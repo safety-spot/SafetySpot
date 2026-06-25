@@ -10,6 +10,9 @@ import spot.safety.ssbackend.dto.user.CreateUserRequest;
 import spot.safety.ssbackend.enums.LicenseStatus;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.image.ImageService;
+import spot.safety.ssbackend.image.ImageDataService;
+import spot.safety.ssbackend.dto.image.ImageResponse;
+import org.springframework.core.io.ClassPathResource;
 import spot.safety.ssbackend.model.TagValue;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolClass;
@@ -20,7 +23,6 @@ import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserRepository;
 import spot.safety.ssbackend.user.UserService;
 
-import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -35,6 +37,7 @@ public class DemoDataService {
     private final SchoolClassRepository schoolClassRepo;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
+    private final ImageDataService imageDataService;
 
     @Transactional
     public void seedDatabase() {
@@ -97,7 +100,7 @@ public class DemoDataService {
                         String fbWrong) {
         }
 
-        List.of(
+        var scenarios = List.of(
                 // CHEMISTRY - DANGEROUS
                 new Scenario("Gefahrstoff ohne Kennzeichnung", "Auf einem Labortisch steht eine offene Flasche mit einer unbekannten Flüssigkeit. Niemand weiß, was sich darin befindet.", "CHEMISTRY", "DANGEROUS", "Richtig! Unbekannte Stoffe dürfen niemals ohne Kennzeichnung verwendet werden.", "Falsch. Unbekannte Chemikalien können gefährlich sein und dürfen nicht benutzt werden."),
                 new Scenario("Experiment ohne Schutzbrille", "Ein Schüler führt ein Experiment durch, trägt aber keine Schutzbrille.", "CHEMISTRY", "DANGEROUS", "Genau! Im Chemieraum muss immer eine Schutzbrille getragen werden.", "Falsch. Chemikalien können in die Augen gelangen und schwere Verletzungen verursachen."),
@@ -153,7 +156,10 @@ public class DemoDataService {
                 new Scenario("Helm richtig befestigt", "Eine Schülerin trägt einen korrekt sitzenden Fahrradhelm.", "TRAFFIC", "SAFE", "Genau! Helme schützen bei Stürzen.", "Falsch. Das ist sicheres Verhalten."),
                 new Scenario("Gut sichtbar im Dunkeln", "Ein Schüler trägt reflektierende Kleidung auf dem Schulweg.", "TRAFFIC", "SAFE", "Richtig! Sichtbarkeit erhöht die Sicherheit.", "Falsch. Das Verhalten ist sicher."),
                 new Scenario("Sicher über die Straße", "Eine Schülerin nutzt einen Zebrastreifen und achtet auf den Verkehr.", "TRAFFIC", "SAFE", "Perfekt! Das ist sicheres Verhalten im Straßenverkehr.", "Falsch. Das Verhalten ist korrekt und sicher.")
-        ).forEach(s -> {
+        );
+
+        for (int i = 0; i < scenarios.size(); i++) {
+            var s = scenarios.get(i);
             CreateImageRequest request = new CreateImageRequest(
                     s.title(),
                     s.description(),
@@ -163,7 +169,21 @@ public class DemoDataService {
                     s.fbCorrect(),
                     s.fbWrong()
             );
-            imageService.createImage(request, actor);
-        });
+
+            ImageResponse resp = imageService.createImage(request, actor);
+
+            // For the first scenario, upload the bundled demo image from resources/demo/images
+            if (i == 0) {
+                try {
+                    var resource = new ClassPathResource("demo/images/scenario-0.png");
+                    if (resource.exists()) {
+                        byte[] data = resource.getInputStream().readAllBytes();
+                        imageDataService.storeBytes(resp.id(), data, "scenario-0.png", actor);
+                    }
+                } catch (Exception e) {
+                    // non-fatal for demo seeding; log if you have logging configured
+                }
+            }
+        }
     }
 }
