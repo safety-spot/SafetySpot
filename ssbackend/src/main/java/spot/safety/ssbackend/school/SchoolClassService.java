@@ -50,7 +50,8 @@ public class SchoolClassService {
    }
 
    public void updateClass (long id, SecurityUser principal, UpdateSchoolClass request) {
-      SchoolClass schoolClass = schoolClassRepository.findSchoolClassesById(id);
+      SchoolClass schoolClass = schoolClassRepository.findById(id)
+              .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
       if (request.name() != null) {
          schoolClass.setName(request.name());
       } else if (request.teacherId() != null) {
