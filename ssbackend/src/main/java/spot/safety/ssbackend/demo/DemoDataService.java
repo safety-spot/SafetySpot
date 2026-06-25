@@ -73,19 +73,29 @@ public class DemoDataService {
                 "Kennwort1!",
                 Role.TEACHER,
                 school.getId()
-            ), actor);
+        ), actor);
 
         // students
-        IntStream.range(0, 10)
-                 .forEach(_ -> userSvc.createUser(new CreateUserRequest(
-                         faker.witcher().character(),
-                         "Kennwort1!",
-                         Role.STUDENT,
-                         school.getId()
-                     ), actor));
+
+        IntStream.range(0, 20)
+                .forEach(i -> {
+                        try {
+                            userSvc.createUser(new CreateUserRequest(
+                                    faker.witcher().character() + " (" + i + ")",
+                                    "Kennwort1!",
+                                    Role.STUDENT,
+                                    school.getId()), actor);
+                        } catch (Exception e) {
+                            // just continue, not important that we get all users
+                        }
+                    }
+                );
+
 
         // images
-        record Scenario(String title, String description, String category, String tag, String fbCorrect, String fbWrong) {}
+        record Scenario(String title, String description, String category, String tag, String fbCorrect,
+                        String fbWrong) {
+        }
 
         List.of(
                 // CHEMISTRY - DANGEROUS
