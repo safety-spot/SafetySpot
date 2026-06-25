@@ -32,6 +32,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.shell:spring-shell-starter:4.0.2")
+    implementation("org.springframework.boot:spring-boot-h2console:4.0.0")
     implementation("net.datafaker:datafaker:2.7.0")
     implementation("spot.safety:sscommon")
 
