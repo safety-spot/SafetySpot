@@ -6,15 +6,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
+import spot.safety.ssbackend.dto.school.CreateSchool;
 import spot.safety.ssbackend.dto.user.CreateUserRequest;
-import spot.safety.ssbackend.enums.LicenseStatus;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.image.ImageService;
 import spot.safety.ssbackend.image.ImageDataService;
 import spot.safety.ssbackend.dto.image.ImageResponse;
 import org.springframework.core.io.ClassPathResource;
 import spot.safety.ssbackend.model.TagValue;
-import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolClass;
 import spot.safety.ssbackend.school.SchoolClassRepository;
 import spot.safety.ssbackend.school.SchoolService;
@@ -23,7 +22,6 @@ import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserRepository;
 import spot.safety.ssbackend.user.UserService;
 
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -44,13 +42,10 @@ public class DemoDataService {
         var faker = new Faker();
 
         // school
-        var school = School.builder()
-                .name(faker.witcher().school())
-                .licenseKey(faker.hashing().sha1())
-                .licenseExpiry(faker.timeAndDate().future(365, java.util.concurrent.TimeUnit.DAYS).atOffset(ZoneOffset.UTC).toLocalDate())
-                .licenseStatus(LicenseStatus.ACTIVE)
-                .build();
-        schoolSvc.newSchool(school);
+        var school = schoolSvc.createSchool(new CreateSchool(
+                faker.witcher().school(),
+                faker.hashing().sha1()
+        ));
 
         var schoolClass = SchoolClass.builder()
                 .name(faker.name().fullName())

@@ -1,5 +1,6 @@
 package spot.safety.ssbackend.school;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import spot.safety.ssbackend.user.User;
@@ -31,6 +32,7 @@ public class SchoolClass {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
+    @Nullable
     private User teacher;
 
     @Column(nullable = false, updatable = false)
