@@ -25,9 +25,9 @@ public class SchoolClassController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<SchoolClass> newClass(
-            @RequestBody @Valid CreateClass reqClass) {
-
-       SchoolClass schoolClass = schoolClassService.newClass(reqClass.schoolId(), reqClass.name());
+            @RequestBody @Valid CreateClass reqClass,
+            @AuthenticationPrincipal SecurityUser principal) {
+       SchoolClass schoolClass = schoolClassService.newClass(reqClass.schoolId(), reqClass.name(), principal);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(schoolClass);
     }
