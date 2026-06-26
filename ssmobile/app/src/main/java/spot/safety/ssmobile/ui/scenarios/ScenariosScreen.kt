@@ -1,6 +1,7 @@
 package spot.safety.ssmobile.ui.scenarios
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.ui.components.FilterPill
 import spot.safety.ssmobile.ui.components.SafetySearchBar
 import spot.safety.ssmobile.ui.components.ScenarioCard
@@ -127,7 +131,14 @@ fun ScenariosScreen(
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "F", color = BrandBlue, style = MaterialTheme.typography.labelLarge)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_filter_custom),
+                        contentDescription = "Filter",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(13.dp),
+                        contentScale = ContentScale.Fit
+                    )
                 }
             }
         }

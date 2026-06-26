@@ -2,6 +2,7 @@ package spot.safety.ssmobile.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +30,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.BrandBlue
@@ -140,7 +144,12 @@ private fun ProfileCard(profile: ProfileUi) {
                     .background(BrandGreen.copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = profile.fullName.initials(), color = BrandBlue, style = MaterialTheme.typography.titleLarge)
+                Image(
+                    painter = painterResource(id = R.drawable.ic_profile_avatar),
+                    contentDescription = profile.fullName,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = profile.fullName, color = BrandBlue, style = MaterialTheme.typography.titleLarge)
@@ -215,10 +224,29 @@ private fun ProfileMenuRow(label: String, onClick: () -> Unit) {
             modifier = Modifier
                 .size(32.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(BrandGreen.copy(alpha = 0.12f)),
+            .background(BrandGreen.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = label.take(1), color = BrandGreen, style = MaterialTheme.typography.labelLarge)
+            val iconResId = when (label) {
+                "Mein Fortschritt" -> R.drawable.ic_profile_progress
+                "Abzeichen" -> R.drawable.ic_profile_badges
+                "Meine Szenarien" -> R.drawable.ic_profile_scenarios
+                "Einstellungen" -> R.drawable.ic_profile_settings
+                "Hilfe & Feedback" -> R.drawable.ic_profile_help
+                else -> null
+            }
+            if (iconResId != null) {
+                Image(
+                    painter = painterResource(id = iconResId),
+                    contentDescription = label,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(7.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Text(text = label.take(1), color = BrandGreen, style = MaterialTheme.typography.labelLarge)
+            }
         }
         Spacer(modifier = Modifier.width(12.dp))
         Text(
@@ -249,11 +277,18 @@ private fun LogoutRow(onClick: () -> Unit) {
                 modifier = Modifier
                     .size(32.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(TrafficRed.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "A", color = TrafficRed, style = MaterialTheme.typography.labelLarge)
-            }
+            .background(TrafficRed.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_profile_logout),
+                contentDescription = "Abmelden",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(7.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
             Spacer(modifier = Modifier.width(12.dp))
             Text(text = "Abmelden", color = TrafficRed, style = MaterialTheme.typography.titleMedium)
         }
@@ -269,17 +304,6 @@ val sampleProfile = ProfileUi(
     streakDays = 7,
     badges = 24
 )
-
-private fun String.initials(): String {
-    val parts = trim()
-        .split(Regex("\\s+"))
-        .filter { it.isNotBlank() }
-    return when {
-        parts.size >= 2 -> "${parts.first().first()}${parts.last().first()}".uppercase()
-        parts.size == 1 -> parts.first().take(2).uppercase()
-        else -> "?"
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
