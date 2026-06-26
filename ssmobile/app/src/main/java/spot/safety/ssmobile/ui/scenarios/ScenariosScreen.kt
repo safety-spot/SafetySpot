@@ -1,6 +1,7 @@
 package spot.safety.ssmobile.ui.scenarios
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.ui.components.FilterPill
 import spot.safety.ssmobile.ui.components.SafetySearchBar
 import spot.safety.ssmobile.ui.components.ScenarioCard
@@ -57,7 +61,8 @@ data class ScenarioUi(
     val isNew: Boolean,
     val accentColor: Color,
     val backgroundColor: Color,
-    val iconText: String
+    val iconText: String,
+    val category: String = ""
 )
 
 private enum class ScenarioFilter(val label: String) {
@@ -126,7 +131,14 @@ fun ScenariosScreen(
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "F", color = BrandBlue, style = MaterialTheme.typography.labelLarge)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_filter_custom),
+                        contentDescription = "Filter",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(13.dp),
+                        contentScale = ContentScale.Fit
+                    )
                 }
             }
         }
@@ -195,7 +207,8 @@ val sampleScenarios = listOf(
         isNew = true,
         accentColor = ChemieBlueTint,
         backgroundColor = ChemieBlueSoft,
-        iconText = "C"
+        iconText = "C",
+        category = "Chemieraum"
     ),
     ScenarioUi(
         id = 2,
@@ -207,7 +220,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = WerkraumOrange,
         backgroundColor = WerkraumOrangeSoft,
-        iconText = "W"
+        iconText = "W",
+        category = "Werkraum"
     ),
     ScenarioUi(
         id = 3,
@@ -219,7 +233,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = SportGreen,
         backgroundColor = SportGreenSoft,
-        iconText = "S"
+        iconText = "S",
+        category = "Sportunterricht"
     ),
     ScenarioUi(
         id = 4,
@@ -231,7 +246,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = TrafficRed,
         backgroundColor = Color(0xFFFFEBEE),
-        iconText = "V"
+        iconText = "V",
+        category = "Strassenverkehr"
     ),
     ScenarioUi(
         id = 5,
@@ -243,7 +259,8 @@ val sampleScenarios = listOf(
         isNew = false,
         accentColor = TechnikPurple,
         backgroundColor = TechnikPurpleSoft,
-        iconText = "T"
+        iconText = "T",
+        category = "Technikraum"
     )
 )
 

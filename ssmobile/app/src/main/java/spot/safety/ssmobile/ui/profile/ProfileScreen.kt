@@ -2,6 +2,7 @@ package spot.safety.ssmobile.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,12 +23,18 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.BrandBlue
@@ -52,6 +59,7 @@ data class ProfileUi(
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     profile: ProfileUi = sampleProfile,
+    profileViewModel: ProfileViewModel? = null,
     onProgressClick: () -> Unit = {},
     onBadgesClick: () -> Unit = {},
     onMyScenariosClick: () -> Unit = {},
@@ -59,6 +67,8 @@ fun ProfileScreen(
     onHelpClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
+    val vmState by (profileViewModel?.state ?: MutableStateFlow(ProfileViewState(isLoading = false))).collectAsState()
+    val displayProfile = vmState.profile ?: profile
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -68,7 +78,7 @@ fun ProfileScreen(
     ) {
         ProfileHeader()
         Spacer(modifier = Modifier.height(18.dp))
-        ProfileCard(profile = profile)
+        ProfileCard(profile = displayProfile)
         Spacer(modifier = Modifier.height(18.dp))
         ProfileMenuGroup(
             items = listOf(
@@ -134,7 +144,12 @@ private fun ProfileCard(profile: ProfileUi) {
                     .background(BrandGreen.copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Max", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
+                Image(
+                    painter = painterResource(id = R.drawable.ic_profile_avatar),
+                    contentDescription = profile.fullName,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = profile.fullName, color = BrandBlue, style = MaterialTheme.typography.titleLarge)
@@ -209,10 +224,29 @@ private fun ProfileMenuRow(label: String, onClick: () -> Unit) {
             modifier = Modifier
                 .size(32.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(BrandGreen.copy(alpha = 0.12f)),
+            .background(BrandGreen.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = label.take(1), color = BrandGreen, style = MaterialTheme.typography.labelLarge)
+            val iconResId = when (label) {
+                "Mein Fortschritt" -> R.drawable.ic_profile_progress
+                "Abzeichen" -> R.drawable.ic_profile_badges
+                "Meine Szenarien" -> R.drawable.ic_profile_scenarios
+                "Einstellungen" -> R.drawable.ic_profile_settings
+                "Hilfe & Feedback" -> R.drawable.ic_profile_help
+                else -> null
+            }
+            if (iconResId != null) {
+                Image(
+                    painter = painterResource(id = iconResId),
+                    contentDescription = label,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(7.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Text(text = label.take(1), color = BrandGreen, style = MaterialTheme.typography.labelLarge)
+            }
         }
         Spacer(modifier = Modifier.width(12.dp))
         Text(
@@ -243,11 +277,18 @@ private fun LogoutRow(onClick: () -> Unit) {
                 modifier = Modifier
                     .size(32.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(TrafficRed.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "A", color = TrafficRed, style = MaterialTheme.typography.labelLarge)
-            }
+            .background(TrafficRed.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_profile_logout),
+                contentDescription = "Abmelden",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(7.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
             Spacer(modifier = Modifier.width(12.dp))
             Text(text = "Abmelden", color = TrafficRed, style = MaterialTheme.typography.titleMedium)
         }

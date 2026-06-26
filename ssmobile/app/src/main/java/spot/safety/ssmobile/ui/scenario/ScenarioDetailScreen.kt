@@ -2,6 +2,7 @@ package spot.safety.ssmobile.ui.scenario
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.ui.components.DifficultyChip
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
 import spot.safety.ssmobile.ui.scenarios.ScenarioUi
@@ -133,11 +137,33 @@ private fun ScenarioHero(
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = scenario.iconText,
-                        color = scenario.accentColor,
-                        style = MaterialTheme.typography.displaySmall
-                    )
+                    val categoryImageResId = when {
+                        scenario.category.isChemistryCategory() || scenario.title.isChemistryCategory() ->
+                            R.drawable.category_chemistry
+                        scenario.category.isSportsCategory() || scenario.title.isSportsCategory() ->
+                            R.drawable.category_sports
+                        scenario.category.isTechnologyCategory() || scenario.title.isTechnologyCategory() ->
+                            R.drawable.category_technology
+                        scenario.category.isTrafficCategory() || scenario.title.isTrafficCategory() ->
+                            R.drawable.category_traffic
+                        else -> null
+                    }
+                    if (categoryImageResId != null) {
+                        Image(
+                            painter = painterResource(id = categoryImageResId),
+                            contentDescription = scenario.title,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
+                        Text(
+                            text = scenario.iconText,
+                            color = scenario.accentColor,
+                            style = MaterialTheme.typography.displaySmall
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(18.dp))
@@ -289,6 +315,20 @@ private fun goalTextsForScenario(scenarioId: Int): List<String> = when (scenario
         "Unsichere Handlungen vor dem Experiment vermeiden"
     )
 }
+
+private fun String.isChemistryCategory(): Boolean =
+    contains("chem", ignoreCase = true) || contains("chemie", ignoreCase = true)
+
+private fun String.isSportsCategory(): Boolean =
+    contains("sport", ignoreCase = true)
+
+private fun String.isTechnologyCategory(): Boolean =
+    contains("tech", ignoreCase = true)
+
+private fun String.isTrafficCategory(): Boolean =
+    contains("traffic", ignoreCase = true) ||
+        contains("verkehr", ignoreCase = true) ||
+        contains("strass", ignoreCase = true)
 
 @Preview(showBackground = true)
 @Composable

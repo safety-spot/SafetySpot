@@ -3,6 +3,7 @@ package spot.safety.ssmobile.ui.scenario
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,24 +17,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import spot.safety.ssmobile.R
+import spot.safety.ssmobile.data.repository.ImageRepository
 import spot.safety.ssmobile.ui.components.SafetyProgressBar
 import spot.safety.ssmobile.ui.theme.AppBackground
 import spot.safety.ssmobile.ui.theme.BrandBlue
@@ -55,6 +66,7 @@ import spot.safety.ssmobile.ui.theme.WerkraumOrange
 import spot.safety.ssmobile.ui.theme.WerkraumOrangeSoft
 
 data class ScenarioPlayUi(
+    val imageId: Long = 0L,
     val category: String,
     val question: String,
     val instruction: String,
@@ -63,28 +75,57 @@ data class ScenarioPlayUi(
     val illustrationDescription: String,
     val illustrationColor: Color,
     val illustrationBackground: Color,
+    val imageUrl: String? = null,
     val isDangerous: Boolean,
     val feedbackCorrect: String,
     val feedbackWrong: String,
-    val points: Int
+    val points: Int,
+    val imageRepository: ImageRepository,
 )
 
 @Composable
 fun ScenarioPlayScreen(
     modifier: Modifier = Modifier,
-    scenarioId: Int = 1,
-    scenarios: List<ScenarioPlayUi> = tasksForScenario(scenarioId),
+    category: String = "",
+    viewModel: ScenarioPlayViewModel? = null,
     onScenarioCompleted: (Int) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    imageRepository: ImageRepository
 ) {
+    val vmState by (viewModel?.uiState ?: MutableStateFlow(ScenarioPlayUiState(isLoading = false))).collectAsState()
+    val scenarios = /*if (viewModel != null)*/ vmState.tasks //else tasksForScenario(category)
+    val completedBeforeCount = if (viewModel != null) vmState.completedBeforeCount else 0
+    val totalTaskCount = if (viewModel != null && vmState.totalTaskCount > 0) vmState.totalTaskCount else scenarios.size
+
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
     var selectedDangerous by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var earnedPoints by rememberSaveable { mutableIntStateOf(0) }
     var isComplete by rememberSaveable { mutableStateOf(false) }
+    // Server result fields (set after submitTag)
+    var serverCorrect by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var serverFeedback by rememberSaveable { mutableStateOf("") }
+    var serverPoints by rememberSaveable { mutableIntStateOf(0) }
+    var isSubmitting by rememberSaveable { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    if (vmState.isLoading && viewModel != null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Lädt...", color = BrandBlue, style = MaterialTheme.typography.bodyLarge)
+        }
+        return
+    }
+
+    if (scenarios.isEmpty()) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Keine Aufgaben gefunden.", color = BrandBlue, style = MaterialTheme.typography.bodyLarge)
+        }
+        return
+    }
 
     val currentScenario = scenarios[currentIndex]
     val selectedAnswer = selectedDangerous
-    val wasCorrect = selectedAnswer?.let { it == currentScenario.isDangerous }
+    // Use server result when available (ViewModel mode), otherwise fall back to local check
+    val wasCorrect: Boolean? = if (viewModel != null) serverCorrect else selectedAnswer?.let { it == currentScenario.isDangerous }
 
     if (isComplete) {
         ScenarioResultScreen(
@@ -96,6 +137,9 @@ fun ScenarioPlayScreen(
                 selectedDangerous = null
                 earnedPoints = 0
                 isComplete = false
+                serverCorrect = null
+                serverFeedback = ""
+                serverPoints = 0
             },
             modifier = modifier
         )
@@ -110,8 +154,8 @@ fun ScenarioPlayScreen(
             .padding(horizontal = 18.dp, vertical = 18.dp)
     ) {
         ScenarioPlayHeader(
-            currentStep = currentIndex + 1,
-            totalSteps = scenarios.size,
+            currentStep = completedBeforeCount + currentIndex + 1,
+            totalSteps = totalTaskCount,
             points = earnedPoints,
             onBackClick = onBackClick
         )
@@ -129,10 +173,13 @@ fun ScenarioPlayScreen(
         Text(text = currentScenario.instruction, color = MutedText, style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(18.dp))
         ScenarioIllustration(
+            category = currentScenario.category,
             title = currentScenario.illustrationTitle,
             description = currentScenario.illustrationDescription,
             accentColor = currentScenario.illustrationColor,
-            backgroundColor = currentScenario.illustrationBackground
+            backgroundColor = currentScenario.illustrationBackground,
+            imageUrl = currentScenario.imageUrl,
+            imageRepository = imageRepository
         )
         Spacer(modifier = Modifier.height(16.dp))
         Card(
@@ -156,8 +203,20 @@ fun ScenarioPlayScreen(
                 backgroundColor = DangerPink,
                 contentColor = TrafficRed,
                 selected = selectedAnswer == true,
-                enabled = selectedAnswer == null,
-                onClick = { selectedDangerous = true },
+                enabled = selectedAnswer == null && !isSubmitting,
+                onClick = {
+                    selectedDangerous = true
+                    if (viewModel != null) {
+                        isSubmitting = true
+                        coroutineScope.launch {
+                            val result = viewModel.submitTag(currentScenario.imageId, true)
+                            serverCorrect = result.correct
+                            serverFeedback = result.feedback
+                            serverPoints = result.points
+                            isSubmitting = false
+                        }
+                    }
+                },
                 modifier = Modifier.weight(1f)
             )
             DecisionButton(
@@ -166,31 +225,48 @@ fun ScenarioPlayScreen(
                 backgroundColor = SafeGreenBg,
                 contentColor = BrandGreen,
                 selected = selectedAnswer == false,
-                enabled = selectedAnswer == null,
-                onClick = { selectedDangerous = false },
+                enabled = selectedAnswer == null && !isSubmitting,
+                onClick = {
+                    selectedDangerous = false
+                    if (viewModel != null) {
+                        isSubmitting = true
+                        coroutineScope.launch {
+                            val result = viewModel.submitTag(currentScenario.imageId, false)
+                            serverCorrect = result.correct
+                            serverFeedback = result.feedback
+                            serverPoints = result.points
+                            isSubmitting = false
+                        }
+                    }
+                },
                 modifier = Modifier.weight(1f)
             )
         }
         if (wasCorrect != null) {
+            val feedbackText = if (viewModel != null) serverFeedback
+                else if (wasCorrect) currentScenario.feedbackCorrect else currentScenario.feedbackWrong
+            val pointsEarned = if (viewModel != null) serverPoints
+                else if (wasCorrect) currentScenario.points else 0
             Spacer(modifier = Modifier.height(16.dp))
             FeedbackCard(
                 correct = wasCorrect,
-                text = if (wasCorrect) currentScenario.feedbackCorrect else currentScenario.feedbackWrong,
-                points = if (wasCorrect) currentScenario.points else 0
+                text = feedbackText,
+                points = pointsEarned
             )
             Spacer(modifier = Modifier.height(14.dp))
             Button(
                 onClick = {
-                    if (wasCorrect) {
-                        earnedPoints += currentScenario.points
-                    }
+                    val totalEarnedPoints = earnedPoints + pointsEarned
+                    earnedPoints += pointsEarned
                     if (currentIndex == scenarios.lastIndex) {
-                        val finalPoints = earnedPoints + if (wasCorrect) currentScenario.points else 0
-                        onScenarioCompleted(finalPoints)
+                        onScenarioCompleted(totalEarnedPoints)
                         isComplete = true
                     } else {
                         currentIndex += 1
                         selectedDangerous = null
+                        serverCorrect = null
+                        serverFeedback = ""
+                        serverPoints = 0
                     }
                 },
                 modifier = Modifier
@@ -249,7 +325,16 @@ private fun ScenarioPlayHeader(
                 .padding(horizontal = 12.dp, vertical = 9.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "* $points", color = PointsYellow, style = MaterialTheme.typography.labelLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_points_star),
+                    contentDescription = "Punkte",
+                    modifier = Modifier.size(18.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(modifier = Modifier.size(5.dp))
+                Text(text = points.toString(), color = PointsYellow, style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }
@@ -281,10 +366,13 @@ private fun MascotBubble() {
 
 @Composable
 private fun ScenarioIllustration(
+    category: String,
     title: String,
     description: String,
     accentColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
+    imageUrl: String?,
+    imageRepository: ImageRepository
 ) {
     Card(
         modifier = Modifier
@@ -300,7 +388,31 @@ private fun ScenarioIllustration(
                 .background(backgroundColor),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            val categoryImageResId = when {
+                category.isChemistryCategory() -> R.drawable.category_chemistry
+                category.isSportsCategory() -> R.drawable.category_sports
+                category.isTechnologyCategory() -> R.drawable.category_technology
+                category.isTrafficCategory() -> R.drawable.category_traffic
+                else -> null
+            }
+            if (!imageUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = imageRepository.requestImageData(LocalContext.current, imageUrl),
+                    contentDescription = description.ifBlank { title },
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else if (categoryImageResId != null) {
+                Image(
+                    painter = painterResource(id = categoryImageResId),
+                    contentDescription = description.ifBlank { title },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(28.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
                         .size(112.dp)
@@ -318,6 +430,7 @@ private fun ScenarioIllustration(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
+                }
             }
         }
     }
@@ -438,176 +551,20 @@ private fun ScenarioResultScreen(
     }
 }
 
-fun tasksForScenario(scenarioId: Int): List<ScenarioPlayUi> = when (scenarioId) {
-    2 -> listOf(
-        ScenarioPlayUi(
-            category = "Werkraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Noah benutzt eine Saege, waehrend das Werkstueck locker auf dem Tisch liegt.",
-            illustrationTitle = "Werkbank",
-            illustrationDescription = "Noah steht an einer Werkbank mit Saege und Holzbrett",
-            illustrationColor = WerkraumOrange,
-            illustrationBackground = WerkraumOrangeSoft,
-            isDangerous = true,
-            feedbackCorrect = "Richtig. Werkstuecke muessen sicher eingespannt werden.",
-            feedbackWrong = "Das ist gefaehrlich: Ein loses Werkstueck kann verrutschen.",
-            points = 40
-        ),
-        ScenarioPlayUi(
-            category = "Werkraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Mia traegt eine Schutzbrille, bevor sie Holz schleift.",
-            illustrationTitle = "Schutzbrille",
-            illustrationDescription = "Mia bereitet sich mit Schutzbrille auf Schleifarbeiten vor",
-            illustrationColor = WerkraumOrange,
-            illustrationBackground = WerkraumOrangeSoft,
-            isDangerous = false,
-            feedbackCorrect = "Genau. Die Schutzbrille schuetzt vor Staub und Splittern.",
-            feedbackWrong = "Das ist eine sichere Schutzmassnahme.",
-            points = 40
-        )
-    )
+private fun String.isChemistryCategory(): Boolean =
+    contains("chem", ignoreCase = true) || contains("chemie", ignoreCase = true)
 
-    3 -> listOf(
-        ScenarioPlayUi(
-            category = "Sportunterricht",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Die Klasse waermt sich vor dem Sprinttraining gemeinsam auf.",
-            illustrationTitle = "Sporthalle",
-            illustrationDescription = "Die Gruppe macht Aufwaermuebungen in der Sporthalle",
-            illustrationColor = SportGreen,
-            illustrationBackground = SportGreenSoft,
-            isDangerous = false,
-            feedbackCorrect = "Richtig. Aufwaermen senkt das Verletzungsrisiko.",
-            feedbackWrong = "Das ist nicht gefaehrlich, sondern eine gute Vorbereitung.",
-            points = 40
-        ),
-        ScenarioPlayUi(
-            category = "Sportunterricht",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Jonas springt auf eine nasse Turnmatte.",
-            illustrationTitle = "Turnmatte",
-            illustrationDescription = "Eine nasse Matte liegt in der Sporthalle",
-            illustrationColor = SportGreen,
-            illustrationBackground = SportGreenSoft,
-            isDangerous = true,
-            feedbackCorrect = "Richtig. Nasse Matten koennen rutschen.",
-            feedbackWrong = "Das ist gefaehrlich, weil die Matte keinen sicheren Halt gibt.",
-            points = 40
-        )
-    )
+private fun String.isSportsCategory(): Boolean =
+    contains("sport", ignoreCase = true)
 
-    4 -> listOf(
-        ScenarioPlayUi(
-            category = "Strassenverkehr",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Max schaut nach links und rechts, bevor er den Zebrastreifen betritt.",
-            illustrationTitle = "Zebrastreifen",
-            illustrationDescription = "Max wartet aufmerksam am Strassenrand",
-            illustrationColor = TrafficRed,
-            illustrationBackground = Color(0xFFFFEBEE),
-            isDangerous = false,
-            feedbackCorrect = "Genau. Auch am Zebrastreifen muss man aufmerksam bleiben.",
-            feedbackWrong = "Das ist nicht gefaehrlich, sondern umsichtig.",
-            points = 40
-        ),
-        ScenarioPlayUi(
-            category = "Strassenverkehr",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Mia laeuft zwischen parkenden Autos auf die Strasse.",
-            illustrationTitle = "Strasse",
-            illustrationDescription = "Parkende Autos verdecken die Sicht auf die Fahrbahn",
-            illustrationColor = TrafficRed,
-            illustrationBackground = Color(0xFFFFEBEE),
-            isDangerous = true,
-            feedbackCorrect = "Richtig. Andere Verkehrsteilnehmer sehen sie dort schlecht.",
-            feedbackWrong = "Das ist gefaehrlich, weil sie spaet gesehen wird.",
-            points = 40
-        )
-    )
+private fun String.isTechnologyCategory(): Boolean =
+    contains("tech", ignoreCase = true)
 
-    5 -> listOf(
-        ScenarioPlayUi(
-            category = "Technikraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Ein Kabel hat eine beschaedigte Isolierung und wird trotzdem benutzt.",
-            illustrationTitle = "Kabel",
-            illustrationDescription = "Ein defektes Kabel liegt neben einem elektrischen Geraet",
-            illustrationColor = TechnikPurple,
-            illustrationBackground = TechnikPurpleSoft,
-            isDangerous = true,
-            feedbackCorrect = "Richtig. Beschaedigte Kabel duerfen nicht verwendet werden.",
-            feedbackWrong = "Das ist gefaehrlich: Stromschlag- und Brandgefahr.",
-            points = 40
-        ),
-        ScenarioPlayUi(
-            category = "Technikraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Paul schaltet das Geraet aus, bevor er den Stecker zieht.",
-            illustrationTitle = "Stecker",
-            illustrationDescription = "Paul trennt ein ausgeschaltetes Geraet sicher vom Strom",
-            illustrationColor = TechnikPurple,
-            illustrationBackground = TechnikPurpleSoft,
-            isDangerous = false,
-            feedbackCorrect = "Genau. Erst ausschalten, dann sicher trennen.",
-            feedbackWrong = "Das ist nicht gefaehrlich, sondern richtiges Vorgehen.",
-            points = 40
-        )
-    )
-
-    else -> listOf(
-        ScenarioPlayUi(
-            category = "Chemieraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Max fuellt etwas Wasser in ein Reagenzglas, das noch Reste von Schwefelsaeure enthaelt.",
-            illustrationTitle = "Labor",
-            illustrationDescription = "Max arbeitet mit Reagenzglas und Schutzbrille",
-            illustrationColor = ChemieBlueTint,
-            illustrationBackground = ChemieBlueSoft,
-            isDangerous = true,
-            feedbackCorrect = "Richtig. Saeurereste koennen mit Wasser reagieren und spritzen.",
-            feedbackWrong = "Das ist gefaehrlich: Saeurereste koennen reagieren und Verletzungen verursachen.",
-            points = 40
-        ),
-        ScenarioPlayUi(
-            category = "Chemieraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Mia setzt ihre Schutzbrille auf, bevor sie mit den Chemikalien arbeitet.",
-            illustrationTitle = "Schutz",
-            illustrationDescription = "Mia setzt im Chemieraum ihre Schutzbrille auf",
-            illustrationColor = ChemieBlueTint,
-            illustrationBackground = ChemieBlueSoft,
-            isDangerous = false,
-            feedbackCorrect = "Genau. Die Schutzbrille reduziert das Risiko fuer Augenverletzungen.",
-            feedbackWrong = "Das ist nicht gefaehrlich, sondern eine wichtige Schutzmassnahme.",
-            points = 40
-        ),
-        ScenarioPlayUi(
-            category = "Chemieraum",
-            question = "Ist das gefaehrlich?",
-            instruction = "Lies dir die Situation durch und entscheide.",
-            context = "Jonas riecht direkt an einer unbekannten Fluessigkeit im Becherglas.",
-            illustrationTitle = "Becherglas",
-            illustrationDescription = "Ein Becherglas mit unbekannter Fluessigkeit steht auf dem Labortisch",
-            illustrationColor = ChemieBlueTint,
-            illustrationBackground = ChemieBlueSoft,
-            isDangerous = true,
-            feedbackCorrect = "Richtig. Unbekannte Stoffe duerfen nicht direkt eingeatmet werden.",
-            feedbackWrong = "Das ist gefaehrlich: Daempfe koennen reizend oder giftig sein.",
-            points = 40
-        )
-    )
-}
+private fun String.isTrafficCategory(): Boolean =
+    contains("traffic", ignoreCase = true) ||
+        contains("verkehr", ignoreCase = true) ||
+        contains("strass", ignoreCase = true)
+/*
 
 @Preview(showBackground = true)
 @Composable
@@ -616,3 +573,4 @@ private fun ScenarioPlayScreenPreview() {
         ScenarioPlayScreen()
     }
 }
+*/

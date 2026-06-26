@@ -158,7 +158,7 @@ public class DemoDataService {
             CreateImageRequest request = new CreateImageRequest(
                     s.title(),
                     s.description(),
-                    "https://placehold.co/600x400/EEE/31343C",
+                    "",
                     s.category(),
                     TagValue.valueOf(s.tag()),
                     s.fbCorrect(),

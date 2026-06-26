@@ -14,6 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,10 +60,36 @@ fun HomeScreen(
     streakDays: Int = 7,
     completedScenarioCount: Int = 0,
     categories: List<HomeCategoryUi> = sampleHomeCategories,
+    homeViewModel: HomeViewModel? = null,
     onShowAllCategories: () -> Unit = {},
-    onContinueScenario: () -> Unit = {},
+    onContinueScenario: (String) -> Unit = {},
     onCategoryClick: (HomeCategoryUi) -> Unit = {}
 ) {
+    val vmState by (homeViewModel?.uiState ?: MutableStateFlow(HomeUiState(isLoading = false))).collectAsState()
+    val displayNameFinal = if (homeViewModel != null) vmState.displayName else displayName
+    val pointsFinal = if (homeViewModel != null) vmState.points else points
+    val completedCountFinal = if (homeViewModel != null) vmState.completedCount else completedScenarioCount
+    val categoriesFinal = if (homeViewModel != null) {
+        vmState.categories.map { category ->
+            val (accent, background, icon) = categoryStyle(category)
+            HomeCategoryUi(
+                name = category,
+                scenarioCount = vmState.categoryCounts[category] ?: 0,
+                accentColor = accent,
+                backgroundColor = background,
+                iconText = icon
+            )
+        }
+    } else {
+        categories
+    }
+    val continueCategory = if (homeViewModel != null) {
+        vmState.continueCategory
+    } else {
+        categories.firstOrNull()?.name
+    }
+    val continueAnsweredCount = if (homeViewModel != null) vmState.continueAnsweredCount else 0
+    val continueTaskCount = if (homeViewModel != null) vmState.continueTaskCount else categories.firstOrNull()?.scenarioCount ?: 0
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -68,7 +97,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 18.dp, vertical = 18.dp)
     ) {
-        HomeHeader(displayName = displayName)
+        HomeHeader(displayName = displayNameFinal)
         Spacer(modifier = Modifier.height(18.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             MetricCard(
@@ -80,7 +109,7 @@ fun HomeScreen(
             )
             MetricCard(
                 iconText = "*",
-                value = formatScore(points),
+                value = formatScore(pointsFinal),
                 label = "Punkte",
                 modifier = Modifier.weight(1f),
                 iconBackground = PointsYellow,
@@ -92,10 +121,21 @@ fun HomeScreen(
         Text(text = "Weitermachen", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(10.dp))
         ContinueBanner(
-            title = if (completedScenarioCount == 0) "Chemieraum" else "Naechstes Szenario",
-            subtitle = if (completedScenarioCount == 0) "Gefaehrliche Stoffe" else "$completedScenarioCount abgeschlossen",
-            progress = if (completedScenarioCount == 0) 0.6f else 0.15f,
-            onContinueClick = onContinueScenario
+            title = continueCategory ?: "Keine Szenarien",
+            subtitle = if (continueCategory == null) {
+                "Es sind aktuell keine Aufgaben verfuegbar"
+            } else if (continueTaskCount > 0) {
+                "Aufgabe ${continueAnsweredCount + 1} von $continueTaskCount"
+            } else if (completedCountFinal == 0) {
+                "Starte mit der ersten Aufgabe"
+            } else {
+                "$completedCountFinal beantwortet"
+            },
+            progress = if (continueTaskCount == 0) 0f else continueAnsweredCount.toFloat() / continueTaskCount.toFloat(),
+            enabled = continueCategory != null,
+            onContinueClick = {
+                continueCategory?.let(onContinueScenario)
+            }
         )
         Spacer(modifier = Modifier.height(22.dp))
         SectionHeader(
@@ -104,7 +144,7 @@ fun HomeScreen(
             onActionClick = onShowAllCategories
         )
         Spacer(modifier = Modifier.height(10.dp))
-        categories.chunked(2).forEach { rowItems ->
+        categoriesFinal.chunked(2).forEach { rowItems ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -143,6 +183,14 @@ private fun HomeHeader(displayName: String) {
         )
         Text(text = "!", color = BrandBlue, style = MaterialTheme.typography.titleLarge)
     }
+}
+
+private fun categoryStyle(category: String): Triple<Color, Color, String> = when {
+    category.contains("Chemie", ignoreCase = true) -> Triple(ChemieBlueTint, ChemieBlueSoft, "C")
+    category.contains("Werk", ignoreCase = true) -> Triple(WerkraumOrange, WerkraumOrangeSoft, "W")
+    category.contains("Sport", ignoreCase = true) -> Triple(SportGreen, SportGreenSoft, "S")
+    category.contains("Technik", ignoreCase = true) -> Triple(TechnikPurple, TechnikPurpleSoft, "T")
+    else -> Triple(ChemieBlueTint, ChemieBlueSoft, category.firstOrNull()?.uppercaseChar()?.toString() ?: "?")
 }
 
 val sampleHomeCategories = listOf(

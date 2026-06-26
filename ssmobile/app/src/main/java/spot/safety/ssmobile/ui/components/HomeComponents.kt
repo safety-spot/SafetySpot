@@ -3,12 +3,14 @@ package spot.safety.ssmobile.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,10 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import spot.safety.ssmobile.R
 import spot.safety.ssmobile.ui.navigation.TopLevelDestination
 import spot.safety.ssmobile.ui.theme.BrandBlue
 import spot.safety.ssmobile.ui.theme.BrandGreen
@@ -77,11 +81,22 @@ fun MetricCard(
                     .background(iconBackground),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = iconText,
-                    color = iconColor,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                if (iconText == "*") {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_points_star),
+                        contentDescription = label,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(6.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = iconText,
+                        color = iconColor,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(text = value, color = BrandBlue, style = MaterialTheme.typography.titleMedium)
@@ -189,7 +204,12 @@ fun SafetySearchBar(
             Text(text = "Suchen...", color = MutedText, style = MaterialTheme.typography.bodyMedium)
         },
         leadingIcon = {
-            Text(text = "S", color = MutedText, style = MaterialTheme.typography.labelLarge)
+            Image(
+                painter = painterResource(id = R.drawable.ic_search_custom),
+                contentDescription = "Suchen",
+                modifier = Modifier.size(24.dp),
+                contentScale = ContentScale.Fit
+            )
         },
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
@@ -269,7 +289,12 @@ fun ScenarioCard(
                     .background(backgroundColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = iconText, color = accentColor, style = MaterialTheme.typography.titleMedium)
+                CategoryImageOrIcon(
+                    category = title,
+                    iconText = iconText,
+                    accentColor = accentColor,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -315,7 +340,8 @@ fun ContinueBanner(
     subtitle: String,
     progress: Float,
     onContinueClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -334,7 +360,12 @@ fun ContinueBanner(
                     .background(ChemieBlueSoft),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Becher", color = ChemieBlueTint, style = MaterialTheme.typography.labelLarge)
+                CategoryImageOrIcon(
+                    category = title,
+                    iconText = "C",
+                    accentColor = ChemieBlueTint,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -354,6 +385,7 @@ fun ContinueBanner(
             Spacer(modifier = Modifier.width(10.dp))
             Button(
                 onClick = onContinueClick,
+                enabled = enabled,
                 shape = RoundedCornerShape(99.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                 contentPadding = ButtonDefaults.ContentPadding
@@ -389,7 +421,12 @@ fun CategoryTile(
                 .background(Color.White.copy(alpha = 0.55f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = iconText, color = accentColor, style = MaterialTheme.typography.labelLarge)
+            CategoryImageOrIcon(
+                category = name,
+                iconText = iconText,
+                accentColor = accentColor,
+                modifier = Modifier.fillMaxSize()
+            )
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column {
@@ -402,6 +439,46 @@ fun CategoryTile(
         }
     }
 }
+
+@Composable
+private fun CategoryImageOrIcon(
+    category: String,
+    iconText: String,
+    accentColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val imageResId = when {
+        category.isChemistryCategory() -> R.drawable.category_chemistry
+        category.isSportsCategory() -> R.drawable.category_sports
+        category.isTechnologyCategory() -> R.drawable.category_technology
+        category.isTrafficCategory() -> R.drawable.category_traffic
+        else -> null
+    }
+    if (imageResId != null) {
+        Image(
+            painter = painterResource(id = imageResId),
+            contentDescription = category,
+            modifier = modifier.padding(4.dp),
+            contentScale = ContentScale.Fit
+        )
+    } else {
+        Text(text = iconText, color = accentColor, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+private fun String.isChemistryCategory(): Boolean =
+    contains("chem", ignoreCase = true) || contains("chemie", ignoreCase = true)
+
+private fun String.isSportsCategory(): Boolean =
+    contains("sport", ignoreCase = true)
+
+private fun String.isTechnologyCategory(): Boolean =
+    contains("tech", ignoreCase = true)
+
+private fun String.isTrafficCategory(): Boolean =
+    contains("traffic", ignoreCase = true) ||
+        contains("verkehr", ignoreCase = true) ||
+        contains("strass", ignoreCase = true)
 
 @Composable
 fun SafetySpotBottomBar(
