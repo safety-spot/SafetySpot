@@ -18,7 +18,7 @@ public class SchoolService {
 
     public School getSchoolByName(String name) {
         Optional<School> school = schoolRepository.findByName(name);
-        if(school.isEmpty()) {
+        if (school.isEmpty()) {
             throw new EntityNotFoundException("School: " + name + " was not found in database!");
         }
 
@@ -33,7 +33,7 @@ public class SchoolService {
         return school.get();
     }
 
-    public List<School> getAllSchools () {
+    public List<School> getAllSchools() {
         return schoolRepository.findAll();
     }
 
@@ -52,7 +52,7 @@ public class SchoolService {
 
     public void activateLicense(long id, String key, SecurityUser principal) {
         School school = getSchoolById(id);
-        if(id != principal.getUser().getSchool().getId()) {
+        if (id != principal.getUser().getSchool().getId()) {
             throw new AccessDeniedException("User does not have access to this school");
         }
         school.activateLicense(key);

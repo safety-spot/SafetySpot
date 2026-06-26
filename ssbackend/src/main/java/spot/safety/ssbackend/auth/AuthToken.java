@@ -2,8 +2,6 @@ package spot.safety.ssbackend.auth;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import spot.safety.ssbackend.user.User;
 
 import java.time.LocalDateTime;

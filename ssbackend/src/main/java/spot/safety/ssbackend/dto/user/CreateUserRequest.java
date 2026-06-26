@@ -10,4 +10,5 @@ public record CreateUserRequest(
         @NotBlank @Size(min = 6) String password,
         @NotNull Role role,
         Long classId
-) {}
+) {
+}

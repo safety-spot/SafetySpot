@@ -16,10 +16,10 @@ import spot.safety.ssbackend.model.TagValue;
 import spot.safety.ssbackend.repository.ImageRepository;
 import spot.safety.ssbackend.repository.ImageTagRepository;
 import spot.safety.ssbackend.school.School;
+import spot.safety.ssbackend.tag.TagServiceImpl;
 import spot.safety.ssbackend.user.User;
 import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserRepository;
-import spot.safety.ssbackend.tag.TagServiceImpl;
 
 import java.time.Instant;
 import java.util.Optional;

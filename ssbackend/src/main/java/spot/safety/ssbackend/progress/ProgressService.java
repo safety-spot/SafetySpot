@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface ProgressService {
     List<ProgressEntryResponse> getHistory(UserPrincipal actor);
+
     ProgressSummaryResponse getSummary(UserPrincipal actor);
 }

@@ -17,25 +17,35 @@ import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolClass;
 import spot.safety.ssbackend.school.SchoolClassRepository;
 import spot.safety.ssbackend.school.SchoolRepository;
-import spot.safety.ssbackend.user.*;
+import spot.safety.ssbackend.user.User;
+import spot.safety.ssbackend.user.UserPrincipal;
+import spot.safety.ssbackend.user.UserRepository;
+import spot.safety.ssbackend.user.UserServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock UserRepository userRepository;
-    @Mock SchoolClassRepository schoolClassRepository;
-    @Mock SchoolRepository schoolRepository;
-    @Mock PasswordEncoder passwordEncoder;
+    @Mock
+    UserRepository userRepository;
+    @Mock
+    SchoolClassRepository schoolClassRepository;
+    @Mock
+    SchoolRepository schoolRepository;
+    @Mock
+    PasswordEncoder passwordEncoder;
 
-    @InjectMocks UserServiceImpl userService;
+    @InjectMocks
+    UserServiceImpl userService;
 
     private School school;
     private SchoolClass schoolClass;

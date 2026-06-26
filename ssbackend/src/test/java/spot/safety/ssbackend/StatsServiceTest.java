@@ -11,7 +11,6 @@ import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.model.Image;
 import spot.safety.ssbackend.model.ImageTag;
 import spot.safety.ssbackend.model.TagValue;
-import spot.safety.ssbackend.progress.ProgressServiceImpl;
 import spot.safety.ssbackend.repository.ImageRepository;
 import spot.safety.ssbackend.repository.ImageTagRepository;
 import spot.safety.ssbackend.school.School;
@@ -28,7 +27,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
