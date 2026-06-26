@@ -24,11 +24,14 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Goto ssmobile/
+        run: cd ssmobile
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build ssmobile Release APK
-        run: cd ssmobile && ./gradlew assembleRelease
+        run: ./gradlew assembleRelease
 
       # --- TODO: Sign the APK ---
       # - name: Sign Release APK
