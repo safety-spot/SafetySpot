@@ -1,18 +1,18 @@
 package spot.safety.ssbackend.demo;
 
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spot.safety.ssbackend.dto.image.CreateImageRequest;
+import spot.safety.ssbackend.dto.image.ImageResponse;
 import spot.safety.ssbackend.dto.school.CreateSchool;
 import spot.safety.ssbackend.dto.user.CreateUserRequest;
 import spot.safety.ssbackend.enums.Role;
-import spot.safety.ssbackend.image.ImageService;
 import spot.safety.ssbackend.image.ImageDataService;
-import spot.safety.ssbackend.dto.image.ImageResponse;
-import org.springframework.core.io.ClassPathResource;
+import spot.safety.ssbackend.image.ImageService;
 import spot.safety.ssbackend.model.TagValue;
 import spot.safety.ssbackend.school.SchoolClass;
 import spot.safety.ssbackend.school.SchoolClassRepository;
@@ -77,16 +77,16 @@ public class DemoDataService {
 
         IntStream.range(0, 20)
                 .forEach(i -> {
-                        try {
-                            userSvc.createUser(new CreateUserRequest(
-                                    faker.witcher().character() + " (" + i + ")",
-                                    "Kennwort1!",
-                                    Role.STUDENT,
-                                    school.getId()), actor);
-                        } catch (Exception e) {
-                            // just continue, not important that we get all users
+                            try {
+                                userSvc.createUser(new CreateUserRequest(
+                                        faker.witcher().character() + " (" + i + ")",
+                                        "Kennwort1!",
+                                        Role.STUDENT,
+                                        school.getId()), actor);
+                            } catch (Exception e) {
+                                // just continue, not important that we get all users
+                            }
                         }
-                    }
                 );
 
 

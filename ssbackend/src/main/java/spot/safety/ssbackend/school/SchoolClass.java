@@ -39,5 +39,7 @@ public class SchoolClass {
     private Instant createdAt;
 
     @PrePersist
-    void onCreate() { this.createdAt = Instant.now(); }
+    void onCreate() {
+        this.createdAt = Instant.now();
+    }
 }

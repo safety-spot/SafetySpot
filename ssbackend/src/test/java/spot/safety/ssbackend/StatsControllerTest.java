@@ -20,9 +20,9 @@ import spot.safety.ssbackend.dto.stats.ImageStatsResponse;
 import spot.safety.ssbackend.dto.stats.StudentStatEntry;
 import spot.safety.ssbackend.enums.Role;
 import spot.safety.ssbackend.model.TagValue;
+import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.stats.StatsController;
 import spot.safety.ssbackend.stats.StatsService;
-import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.user.SecurityUser;
 import spot.safety.ssbackend.user.User;
 
@@ -32,7 +32,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(StatsController.class)
 @Import(SecurityConfig.class)

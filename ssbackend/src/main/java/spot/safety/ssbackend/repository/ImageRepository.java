@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findAllByActiveTrue();
+
     long countByActiveTrue();
+
     List<Image> findAllByActiveTrueAndCategory(String category);
+
     List<Image> findAllByUploadedById(Long userId);
 }

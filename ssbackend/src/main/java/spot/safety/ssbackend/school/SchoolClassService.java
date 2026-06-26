@@ -16,69 +16,69 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SchoolClassService {
-   private final SchoolClassRepository schoolClassRepository;
-   private final SchoolService schoolService;
-   private final UserService userService;
+    private final SchoolClassRepository schoolClassRepository;
+    private final SchoolService schoolService;
+    private final UserService userService;
 
-   public SchoolClass newClass(long id, String name, SecurityUser principal) {
-      School school = schoolService.getSchoolById(id);
-      if(id != principal.getUser().getSchool().getId()) {
-         throw new AccessDeniedException("User does not have access rights to this school");
-      }
+    public SchoolClass newClass(long id, String name, SecurityUser principal) {
+        School school = schoolService.getSchoolById(id);
+        if (id != principal.getUser().getSchool().getId()) {
+            throw new AccessDeniedException("User does not have access rights to this school");
+        }
 
-      if (schoolClassRepository.existsByNameAndSchoolId(name, id)) {
-         throw new DuplicateTagException("A class named '" + name + "' already exists in this school");
-      }
+        if (schoolClassRepository.existsByNameAndSchoolId(name, id)) {
+            throw new DuplicateTagException("A class named '" + name + "' already exists in this school");
+        }
 
-      SchoolClass schoolClass = new SchoolClass();
-      schoolClass.setName(name);
-      schoolClass.setSchool(school);
+        SchoolClass schoolClass = new SchoolClass();
+        schoolClass.setName(name);
+        schoolClass.setSchool(school);
 
-      schoolClassRepository.save(schoolClass);
-      return schoolClass;
-   }
+        schoolClassRepository.save(schoolClass);
+        return schoolClass;
+    }
 
-   public List<SchoolClass> getClasses(SecurityUser principal) {
-      return principal.getUser().getRole() == Role.ADMIN
-              ? schoolClassRepository.findAll()
-              : schoolClassRepository.findAllByTeacherId(principal.getUser().getId());
-   }
+    public List<SchoolClass> getClasses(SecurityUser principal) {
+        return principal.getUser().getRole() == Role.ADMIN
+                ? schoolClassRepository.findAll()
+                : schoolClassRepository.findAllByTeacherId(principal.getUser().getId());
+    }
 
-   public int getAmountOfStudent(long id, SecurityUser principal) {
-      return userService.getUsers(id, UserPrincipal.from(principal.getUser())).size();
-   }
+    public int getAmountOfStudent(long id, SecurityUser principal) {
+        return userService.getUsers(id, UserPrincipal.from(principal.getUser())).size();
+    }
 
-   public List<UserResponse> getStudents(long id, SecurityUser principal) {
-      return userService.getUsers(id, UserPrincipal.from(principal.getUser()));
-   }
+    public List<UserResponse> getStudents(long id, SecurityUser principal) {
+        return userService.getUsers(id, UserPrincipal.from(principal.getUser()));
+    }
 
-   public void updateClass (long id, SecurityUser principal, UpdateSchoolClass request) {
-      SchoolClass schoolClass = schoolClassRepository.findById(id)
-              .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
-      if(id != principal.getUser().getSchool().getId()) {
-         throw new AccessDeniedException("User does not have access rights to this school");
-      }
-      if (request.name() != null) {
-         schoolClass.setName(request.name());
-      }
-      if (request.teacherId() != null) {
-         UserResponse ur = userService.getUserById(request.teacherId(), UserPrincipal.from(principal.getUser()));
-         schoolClass.setTeacher(userService.findByUsername(ur.username()));
-      }
+    public void updateClass(long id, SecurityUser principal, UpdateSchoolClass request) {
+        SchoolClass schoolClass = schoolClassRepository.findById(id)
+                .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
+        if (id != principal.getUser().getSchool().getId()) {
+            throw new AccessDeniedException("User does not have access rights to this school");
+        }
+        if (request.name() != null) {
+            schoolClass.setName(request.name());
+        }
+        if (request.teacherId() != null) {
+            UserResponse ur = userService.getUserById(request.teacherId(), UserPrincipal.from(principal.getUser()));
+            schoolClass.setTeacher(userService.findByUsername(ur.username()));
+        }
 
-      schoolClassRepository.save(schoolClass);
-   }
+        schoolClassRepository.save(schoolClass);
+    }
 
-   public void deleteClass(long id, SecurityUser principal) {
-      SchoolClass schoolClass = schoolClassRepository.findById(id)
-              .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
+    public void deleteClass(long id, SecurityUser principal) {
+        SchoolClass schoolClass = schoolClassRepository.findById(id)
+                .orElseThrow(() -> new spot.safety.ssbackend.exception.EntityNotFoundException("Class not found: " + id));
 
-      int amount = userService.getUsers(id, UserPrincipal.from(principal.getUser())).size();
-      if (amount != 0) {
-         throw new DuplicateTagException("Class still has students");
-      }
+        int amount = userService.getUsers(id, UserPrincipal.from(principal.getUser())).size();
+        if (amount != 0) {
+            throw new DuplicateTagException("Class still has students");
+        }
 
-      schoolClassRepository.delete(schoolClass);
-   }
+        schoolClassRepository.delete(schoolClass);
+    }
 
 }

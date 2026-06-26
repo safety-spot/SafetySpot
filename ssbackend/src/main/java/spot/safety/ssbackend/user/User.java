@@ -52,5 +52,7 @@ public class User {
     private Instant lastLoginAt;
 
     @PrePersist
-    void onCreate() { this.createdAt = Instant.now(); }
+    void onCreate() {
+        this.createdAt = Instant.now();
+    }
 }

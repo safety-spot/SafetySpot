@@ -28,7 +28,8 @@ public class ImageDataController {
         String contentType = null;
         try {
             contentType = java.nio.file.Files.probeContentType(resource.getFile().toPath());
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         MediaType mediaType = contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM;
 
