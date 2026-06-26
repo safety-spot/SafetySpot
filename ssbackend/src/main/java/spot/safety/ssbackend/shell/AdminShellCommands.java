@@ -2,19 +2,19 @@ package spot.safety.ssbackend.shell;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.stereotype.Component;
 import spot.safety.ssbackend.demo.DemoDataService;
+import spot.safety.ssbackend.dto.user.ResetPasswordRequest;
 import spot.safety.ssbackend.school.School;
 import spot.safety.ssbackend.school.SchoolRepository;
 import spot.safety.ssbackend.school.SchoolService;
 import spot.safety.ssbackend.user.User;
+import spot.safety.ssbackend.user.UserPrincipal;
 import spot.safety.ssbackend.user.UserRepository;
 import spot.safety.ssbackend.user.UserService;
-import spot.safety.ssbackend.user.UserPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import spot.safety.ssbackend.dto.user.ResetPasswordRequest;
 
 import java.time.LocalDate;
 import java.util.List;

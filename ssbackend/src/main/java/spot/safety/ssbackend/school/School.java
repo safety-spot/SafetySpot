@@ -38,11 +38,14 @@ public class School {
     private Instant createdAt;
 
     @PrePersist
-    void onCreate() { this.createdAt = Instant.now(); }
+    void onCreate() {
+        this.createdAt = Instant.now();
+    }
 
     public void activateLicense(String key) {
         this.licenseKey = key;
         this.licenseExpiry = LocalDate.now().plusMonths(12);
         this.licenseStatus = LicenseStatus.ACTIVE;
     }
+
 }
