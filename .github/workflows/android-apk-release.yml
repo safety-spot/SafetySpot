@@ -25,7 +25,7 @@ jobs:
           cache: gradle
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: cd ssmobile && chmod +x gradlew
 
       - name: Build ssmobile Release APK
         run: cd ssmobile && ./gradlew assembleRelease
