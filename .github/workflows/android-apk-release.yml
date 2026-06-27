@@ -46,11 +46,11 @@ jobs:
         with:
           name: release-apk
           # If signed, use the signed path provided by the signing action
-          path: app/build/outputs/apk/release/*.apk 
+          path: ssmobile/app/build/outputs/apk/release/*.apk 
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: ssmobile/app/build/outputs/apk/release/*.apk
           generate_release_notes: true
