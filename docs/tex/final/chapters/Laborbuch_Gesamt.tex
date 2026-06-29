@@ -1,481 +1,862 @@
 % ============================================================
-% Laborbuch – Gesamt
-% SafetySpot Projektdokumentation
-% Alle drei Teil-Laborbücher in einer chronologischen Tabelle
+% Laborbuch_Gesamt.tex
+% SafetySpot – alle drei Teilnehmer, eine chronologische Tabelle
+% Autoren: D0rag3on (Noel Neuhoff), IIRu5hII (Milian), 0qln
 % ============================================================
 
 \ssSetDocTitle{Laborbuch}
 \ssSetKunde{Bildungsministerium NRW}
 \ssSetProjekt{SafetySpot}
-\ssSetAutoren{D0rag3on, IIRu5hII, 0qln}
+\ssSetAutoren{D0rag3on (Noel Neuhoff) \textbar{} IIRu5hII (Milian) \textbar{} 0qln}
 \ssSetStand{29.06.2026}
 \maketitle
 \setcounter{section}{0}
 
 \section{Grundlage und Projektkontext}
 
-Dieses Dokument vereint die Laborbuecher aller drei Projektteilnehmer.
-Die Eintraege sind rein chronologisch sortiert und nicht nach Autor getrennt.
-Die Formatierung orientiert sich an der Ru5h-Vorlage, das Layout an der SafetySpot-Stildatei.
+Dieses Dokument vereint die persönlichen Laborbücher aller drei Projektteilnehmer
+des Projekts \emph{SafetySpot} in einer einzigen, chronologisch sortierten Tabelle.
+Einträge werden nicht nach Autor getrennt, sondern rein nach Datum einsortiert.
+Der Autor ist in jeder Zeile explizit ausgewiesen.
 
-\section{Chronologische Laborbuch-Eintraege}
+Die Einträge von IIRu5hII ab Januar 2026 wurden sachlich aus Projektdefinition,
+Mockups und Quellcode rekonstruiert, da frühe Arbeitsschritte ohne Commits erfolgten.
+Alle anderen Einträge basieren direkt auf Git-Commits und GitHub-Pull-Requests im
+Repository \texttt{safety-spot/SafetySpot}.
+
+\section{Chronologische Laborbuch-Einträge (alle Autoren)}
 
 \begin{sslabortabelle}
 2026-01-12 & IIRu5hII & Recherche &
+
   Eintrag 01: Projektdefinition gesichtet und Ausgangslage festgehalten.
   Gefahrenaufklärung an Schulen erfolgt häufig nur mündlich und wenig interaktiv.
   Daraus wurde abgeleitet, dass die App niedrigschwellig, spielerisch und
   direkt verständlich sein muss.
   \newline\textit{Ergebnis:} Projektdefinition als fachliche Grundlage;
-  Fokus auf Schüler, Lehrer und Schulen.
-\\
+  Fokus auf Schüler, Lehrer und Schulen. \\
 
 2026-01-12 & IIRu5hII & Ziel &
+
   Eintrag 02: Zielbild für die mobile App formuliert: Schüler sollen
   Gefahrensituationen in einer sicheren Umgebung bewerten, daraus lernen
   und durch Punkte/Rankings motiviert bleiben.
-  \newline\textit{Ergebnis:} Zielbild für Frontend, Szenarien und Gamification übernommen.
-\\
+  \newline\textit{Ergebnis:} Zielbild für Frontend, Szenarien und Gamification übernommen. \\
 
 2026-01-12 & IIRu5hII & Annahmen/Hypothese &
+
   Eintrag 03: Annahme: Ein spielerischer Ablauf mit kurzen Aufgaben und
   sofortigem Feedback ist für Schüler motivierender als reine Sicherheitsbelehrungen.
-  \newline\textit{Ergebnis:} Beeinflusst Spielscreen mit zwei großen Antwortbuttons und Feedback.
-\\
+  \newline\textit{Ergebnis:} Beeinflusst Spielscreen mit zwei großen Antwortbuttons und Feedback. \\
 
 2026-01-22 & IIRu5hII & Entscheidung &
+
   Eintrag 04: Entwicklungsumgebung festgelegt: Android Studio.
   Alternativen (IntelliJ IDEA, Qt Creator, Cordova) als weniger passend bewertet.
-  \newline\textit{Ergebnis:} Android Studio als gemeinsame Arbeitsumgebung eingeplant.
-\\
+  \newline\textit{Ergebnis:} Android Studio als gemeinsame Arbeitsumgebung eingeplant. \\
 
 2026-01-23 & IIRu5hII & Entscheidung &
+
   Eintrag 05: Programmiersprache für Android-App: Kotlin.
   Gründe: moderne Android-Entwicklung, Null-Safety, weniger Boilerplate,
   gute Integration in Android Studio.
-  \newline\textit{Ergebnis:} Kotlin als Basis für die mobile App.
-\\
+  \newline\textit{Ergebnis:} Kotlin als Basis für die mobile App. \\
 
 2026-01-23 & IIRu5hII & Recherche &
+
   Eintrag 06: Informationsmodell ausgewertet. Relevante Datenblöcke:
   Organisation/Rollen, Lerninhalte, Fortschritt/Gamification und Admin/Lizenz.
-  \newline\textit{Ergebnis:} Datenmodell als Grundlage für spätere DTOs, Mockdaten und UI-Strukturen.
-\\
+  \newline\textit{Ergebnis:} Datenmodell als Grundlage für spätere DTOs, Mockdaten und UI-Strukturen. \\
 
 2026-01-23 & IIRu5hII & Entscheidung &
+
   Eintrag 07: Grundsatzentscheidung für Server-als-Wahrheit übernommen.
   Backend speichert alles; App hält nur Token, Cache und ggf.\ ausstehende Versuche.
-  \newline\textit{Ergebnis:} Frühe Frontend-Version trotzdem mit Mockdaten aufgebaut.
-\\
+  \newline\textit{Ergebnis:} Frühe Frontend-Version trotzdem mit Mockdaten aufgebaut. \\
 
 2026-01-24 & IIRu5hII & Ziel &
+
   Eintrag 08: Projektvision analysiert. Erstes Release: lauffähige Android-App
   mit interaktiven Szenarien, Punkten/Ranking und einfachem Admin-Gedanken.
-  \newline\textit{Ergebnis:} Scope auf wichtigste Schüler-Funktionen fokussiert.
-\\
+  \newline\textit{Ergebnis:} Scope auf wichtigste Schüler-Funktionen fokussiert. \\
 
 2026-01-24 & IIRu5hII & Idee &
+
   Eintrag 09: Kategorien aus Vision und Mockups abgeleitet:
   Chemieraum, Werkraum, Sportunterricht, Technikraum, Straßenverkehr.
-  \newline\textit{Ergebnis:} Kategorien in \texttt{sampleScenarios} und Home-Screen sichtbar.
-\\
+  \newline\textit{Ergebnis:} Kategorien in \texttt{sampleScenarios} und Home-Screen sichtbar. \\
 
 2026-01-24 & IIRu5hII & Bewertung &
+
   Eintrag 10: Risiken gesichtet: Android-only, Leaderboard-Sozialdruck,
   zu komplexe eigene Szenarien.
-  \newline\textit{Ergebnis:} UI einfach gehalten; Leaderboard motivierend statt bloßstellend.
-\\
+  \newline\textit{Ergebnis:} UI einfach gehalten; Leaderboard motivierend statt bloßstellend. \\
+
+26.04.2026 & D0rag3on & Versuchsaufbau &
+
+  Eintrag 11: Initialisierung des Server-Projekts unter dem vorläufigen Namen
+  \texttt{SafetySpotServer}. Maven-basiertes Spring-Boot-Projekt inkl.
+  \texttt{mvnw}, \texttt{pom.xml}, \texttt{persistence.xml}, \texttt{beans.xml}.
+  Zu diesem Zeitpunkt noch kein funktionaler Code – lediglich ein lauffähiger,
+  leerer Startpunkt als Grundlage für die Backend-Entwicklung. \\
+
+26.04.2026 & 0qln & Versuchsaufbau &
+
+  Eintrag 12: Repository \texttt{safety-spot/SafetySpot} initialisiert
+  (Commit \texttt{183ac5f}).
+  Grundlegende Repo-Struktur: \texttt{.gitignore}, \texttt{.gitattributes},
+  \texttt{README.md}; Zeilenendenrichtlinien (\texttt{.gitattributes})
+  für plattformübergreifende Zusammenarbeit normalisiert.
+  \newline\textit{Ergebnis:} Gemeinsames Repository als Startpunkt für das gesamte Team. \\
+
+09.06.2026 & D0rag3on & Versuchsaufbau &
+
+  Eintrag 13: Migration des Backend-Projekts von Maven auf Gradle sowie
+  Umbenennung von \texttt{SafetySpotServer} auf \texttt{ssbackend}.
+  Das gesamte Projekt verwendet Gradle als einheitliches Build-System;
+  Maven war ein inkonsistenter Fremdkörper.
+  316 Zeilen (mvnw, pom.xml, IDE-Konfiguration) entfernt.
+  Neues Modul mit Spring-Boot-Gradle-Plugin und \texttt{SsbackendApplication.java}
+  aufgebaut.
+  \textit{Anmerkung:} Der zugehörige erste Commit hätte früher erfolgen sollen. \\
+
+09.06.2026 & 0qln & Versuchsaufbau &
+
+  Eintrag 14: Versionsdokumentation eingepflegt – v0-Dokumente (Projektvision,
+  Informationsmodell, Entscheidungen, Risiken, Klassendiagramm \texttt{docs/v0})
+  und v1-Mockups (\texttt{docs/v1}) dem Repository hinzugefügt
+  (Commits \texttt{cf734b4}, \texttt{cf9eabf}).
+  \newline\textit{Ergebnis:} Fachliche Grundlage und UX-Mockups im Repo versioniert;
+  alle Teammitglieder haben Zugriff ohne separaten Dateiumlauf. \\
+
+09.06.2026 & 0qln & Versuchsaufbau &
+
+  Eintrag 15: \texttt{sscommon}-Kotlin-Modul initiiert sowie
+  Copilot-Instruktionen und Projekt-Spezifikation angelegt (PR \#26,
+  \texttt{1a90de6}).
+  Inhalt: Copilot-Instruktionsdatei \texttt{.github/copilot-instructions.md},
+  \texttt{sscommon/}-Gradle-Modul (geteilte Bibliothek),
+  \texttt{spec/plan.md} (Backend-Implementierungsplan mit Paketen, DTOs,
+  Security-Konzept), ISSUE-001 bis ISSUE-011 (Backend-Aufgaben).
+  Außerdem: Dev-Umgebung als Nix-Flake vorbereitet.
+  \newline\textit{Ergebnis:} Strukturierte Aufgabenplanung und Copilot-Wissen
+  als Grundlage für alle weiteren Backend-Entwicklungsschritte. \\
+
+09.06.2026 & 0qln & Versuchsaufbau &
+
+  Eintrag 16: \texttt{ssmobile}-Android-Projekt initialisiert (PR \#27,
+  Commit \texttt{6caaf64}).
+  Gradle-Build-Konfiguration, \texttt{AndroidManifest.xml},
+  Basis-Theme (Material3), Basis-Navigation und \texttt{MainActivity.kt}.
+  Struktur angelegt für spätere UI-Screens.
+  \newline\textit{Ergebnis:} Lauffähiges Android-Projekt-Skelett;
+  IIRu5hII kann sofort auf der gleichen Basis aufbauen. \\
 
 2026-06-10 & IIRu5hII & Ziel &
-  Eintrag 11: Start der praktischen Frontend-Arbeit ohne Backend-Integration.
+
+  Eintrag 17: Start der praktischen Frontend-Arbeit ohne Backend-Integration.
   Ziel: klickbarer Android-Prototyp, der Mockups nachbildet und den Kernablauf
   von Login bis Szenario-Spiel zeigt.
-  \newline\textit{Ergebnis:} Rekonstruiert aus Codezustand und Autorenaussage (kein Commit).
-\\
+  \newline\textit{Ergebnis:} Rekonstruiert aus Codezustand und Autorenaussage. \\
 
 2026-06-10 & IIRu5hII & Aufgaben &
-  Eintrag 12: Android-Projekt geöffnet, Compose-Grundstruktur geprüft,
+
+  Eintrag 18: Android-Projekt geöffnet, Compose-Grundstruktur geprüft,
   \texttt{MainActivity}/\texttt{SafetySpotApp} vorbereitet.
   Erste Orientierung an Package-Struktur \texttt{ui/auth}, \texttt{ui/home},
   \texttt{ui/scenarios}, \texttt{ui/ranking}, \texttt{ui/profile}.
-  \newline\textit{Ergebnis:} Projekt kann als mobile Compose-App weiterentwickelt werden.
-\\
+  \newline\textit{Ergebnis:} Projekt kann als mobile Compose-App weiterentwickelt werden. \\
 
 2026-06-10 & IIRu5hII & Ergebnis &
-  Eintrag 13: Grundlegendes Design-System aufgebaut: Markenfarben,
+
+  Eintrag 19: Grundlegendes Design-System aufgebaut: Markenfarben,
   App-Hintergrund, Kartenfarben, Kategorie-Akzente und Schwierigkeitsfarben.
   \newline\textit{Ergebnis:} \texttt{Color.kt} enthält BrandGreen, BrandBlue, PointsYellow,
-  ChemieBlueTint, WerkraumOrange, SportGreen, TechnikPurple, TrafficRed.
-\\
+  ChemieBlueTint, WerkraumOrange, SportGreen, TechnikPurple, TrafficRed. \\
 
 2026-06-11 & IIRu5hII & Aufgaben &
-  Eintrag 14: Navigationskonzept umgesetzt: Auth als Startscreen,
+
+  Eintrag 20: Navigationskonzept umgesetzt: Auth als Startscreen,
   Hauptnavigation mit Home/Szenarien/Ranking/Profil sowie
   Detailrouten für Szenario-Detail, Gameplay und Profil-Unterseiten.
-  \newline\textit{Ergebnis:} \texttt{SafetySpotApp} enthält NavHost und BottomBar-Logik.
-\\
+  \newline\textit{Ergebnis:} \texttt{SafetySpotApp} enthält NavHost und BottomBar-Logik. \\
 
 2026-06-11 & IIRu5hII & Ergebnis &
-  Eintrag 15: Bottom Navigation aufgebaut. Leiste wird nur auf Hauptscreens
+
+  Eintrag 21: Bottom Navigation aufgebaut. Leiste wird nur auf Hauptscreens
   angezeigt, auf Detail-/Spielseiten ausgeblendet.
-  \newline\textit{Ergebnis:} Navigation entspricht Mockups.
-\\
+  \newline\textit{Ergebnis:} Navigation entspricht Mockups. \\
 
 2026-06-11 & IIRu5hII & Ergebnis &
-  Eintrag 16: AuthScreen erstellt. Enthält Branding, Login-/Registrieren-/
+
+  Eintrag 22: AuthScreen erstellt. Enthält Branding, Login-/Registrieren-/
   Gastzugang-Logik als UI-Prototyp; Einstieg in die App.
-  \newline\textit{Ergebnis:} Frontend ohne echte Zugangsdaten testbar.
-\\
+  \newline\textit{Ergebnis:} Frontend ohne echte Zugangsdaten testbar. \\
+
+11.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 23: Projekt-weite Struktur-Überarbeitung (PR \#28, \texttt{9ee221e}).
+  Anpassungen an Build-Skripten und Projekt-Struktur nach erstem
+  Feedback und paralleler Backend-Entwicklung.
+  \newline\textit{Ergebnis:} Konsistente Projektstruktur über alle drei Module. \\
+
+12.06.2026 & D0rag3on & Versuchsaufbau &
+
+  Eintrag 24: Anlegen der Paket- und Klassenstruktur für globales Error-Handling.
+  Neue Pakete: \texttt{dto}, \texttt{exception}.
+  Erstellt als initiale Stubs:
+  \texttt{ErrorResponse} (einheitliches DTO),
+  \texttt{AccessDeniedException},
+  \texttt{EntityNotFoundException},
+  \texttt{GlobalExceptionHandler}.
+  Alle Klassen bewusst leer gehalten – Struktur vor Implementierung. \\
 
 2026-06-12 & IIRu5hII & Ergebnis &
-  Eintrag 17: HomeScreen aufgebaut: Begrüßung, Level, Punkte, Streak,
+
+  Eintrag 25: HomeScreen aufgebaut: Begrüßung, Level, Punkte, Streak,
   Weiterlernen-Bereich und Kategorien.
-  \newline\textit{Ergebnis:} Zentraler Einstieg für Schüler nach Login.
-\\
+  \newline\textit{Ergebnis:} Zentraler Einstieg für Schüler nach Login. \\
 
 2026-06-12 & IIRu5hII & Ergebnis &
-  Eintrag 18: Wiederverwendbare Komponenten begonnen:
+
+  Eintrag 26: Wiederverwendbare Komponenten begonnen:
   \texttt{MetricCard}, \texttt{StreakRow}, \texttt{SafetyProgressBar},
   \texttt{SectionHeader}, \texttt{CategoryTile}, \texttt{ScenarioCard}.
-  \newline\textit{Ergebnis:} Reduziert Dopplungen; spätere Anpassungen einfacher.
-\\
+  \newline\textit{Ergebnis:} Reduziert Dopplungen; spätere Anpassungen einfacher. \\
 
 2026-06-12 & IIRu5hII & Idee &
-  Eintrag 19: Für erste UI-Version bewusst Mockdaten genutzt,
+
+  Eintrag 27: Für erste UI-Version bewusst Mockdaten genutzt,
   da Backend noch nicht vollständig angebunden.
-  \newline\textit{Ergebnis:} Mockdaten werden schrittweise durch API-Daten ersetzt.
-\\
+  \newline\textit{Ergebnis:} Mockdaten werden schrittweise durch API-Daten ersetzt. \\
 
 2026-06-13 & IIRu5hII & Ergebnis &
-  Eintrag 20: ScenariosScreen: Titel, Suchfeld, Filtertabs
+
+  Eintrag 28: ScenariosScreen: Titel, Suchfeld, Filtertabs
   (Alle/Neu/Beliebt/Abgeschlossen) und Szenario-Kartenliste.
-  \newline\textit{Ergebnis:} Nutzer kann Szenarien visuell auswählen und filtern.
-\\
+  \newline\textit{Ergebnis:} Nutzer kann Szenarien visuell auswählen und filtern. \\
 
 2026-06-13 & IIRu5hII & Ergebnis &
-  Eintrag 21: \texttt{sampleScenarios} angelegt:
+
+  Eintrag 29: \texttt{sampleScenarios} angelegt:
   Chemieraum, Werkraum, Sportunterricht, Straßenverkehr, Technikraum.
-  \newline\textit{Ergebnis:} Entspricht Kategorien aus Projektvision und Mockups.
-\\
+  \newline\textit{Ergebnis:} Entspricht Kategorien aus Projektvision und Mockups. \\
 
 2026-06-13 & IIRu5hII & Problem &
-  Eintrag 22: Umlaute und Sonderzeichen können in Code/Assets
+
+  Eintrag 30: Umlaute und Sonderzeichen können in Code/Assets
   zu Darstellungsproblemen führen.
-  \newline\textit{Ergebnis:} Teilweise ASCII-Schreibweisen in Mockdaten verwendet.
-\\
+  \newline\textit{Ergebnis:} Teilweise ASCII-Schreibweisen in Mockdaten verwendet. \\
+
+14.06.2026 & D0rag3on & Messergebnis &
+
+  Eintrag 31: Vollständige Implementierung des \texttt{GlobalExceptionHandler}
+  (45 Zeilen, \texttt{@RestControllerAdvice}).
+  Alle definierten Ausnahmetypen werden auf HTTP-Statuscodes gemappt und als
+  \texttt{ErrorResponse}-DTO zurückgegeben.
+  Das globale Error-Handling ist damit abgeschlossen und einsatzbereit. \\
 
 2026-06-14 & IIRu5hII & Ergebnis &
-  Eintrag 23: \texttt{ScenarioDetailScreen} erstellt: Kategorie, Titel,
+
+  Eintrag 32: \texttt{ScenarioDetailScreen} erstellt: Kategorie, Titel,
   Schwierigkeit, Aufgabenanzahl und Status vor dem Spielstart.
-  \newline\textit{Ergebnis:} Zwischenschritt zwischen Szenarienliste und Gameplay.
-\\
+  \newline\textit{Ergebnis:} Zwischenschritt zwischen Szenarienliste und Gameplay. \\
 
 2026-06-14 & IIRu5hII & Ergebnis &
-  Eintrag 24: \texttt{ScenarioPlayScreen} aufgebaut: Fortschrittsanzeige,
+
+  Eintrag 33: \texttt{ScenarioPlayScreen} aufgebaut: Fortschrittsanzeige,
   Punkteanzeige, Aufgabeninhalt, Kategorie-/Mascot-Bereich und
   große Antwortbuttons (gefährlich / nicht gefährlich).
-  \newline\textit{Ergebnis:} Kernfunktion der App im Prototyp spielbar.
-\\
+  \newline\textit{Ergebnis:} Kernfunktion der App im Prototyp spielbar. \\
 
 2026-06-14 & IIRu5hII & Annahmen/Hypothese &
-  Eintrag 25: Hypothese: Zwei große Antwortbuttons sind für Schulkinder
+
+  Eintrag 34: Hypothese: Zwei große Antwortbuttons sind für Schulkinder
   verständlicher als komplexes Multiple-Choice.
-  \newline\textit{Ergebnis:} True/False-Modus für Version 1 priorisiert.
-\\
+  \newline\textit{Ergebnis:} True/False-Modus für Version 1 priorisiert. \\
+
+15.06.2026 & D0rag3on & Versuchsaufbau &
+
+  Eintrag 35: Anlegen des vollständigen Projektskeletts für \texttt{ssbackend}:
+  25 Java-Klassen über alle fachlichen Pakete verteilt.
+  Pakete: \texttt{attempt} (8 Klassen), \texttt{auth} (2),
+  \texttt{enums} (3), \texttt{leaderboard} (3),
+  \texttt{progress} (2), \texttt{school} (3), \texttt{user} (4).
+  Alle Klassen als Stubs; Ziel: Gesamtstruktur des Backends abbilden,
+  bevor Implementierung beginnt. \\
 
 2026-06-15 & IIRu5hII & Ergebnis &
-  Eintrag 26: Feedbacklogik im Spielscreen ergänzt.
+
+  Eintrag 36: Feedbacklogik im Spielscreen ergänzt.
   Nach einer Antwort: korrekt/falsch hervorgehoben, Feedbacktext angezeigt.
-  \newline\textit{Ergebnis:} Direktes Feedback unterstützt Lerneffekt.
-\\
+  \newline\textit{Ergebnis:} Direktes Feedback unterstützt Lerneffekt. \\
 
 2026-06-15 & IIRu5hII & Ergebnis &
-  Eintrag 27: Lokaler Punktestand und Abschlusslogik eingeführt.
+
+  Eintrag 37: Lokaler Punktestand und Abschlusslogik eingeführt.
   Nach Abschluss eines Szenarios: Punkte addiert, Szenario als abgeschlossen markiert.
-  \newline\textit{Ergebnis:} Gamification-Effekt ohne Backend-Persistenz.
-\\
+  \newline\textit{Ergebnis:} Gamification-Effekt ohne Backend-Persistenz. \\
 
 2026-06-15 & IIRu5hII & Bewertung &
-  Eintrag 28: Mock-first-Ansatz bewertet: Vorteil: schneller UI-Fortschritt;
+
+  Eintrag 38: Mock-first-Ansatz bewertet: Vorteil: schneller UI-Fortschritt;
   Nachteil: spätere Umstellung auf echte API-Modelle.
-  \newline\textit{Ergebnis:} Entscheidung bleibt sinnvoll; Prototyp früh prüfbar.
-\\
+  \newline\textit{Ergebnis:} Entscheidung bleibt sinnvoll; Prototyp früh prüfbar. \\
 
 2026-06-16 & IIRu5hII & Ergebnis &
-  Eintrag 29: RankingScreen: Scope-Tabs (Klasse/Schule/Weltweit),
+
+  Eintrag 39: RankingScreen: Scope-Tabs (Klasse/Schule/Weltweit),
   Top-3-Darstellung, Liste weiterer Spieler mit Hervorhebung des aktuellen Nutzers.
-  \newline\textit{Ergebnis:} Gamification-Ziel Punkte/Ranking sichtbar.
-\\
+  \newline\textit{Ergebnis:} Gamification-Ziel Punkte/Ranking sichtbar. \\
 
 2026-06-16 & IIRu5hII & Ergebnis &
-  Eintrag 30: \texttt{sampleLeaderboard} angelegt und dynamisch mit aktuellem
+
+  Eintrag 40: \texttt{sampleLeaderboard} angelegt und dynamisch mit aktuellem
   Nutzer kombiniert. Lokaler Punktestand kann den Rang beeinflussen.
-  \newline\textit{Ergebnis:} Ranking reagiert im Prototyp auf abgeschlossene Szenarien.
-\\
+  \newline\textit{Ergebnis:} Ranking reagiert im Prototyp auf abgeschlossene Szenarien. \\
 
 2026-06-16 & IIRu5hII & Risiko/Beobachtung &
-  Eintrag 31: Leaderboard kann motivieren, aber auch Druck erzeugen.
+
+  Eintrag 41: Leaderboard kann motivieren, aber auch Druck erzeugen.
   \newline\textit{Ergebnis:} Eigener Nutzer positiv hervorgehoben;
-  spätere Option: Klassenranking abschaltbar.
-\\
+  spätere Option: Klassenranking abschaltbar. \\
 
 2026-06-17 & IIRu5hII & Ergebnis &
-  Eintrag 32: ProfileScreen erstellt: Avatar, Name, Level, XP-Balken,
+
+  Eintrag 42: ProfileScreen erstellt: Avatar, Name, Level, XP-Balken,
   Punkte, Streak, Abzeichen und Menügruppen.
-  \newline\textit{Ergebnis:} Profil macht Fortschritt und Gamification persönlich sichtbar.
-\\
+  \newline\textit{Ergebnis:} Profil macht Fortschritt und Gamification persönlich sichtbar. \\
 
 2026-06-17 & IIRu5hII & Ergebnis &
-  Eintrag 33: Profil-Unterseiten ergänzt:
+
+  Eintrag 43: Profil-Unterseiten ergänzt:
   Mein Fortschritt, Abzeichen und Meine Szenarien.
-  \newline\textit{Ergebnis:} Nutzer kann Szenarien und Auszeichnungen nachvollziehen.
-\\
+  \newline\textit{Ergebnis:} Nutzer kann Szenarien und Auszeichnungen nachvollziehen. \\
 
 2026-06-17 & IIRu5hII & Ergebnis &
-  Eintrag 34: \texttt{SettingsScreen} und \texttt{HelpFeedbackScreen} ergänzt.
-  \newline\textit{Ergebnis:} Erhöht Eindruck einer vollständigen App.
-\\
+
+  Eintrag 44: \texttt{SettingsScreen} und \texttt{HelpFeedbackScreen} ergänzt.
+  \newline\textit{Ergebnis:} Erhöht Eindruck einer vollständigen App. \\
 
 2026-06-18 & IIRu5hII & Aufgaben &
-  Eintrag 35: Mockup-Screens mit realem Compose-Layout abgeglichen.
+
+  Eintrag 45: Mockup-Screens mit realem Compose-Layout abgeglichen.
   Abstände, Karten, Rundungen und Farben angepasst.
-  \newline\textit{Ergebnis:} UI wirkt wie Projekt-Mockups, nicht wie Standard-Demo.
-\\
+  \newline\textit{Ergebnis:} UI wirkt wie Projekt-Mockups, nicht wie Standard-Demo. \\
 
 2026-06-18 & IIRu5hII & Ergebnis &
-  Eintrag 36: Szenario-/Kategoriedaten verfeinert.
+
+  Eintrag 46: Szenario-/Kategoriedaten verfeinert.
   Chemie, Werkraum, Sport, Technik und Verkehr als Lernbereiche vorhanden.
-  \newline\textit{Ergebnis:} Struktur lässt sich durch Backend-Kategorien erweitern.
-\\
+  \newline\textit{Ergebnis:} Struktur lässt sich durch Backend-Kategorien erweitern. \\
 
 2026-06-18 & IIRu5hII & Idee &
-  Eintrag 37: SafetySpot-Drache/Maskottchen als unterstützendes Element vorgesehen.
+
+  Eintrag 47: SafetySpot-Drache/Maskottchen als unterstützendes Element vorgesehen.
   Für Feedback, Motivation und kindgerechte Ansprache.
-  \newline\textit{Ergebnis:} Mascot-Bereich im Spielscreen vorgesehen; echte Assets später.
-\\
+  \newline\textit{Ergebnis:} Mascot-Bereich im Spielscreen vorgesehen; echte Assets später. \\
+
+18.06.2026 & 0qln & Aufgaben &
+
+  Eintrag 48: Mobile-Spezifikations-Issues ISSUE-012 bis ISSUE-022 erstellt
+  (Commits \texttt{2161ee6}–\texttt{701aa4c}).
+  Themen: Foundation/Build-Config, Design-System, Networking/Auth-Infrastruktur,
+  Navigation-Shell, Auth-Screen, Home-Screen, Scenarios-Browse,
+  Szenario-Gameplay, Ranking-Screen, Profil-Screen, Offline-Cache-Sync.
+  \newline\textit{Ergebnis:} Vollständige Spezifikation der mobilen App-Screens
+  als Grundlage für IIRu5hII's Frontend-Entwicklung und eigene Clickdummy-Arbeit. \\
 
 2026-06-19 & IIRu5hII & Ergebnis &
-  Eintrag 38: UI-Komponenten weiter standardisiert:
+
+  Eintrag 49: UI-Komponenten weiter standardisiert:
   einheitliche Cards, Chips, ProgressBars, Textfarben und Buttons.
-  \newline\textit{Ergebnis:} Verbessert Wartbarkeit und konsistente Darstellung.
-\\
+  \newline\textit{Ergebnis:} Verbessert Wartbarkeit und konsistente Darstellung. \\
 
 2026-06-19 & IIRu5hII & Problem &
-  Eintrag 39: Durch lokale UI-Zustände drohten inkonsistente Punkte/
+
+  Eintrag 50: Durch lokale UI-Zustände drohten inkonsistente Punkte/
   abgeschlossene Szenarien beim Navigieren.
   \newline\textit{Ergebnis:} Zustand in \texttt{SafetySpotApp} zentralisiert:
-  \texttt{sessionPoints} und \texttt{completedScenarioIds}.
-\\
+  \texttt{sessionPoints} und \texttt{completedScenarioIds}. \\
 
 2026-06-19 & IIRu5hII & Lösung &
-  Eintrag 40: \texttt{completedScenarioIds} als \texttt{mutableStateListOf},
+
+  Eintrag 51: \texttt{completedScenarioIds} als \texttt{mutableStateListOf},
   \texttt{sessionPoints} als Compose-State.
-  \newline\textit{Ergebnis:} Lokaler Prototyp ohne Backend trotzdem konsistent.
-\\
+  \newline\textit{Ergebnis:} Lokaler Prototyp ohne Backend trotzdem konsistent. \\
 
 2026-06-20 & IIRu5hII & Ergebnis &
-  Eintrag 41: Navigation zwischen Szenario-Liste, Detailansicht und Gameplay
+
+  Eintrag 52: Navigation zwischen Szenario-Liste, Detailansicht und Gameplay
   geprüft und verbessert.
-  \newline\textit{Ergebnis:} Back-Navigation und Starten eines Szenarios funktionieren.
-\\
+  \newline\textit{Ergebnis:} Back-Navigation und Starten eines Szenarios funktionieren. \\
 
 2026-06-20 & IIRu5hII & Test/Beobachtung &
-  Eintrag 42: Manueller Test des Kernflows:
+
+  Eintrag 53: Manueller Test des Kernflows:
   Auth → Home → Szenarien → Detail → Spielen → Ergebnis → Ranking/Profil.
-  \newline\textit{Ergebnis:} Kompletter Schüler-Flow im Frontend testbar.
-\\
+  \newline\textit{Ergebnis:} Kompletter Schüler-Flow im Frontend testbar. \\
 
 2026-06-20 & IIRu5hII & Offene Punkte &
-  Eintrag 43: Persistenz fehlt: Punktestand und Abschlussstatus gehen
+
+  Eintrag 54: Persistenz fehlt: Punktestand und Abschlussstatus gehen
   nach App-Neustart verloren.
-  \newline\textit{Ergebnis:} Für nächste Stufe: Backend/Room/DataStore.
-\\
+  \newline\textit{Ergebnis:} Für nächste Stufe: Backend/Room/DataStore. \\
 
 2026-06-21 & IIRu5hII & Ergebnis &
-  Eintrag 44: Profil- und Rankingdaten mit lokalen Spielständen verknüpft.
-  \newline\textit{Ergebnis:} Gamification fühlt sich zusammenhängender an.
-\\
+
+  Eintrag 55: Profil- und Rankingdaten mit lokalen Spielständen verknüpft.
+  \newline\textit{Ergebnis:} Gamification fühlt sich zusammenhängender an. \\
 
 2026-06-21 & IIRu5hII & Bewertung &
-  Eintrag 45: Frontend-Prototyp erfüllt wichtigste UI-Anforderungen:
+
+  Eintrag 56: Frontend-Prototyp erfüllt wichtigste UI-Anforderungen:
   simpel, mobil, visuell freundlich, große Bedienelemente, spielerischer Ablauf.
-  \newline\textit{Ergebnis:} Basis für Demo und spätere Backend-Integration vorhanden.
-\\
+  \newline\textit{Ergebnis:} Basis für Demo und spätere Backend-Integration vorhanden. \\
 
 2026-06-21 & IIRu5hII & Aufgaben &
-  Eintrag 46: Code bereinigt und in UI-Pakete aufgeteilt:
+
+  Eintrag 57: Code bereinigt und in UI-Pakete aufgeteilt:
   auth, home, scenarios, scenario, ranking, profile, navigation, theme, components.
-  \newline\textit{Ergebnis:} Ordnung erleichtert Teamarbeit.
-\\
+  \newline\textit{Ergebnis:} Ordnung erleichtert Teamarbeit. \\
+
+21.06.2026 & 0qln & Aufgaben &
+
+  Eintrag 58: Frontend-Planung dokumentiert (PR \#43, \texttt{d01cb56}).
+  Entscheidungen zu UI-Architektur, Screen-Übergängen und Datenfluss
+  zwischen Frontend-Screens festgehalten.
+  \newline\textit{Ergebnis:} Gemeinsames Verständnis für Frontend-Strukturierung
+  mit IIRu5hII. \\
+
+22.06.2026 & D0rag3on & Ergebnis &
+
+  Eintrag 59: JWT-Authentifizierung vollständig implementiert (PR \#31):
+  \texttt{AuthController} (Login, Logout, Register), \texttt{AuthService},
+  \texttt{JwtUtil}, \texttt{JwtAuthFilter}, \texttt{AuthToken} (Persistenz),
+  \texttt{AuthTokenRepository}, \texttt{SecurityConfig} (stateless JWT),
+  \texttt{SecurityUserDetailsService}.
+  Außerdem: Foreign-Key-Beziehungen zwischen \texttt{User}, \texttt{School}
+  und \texttt{SchoolClass} korrekt verknüpft. \\
+
+22.06.2026 & D0rag3on & Notiz &
+
+  Eintrag 60: JWT-Secret aus \texttt{application.properties} als
+  Umgebungsvariable externalisiert (PR \#45).
+  Der hartcodierte Wert wird jetzt aus \texttt{\$\{JWT\_SECRET\}} gelesen;
+  kein sensitives Secret verbleibt im Repository.
+  Entspricht dem definierten Sicherheitskonzept.
+  Commit erscheint zweimal in der Historie (Cherry-Pick nach Merge-Verlust). \\
 
 2026-06-22 & IIRu5hII & Recherche &
-  Eintrag 47: Abgleich mit Backend-/Informationsmodell.
+
+  Eintrag 61: Abgleich mit Backend-/Informationsmodell.
   Benötigte API-Daten: User/Profile, Kategorien, Szenarien, Fortschritt,
   Leaderboard, Attempt/Answers.
-  \newline\textit{Ergebnis:} Vorbereitung auf Entfernung harter Mockdaten.
-\\
+  \newline\textit{Ergebnis:} Vorbereitung auf Entfernung harter Mockdaten. \\
 
 2026-06-22 & IIRu5hII & Aufgaben &
-  Eintrag 48: Mögliche DTO-/Repository-Grenzen identifiziert.
+
+  Eintrag 62: Mögliche DTO-/Repository-Grenzen identifiziert.
   UI soll langfristig über Repository/ViewModel-Daten arbeiten.
-  \newline\textit{Ergebnis:} MVVM/Repository-Struktur als Zielarchitektur festgehalten.
-\\
+  \newline\textit{Ergebnis:} MVVM/Repository-Struktur als Zielarchitektur festgehalten. \\
 
 2026-06-22 & IIRu5hII & Offene Punkte &
-  Eintrag 49: Mobile ViewModels und echte Repository-Implementierungen
+
+  Eintrag 63: Mobile ViewModels und echte Repository-Implementierungen
   noch nicht vollständig vorhanden.
-  \newline\textit{Ergebnis:} Für späteres Refactoring: UI-State-Klassen und Tests.
-\\
+  \newline\textit{Ergebnis:} Für späteres Refactoring: UI-State-Klassen und Tests. \\
+
+22.06.2026 & 0qln & Versuchsaufbau &
+
+  Eintrag 64: Kern-JPA-Entitäten implementiert (PR \#44, \texttt{f5af1c2}).
+  Refactoring der Stub-Entitäten von D0rag3on's Basis:
+  \texttt{User}, \texttt{School}, \texttt{SchoolClass}, \texttt{Scenario},
+  \texttt{Category}, \texttt{Attempt} etc.\ mit Lombok-Annotations
+  (\texttt{@Data}, \texttt{@Builder}, \texttt{@Entity}).
+  Hibernate konfiguriert (\texttt{spring.jpa.hibernate.ddl-auto=update}).
+  Erste Tests zum Laufen gebracht.
+  \newline\textit{Notiz:} PR \#44 wartete explizit auf PR \#31 (D0rag3on's Auth):
+  ,,Waiting for \#31 to complete''. \\
+
+22.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 65: User-Management-API implementiert (PR \#46, \texttt{d8b7aa7}).
+  Neue Klassen: \texttt{UserController} (CRUD-Endpoints \texttt{/api/v1/users}),
+  \texttt{UserService}/\texttt{UserServiceImpl},
+  \texttt{UserRepository} (Spring Data JPA),
+  DTOs: \texttt{CreateUserRequest}, \texttt{UpdateUserRequest},
+  \texttt{ResetPasswordRequest}, \texttt{UserResponse}.
+  Passwörter werden stets gehasht (BCrypt).
+  \newline\textit{Ergebnis:} Vollständige CRUD-API für Benutzer; Lehrer können
+  Passwörter zurücksetzen. \\
+
+22.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 66: Image- und ImageTag-Entitäten erstellt (PR \#47, \texttt{2c9afa2}).
+  \texttt{Image}-Entität mit Metadaten (Beschreibung, Dateiname, Dateipfad),
+  \texttt{ImageTag}-Entität (Verknüpfung Bild ↔ Nutzer ↔ Bewertung),
+  \texttt{TagValue}-Enum (\texttt{DANGEROUS}/\texttt{SAFE}).
+  \newline\textit{Ergebnis:} Datenmodell für kollaboratives Bild-Tagging im Backend. \\
+
+22.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 67: Image-Management-API implementiert (PR \#48, \texttt{7a6cd2f}).
+  \texttt{ImageController} (Upload/Download/CRUD \texttt{/api/v1/images}),
+  \texttt{ImageService}/\texttt{ImageServiceImpl},
+  \texttt{ImageDataService}/\texttt{ImageDataServiceImpl}
+  (Datei-basierte Speicherung in \texttt{data/images/}),
+  \texttt{ImageRepository}, \texttt{ImageTagRepository}.
+  DTOs: \texttt{CreateImageRequest}, \texttt{UpdateImageRequest},
+  \texttt{ImageResponse}, \texttt{ImageTagResultResponse}.
+  \newline\textit{Ergebnis:} Bilder können hochgeladen, abgerufen und verwaltet werden. \\
+
+22.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 68: Bild-Tagging-API implementiert (PR \#49, \texttt{92ab258}).
+  \texttt{TagController} (\texttt{/api/v1/tags}), \texttt{TagService}/
+  \texttt{TagServiceImpl}.
+  Schüler können Bilder als \texttt{DANGEROUS} oder \texttt{SAFE} markieren;
+  Duplikat-Tags werden mit \texttt{DuplicateTagException} abgelehnt.
+  DTOs: \texttt{SubmitTagRequest}, \texttt{TagResponse},
+  \texttt{ImageStatsResponse}.
+  \newline\textit{Ergebnis:} Kern-Spielmechanik (Bild bewerten) im Backend vollständig. \\
+
+22.06.2026 & 0qln & Versuchsaufbau &
+
+  Eintrag 69: Nix Dev-Umgebung eingerichtet (PR \#50, \texttt{3d72b56}).
+  \texttt{devenv.nix}: MariaDB, Java 25, Gradle deklarativ definiert;
+  \texttt{devenv.yaml} und \texttt{devenv.lock} für Reproduzierbarkeit.
+  \newline\textit{Ergebnis:} Einheitliche, reproduzierbare Entwicklungsumgebung
+  für alle Teammitglieder ohne manuelle Tool-Installation. \\
+
+22.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 70: Schülerfortschritt- und Lehrer-Stats-API implementiert
+  (PR \#51, \texttt{5264857}).
+  \texttt{Progress}-Entität (Schüler ↔ Szenario: Score, Attempts, Completed),
+  \texttt{ProgressController}/\texttt{ProgressService}/\texttt{ProgressServiceImpl}
+  (\texttt{/api/v1/progress}).
+  \texttt{StatsController}/\texttt{StatsService}/\texttt{StatsServiceImpl}
+  (\texttt{/api/v1/stats}): Klassen-Statistiken pro Lehrer.
+  DTOs: \texttt{ProgressEntryResponse}, \texttt{ProgressSummaryResponse},
+  \texttt{ClassStatsResponse}, \texttt{StudentStatEntry}.
+  \newline\textit{Ergebnis:} Lehrer können Klassenergebnisse einsehen;
+  Schüler-Fortschritt wird serverseitig persistiert. \\
+
+22.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 71: Build- \& Release-Pipeline aufgebaut (PR \#52, \texttt{95f8be5}).
+  \texttt{Dockerfile} für ssbackend,
+  GitHub-Actions-Workflow \texttt{azure-container-webapp.yml}:
+  Docker-Build → Push zu Azure Container Registry → Deploy zu Azure App Service.
+  \texttt{application-prod.properties} mit Azure-SQL-Datasource-Konfiguration.
+  \newline\textit{Ergebnis:} Automatisierter Deployment-Prozess vom Commit
+  bis zur Produktionsumgebung auf Azure. \\
+
+22.06.2026 & 0qln & Problem &
+
+  Eintrag 72: Azure-Container-Webapp-Workflow musste direkt nach Anlegen
+  zweimal korrigiert werden (Commits \texttt{3ae7804}, \texttt{a9b36ee}).
+  Problem: Fehlende Umgebungsvariablen und inkorrekte Workflow-Trigger.
+  \newline\textit{Ergebnis:} Workflow läuft stabil nach zwei Korrekturen. \\
 
 2026-06-23 & IIRu5hII & Ergebnis &
-  Eintrag 50: Frontend-Prototyp vor Git-Historie konsolidiert.
+
+  Eintrag 73: Frontend-Prototyp vor Git-Historie konsolidiert.
   Wichtigste Screens mit Mockdaten verbunden.
-  \newline\textit{Ergebnis:} Grundlage für anschließende Integration-Commits.
-\\
+  \newline\textit{Ergebnis:} Grundlage für anschließende Integration-Commits. \\
 
 2026-06-23 & IIRu5hII & Problem &
-  Eintrag 51: Frühe Arbeiten ohne Commits — technische Historie nicht
+
+  Eintrag 74: Frühe Arbeiten ohne Commits — technische Historie nicht
   vollständig aus Git rekonstruierbar.
-  \newline\textit{Ergebnis:} Laborbuch rekonstruiert frühe Schritte aus Quellcode und Mockups.
-\\
+  \newline\textit{Ergebnis:} Laborbuch rekonstruiert frühe Schritte aus Quellcode und Mockups. \\
 
 2026-06-23 & IIRu5hII & Offene Punkte &
-  Eintrag 52: Backend-Anbindung, echte Auth, Bilddaten und persistenter
+
+  Eintrag 75: Backend-Anbindung, echte Auth, Bilddaten und persistenter
   Fortschritt müssen angebunden werden.
-  \newline\textit{Ergebnis:} Nächster Fokus: API/Retrofit und Integration.
-\\
+  \newline\textit{Ergebnis:} Nächster Fokus: API/Retrofit und Integration. \\
+
+23.06.2026 & 0qln & Problem &
+
+  Eintrag 76: Spring-Boot-Tests liefen nicht (Commit-Kontext PR \#53,
+  \texttt{3cc8d2a}).
+  Ursachen: Fehlende H2-Testdatenbank-Konfiguration, Spring-Security-
+  Testkonfiguration nicht gesetzt, Testfixtures unvollständig.
+  \newline\textit{Lösung:} H2 In-Memory für Testprofil konfiguriert,
+  \texttt{@SpringBootTest}-Annotations ergänzt, 17 Testklassen lauffähig. \\
+
+23.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 77: CI-Test-Workflow erstellt (PR \#56, \texttt{63756d9}).
+  \texttt{.github/workflows/test.yml}: Gradle-Tests auf jedem
+  Push und Pull-Request automatisch ausgeführt.
+  \newline\textit{Ergebnis:} Kontinuierliche Qualitätssicherung;
+  Regressions-Erkennung bei jedem Commit. \\
+
+23.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 78: Mobile-UI-Clickdummy vollständig implementiert (PR \#54,
+  \texttt{f9ab2db}). Ca.\ 4\,072 Zeilen Kotlin/Compose neu hinzugefügt,
+  27 Dateien geändert.
+  Screens: \texttt{AuthScreen} (Login/Register), \texttt{HomeScreen}
+  (Level, Punkte, Streak, Kategorien), \texttt{ScenariosScreen} (Filter, Suche),
+  \texttt{ScenarioDetailScreen}, \texttt{ScenarioPlayScreen} (Gameplay,
+  Antwort-Buttons, Feedback), \texttt{RankingScreen} (Scope-Tabs, Top-3),
+  \texttt{ProfileScreen} mit Unterseiten.
+  Navigation via NavHost/BottomBar, Compose-Theme mit SafetySpot-Farben,
+  Mock-Daten für vollständige Offline-Durchläufe.
+  \newline\textit{Ergebnis:} Vollständig klickbarer Prototyp zum Demo-Termin bereit. \\
 
 2026-06-24 & IIRu5hII & Ergebnis &
-  Eintrag 53: Commit \texttt{7d86b5d}: Retrofit kann nun auch Plain Text lesen.
+
+  Eintrag 79: Commit \texttt{7d86b5d}: Retrofit kann nun auch Plain Text lesen.
   Retrofit Scalars, DTOs, Auth/Login, Backend-Bilder sowie Home/Szenarien
   aus Backend vorbereitet und angebunden.
-  \newline\textit{Ergebnis:} Beginn der konkreten Mobile-Backend-Integration.
-\\
+  \newline\textit{Ergebnis:} Beginn der konkreten Mobile-Backend-Integration. \\
 
 2026-06-24 & IIRu5hII & Aufgaben &
-  Eintrag 54: DTOs und API-Kommunikation für Login/Auth und Datenabruf geprüft.
-  \newline\textit{Ergebnis:} Vorbereitung auf Zusammenspiel ssmobile ↔ ssbackend.
-\\
+
+  Eintrag 80: DTOs und API-Kommunikation für Login/Auth und Datenabruf geprüft.
+  \newline\textit{Ergebnis:} Vorbereitung auf Zusammenspiel ssmobile ↔ ssbackend. \\
 
 2026-06-24 & IIRu5hII & Ergebnis &
-  Eintrag 55: Backend-Bilder als Quelle für Szenario-/Aufgabenbilder berücksichtigt.
-  \newline\textit{Ergebnis:} Wichtig für spätere Hotspot-Gefahrensituationen.
-\\
+
+  Eintrag 81: Backend-Bilder als Quelle für Szenario-/Aufgabenbilder berücksichtigt.
+  \newline\textit{Ergebnis:} Wichtig für spätere Hotspot-Gefahrensituationen. \\
 
 2026-06-24 & IIRu5hII & Ergebnis &
-  Eintrag 56: Home- und Szenarienbereiche auf spätere Backend-Daten vorbereitet.
-  \newline\textit{Ergebnis:} Mockdaten bleiben als Fallback/Demo nützlich.
-\\
+
+  Eintrag 82: Home- und Szenarienbereiche auf spätere Backend-Daten vorbereitet.
+  \newline\textit{Ergebnis:} Mockdaten bleiben als Fallback/Demo nützlich. \\
 
 2026-06-24 & IIRu5hII & Ergebnis &
-  Eintrag 57: Commit \texttt{09beaca}: Merge von origin/main in
+
+  Eintrag 83: Commit \texttt{09beaca}: Merge von origin/main in
   frontend-functionality. Übernommen: Test-Workflow, README,
   DemoDataService, AdminShellCommands.
-  \newline\textit{Ergebnis:} Frontend-Branch mit aktuellem main synchronisiert.
-\\
+  \newline\textit{Ergebnis:} Frontend-Branch mit aktuellem main synchronisiert. \\
 
 2026-06-24 & IIRu5hII & Problem &
-  Eintrag 58: Merges können Konflikte zwischen Frontend-Prototyp und
+
+  Eintrag 84: Merges können Konflikte zwischen Frontend-Prototyp und
   Backend-/DemoDataService-Änderungen verursachen.
-  \newline\textit{Ergebnis:} Nach Merge geprüft, dass relevante Änderungen erhalten bleiben.
-\\
+  \newline\textit{Ergebnis:} Nach Merge geprüft, dass relevante Änderungen erhalten bleiben. \\
 
 2026-06-24 & IIRu5hII & Bewertung &
-  Eintrag 59: CI/Test-Workflow und AdminShellCommands wichtig für Teamarbeit.
-  \newline\textit{Ergebnis:} Projekt reproduzierbarer und wartbarer.
-\\
+
+  Eintrag 85: CI/Test-Workflow und AdminShellCommands wichtig für Teamarbeit.
+  \newline\textit{Ergebnis:} Projekt reproduzierbarer und wartbarer. \\
+
+24.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 86: Admin-Shell und Demo-Daten implementiert (PR \#58,
+  \texttt{8dc1fe1}).
+  \texttt{AdminShellCommands} (Spring Shell): interaktive CLI-Kommandos
+  (\texttt{create-school}, \texttt{create-class}, \texttt{create-user},
+  \texttt{seed}, \texttt{list-users} etc.).
+  \texttt{DemoDataService}: automatischer Seed beim App-Start
+  (Schule, Klassen, Schüler, Lehrer, Bilder, Tags).
+  \newline\textit{Ergebnis:} Backend kann ohne manuelle SQL-Statements
+  mit realistischen Testdaten befüllt werden. \\
+
+24.06.2026 & 0qln & Notiz &
+
+  Eintrag 87: Temporärer Workaround in ssmobile eingeführt (Commit
+  \texttt{221ef31}) und am 27.06.2026 wieder rückgängig gemacht
+  (Commit \texttt{7a80d24}).
+  Hintergrund: Schnelle Umgehung eines Kompatibilitätsproblems zwischen
+  Frontend-Functionality-Branch und Backend-Änderungen während
+  aktiver Merge-Phase.
+  \newline\textit{Ergebnis:} Nur temporär; saubere Lösung nach Merge eingespielt. \\
 
 2026-06-25 & IIRu5hII & Ergebnis &
-  Eintrag 60: Commit \texttt{5a24e56}: Merge branch main into frontend-functionality.
+
+  Eintrag 88: Commit \texttt{5a24e56}: Merge branch main into frontend-functionality.
   DemoDataService-Änderungen übernommen.
-  \newline\textit{Ergebnis:} Datenbasis/Seed-Daten mit Frontend-Branch kompatibel.
-\\
+  \newline\textit{Ergebnis:} Datenbasis/Seed-Daten mit Frontend-Branch kompatibel. \\
 
 2026-06-25 & IIRu5hII & Ergebnis &
-  Eintrag 61: Commit \texttt{d804323}: weiterer Merge von main in
+
+  Eintrag 89: Commit \texttt{d804323}: weiterer Merge von main in
   frontend-functionality. Backend-/Security-Konfiguration übernommen.
-  \newline\textit{Ergebnis:} Auth-relevante Konfiguration im Branch vorhanden.
-\\
+  \newline\textit{Ergebnis:} Auth-relevante Konfiguration im Branch vorhanden. \\
 
 2026-06-25 & IIRu5hII & Aufgaben &
-  Eintrag 62: Nach Merges geprüft, ob Frontend-Navigation, Demo-Daten und
+
+  Eintrag 90: Nach Merges geprüft, ob Frontend-Navigation, Demo-Daten und
   Backend-Konfiguration zusammenpassen.
-  \newline\textit{Ergebnis:} Keine Regression im klickbaren Prototyp.
-\\
+  \newline\textit{Ergebnis:} Keine Regression im klickbaren Prototyp. \\
 
 2026-06-25 & IIRu5hII & Ergebnis &
-  Eintrag 63: Commit \texttt{41832d1}: Kategorie-Icons, Punkte-/Suchicon,
+
+  Eintrag 91: Commit \texttt{41832d1}: Kategorie-Icons, Punkte-/Suchicon,
   Weitermachen-Logik, lokaler Fortschritt sowie Profilname/Avatar-Fallback ergänzt.
-  \newline\textit{Ergebnis:} UI wirkt vollständiger und robuster.
-\\
+  \newline\textit{Ergebnis:} UI wirkt vollständiger und robuster. \\
 
 2026-06-25 & IIRu5hII & Lösung &
-  Eintrag 64: Fallbacks für Profilname und Avatar eingeführt.
-  \newline\textit{Ergebnis:} App bleibt bei fehlenden Backend-Daten nutzbar.
-\\
+
+  Eintrag 92: Fallbacks für Profilname und Avatar eingeführt.
+  \newline\textit{Ergebnis:} App bleibt bei fehlenden Backend-Daten nutzbar. \\
 
 2026-06-25 & IIRu5hII & Ergebnis &
-  Eintrag 65: Weitermachen-Logik verbessert: Home kann begonnenes Szenario
+
+  Eintrag 93: Weitermachen-Logik verbessert: Home kann begonnenes Szenario
   anzeigen und Nutzer zurück in den Lernfluss führen.
-  \newline\textit{Ergebnis:} Erhöht Nutzerbindung und passt zur Gamification-Idee.
-\\
+  \newline\textit{Ergebnis:} Erhöht Nutzerbindung und passt zur Gamification-Idee. \\
 
 2026-06-25 & IIRu5hII & Test/Beobachtung &
-  Eintrag 66: Nach Icon- und Fortschrittsänderungen wurden Home, Szenarien,
+
+  Eintrag 94: Nach Icon- und Fortschrittsänderungen wurden Home, Szenarien,
   Profil und Ranking manuell geprüft.
-  \newline\textit{Ergebnis:} Keine offensichtlichen Brüche im Hauptfluss.
-\\
+  \newline\textit{Ergebnis:} Keine offensichtlichen Brüche im Hauptfluss. \\
+
+25.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 95: Demo-Daten korrigiert (PR \#59, \texttt{e766cb6}).
+  Fehler im \texttt{DemoDataService}: falsche Beziehungs-IDs und
+  inkonsistente Enum-Werte behoben.
+  \newline\textit{Ergebnis:} Backend startet mit korrekten und konsistenten
+  Testdaten. \\
+
+25.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 96: H2-Konsole für Dev-Profil aktiviert (PR \#60, \texttt{c24bcdf}).
+  \texttt{spring.h2.console.enabled=true} in
+  \texttt{application-dev.properties}.
+  \newline\textit{Ergebnis:} Direkter Datenbankzugriff über Browser während
+  Entwicklung erleichtert Debugging. \\
+
+25.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 97: Dateibasierte Bildspeicherung implementiert (PR \#61,
+  \texttt{659fa1a}).
+  \texttt{ImageDataServiceImpl} schreibt und liest Binärdaten unter
+  \texttt{ssbackend/data/images/}.
+  Verzeichnis mit gitignore-Ausnahme für Demo-Daten.
+  \newline\textit{Ergebnis:} Bilder werden persistent auf dem Dateisystem
+  gespeichert und per REST-Endpunkt ausgeliefert. \\
+
+25.06.2026 & 0qln & Aufgaben &
+
+  Eintrag 98: Debugging-Session Backend (Commit \texttt{1d41833}).
+  Untersuchung von Fehlern bei der Bild-Upload/Download-Kette zwischen
+  ssmobile und ssbackend.
+  \newline\textit{Ergebnis:} Probleme identifiziert und in Folgecommits behoben. \\
+
+25.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 99: Szenario-Demo-Bilder hinzugefügt (Commit \texttt{60f19a1}).
+  10 PNG-Bilder (\texttt{scenario-00.png} bis \texttt{scenario-09.png})
+  unter \texttt{ssbackend/src/main/resources/demo/images/}.
+  Diese werden vom \texttt{DemoDataService} beim Seed in die Datenbank geladen.
+  \newline\textit{Ergebnis:} Vollständiger Demo-Betrieb mit realistischen
+  Bild-Szenarien möglich; IIRu5hII kann Backend-Bilder direkt testen. \\
+
+26.06.2026 & D0rag3on & Ergebnis &
+
+  Eintrag 100: School-/Klassen-Logik vollständig implementiert (PR \#55):
+  \texttt{SchoolClass}-Entität mit JPA-Beziehung zu \texttt{School};
+  \texttt{SchoolClassController}, \texttt{SchoolClassService},
+  \texttt{SchoolClassRepository}.
+  Ergänzend: \texttt{SchoolController} und \texttt{SchoolService} fertiggestellt.
+  DTOs: \texttt{CreateClass}, \texttt{CreateSchool}, \texttt{UpdateSchoolClass},
+  \texttt{UpdateSchoolRequest}. \\
 
 2026-06-26 & IIRu5hII & Ergebnis &
-  Eintrag 67: Commit \texttt{edab15a}: restliche Icons ergänzt.
+
+  Eintrag 101: Commit \texttt{edab15a}: restliche Icons ergänzt.
   Profil-Icons, Filter-Icon und Avatar-Icon hinzugefügt;
   Profil- und Szenario-UI angepasst.
-  \newline\textit{Ergebnis:} Letzter Feinschliff am visuellen Eindruck.
-\\
+  \newline\textit{Ergebnis:} Letzter Feinschliff am visuellen Eindruck. \\
 
 2026-06-26 & IIRu5hII & Ergebnis &
-  Eintrag 68: Profil-UI weiter an Mockups angepasst.
+
+  Eintrag 102: Profil-UI weiter an Mockups angepasst.
   Menüpunkte und Statuswerte visuell klarer erkennbar.
-  \newline\textit{Ergebnis:} Profilseite für Schüler verständlicher und vollständiger.
-\\
+  \newline\textit{Ergebnis:} Profilseite für Schüler verständlicher und vollständiger. \\
 
 2026-06-26 & IIRu5hII & Ergebnis &
-  Eintrag 69: Szenario-UI angepasst. Filter- und Szenariodarstellung optisch verbessert.
-  \newline\textit{Ergebnis:} Szenarienliste leichter zu scannen; entspricht App-Stil.
-\\
+
+  Eintrag 103: Szenario-UI angepasst. Filter- und Szenariodarstellung optisch verbessert.
+  \newline\textit{Ergebnis:} Szenarienliste leichter zu scannen; entspricht App-Stil. \\
 
 2026-06-26 & IIRu5hII & Bewertung &
-  Eintrag 70: Die UI ist als funktionsfähiger Frontend-Prototyp vorzeigbar:
+
+  Eintrag 104: Die UI ist als funktionsfähiger Frontend-Prototyp vorzeigbar:
   Login/Gastzugang, Home, Szenarien, Spielscreen, Ranking und Profil.
-  \newline\textit{Ergebnis:} Erfüllt MVP-Schwerpunkt aus Projektvision.
-\\
+  \newline\textit{Ergebnis:} Erfüllt MVP-Schwerpunkt aus Projektvision. \\
 
 2026-06-26 & IIRu5hII & Offene Punkte &
-  Eintrag 71: Echte Persistenz und vollständige Backend-Anbindung müssen
+
+  Eintrag 105: Echte Persistenz und vollständige Backend-Anbindung müssen
   weiter stabilisiert werden.
   \newline\textit{Ergebnis:} Nächste Arbeit: Repository/ViewModel-Schicht,
-  Auth-State, Tokenhandling, Cache.
-\\
+  Auth-State, Tokenhandling, Cache. \\
 
 2026-06-26 & IIRu5hII & Offene Punkte &
-  Eintrag 72: Lehrer-/Adminbereich im Mobile-Frontend noch nicht umgesetzt.
+
+  Eintrag 106: Lehrer-/Adminbereich im Mobile-Frontend noch nicht umgesetzt.
   \newline\textit{Ergebnis:} Für später: Klassen, Schülerverwaltung,
-  Szenario-Editor, Statistiken.
-\\
+  Szenario-Editor, Statistiken. \\
 
 2026-06-26 & IIRu5hII & Offene Punkte &
-  Eintrag 73: Offline-Modus konzeptionell vorgesehen, aber nicht umgesetzt.
-  \newline\textit{Ergebnis:} Mit Room/DataStore/Pending Attempts planen.
-\\
 
+  Eintrag 107: Offline-Modus konzeptionell vorgesehen, aber nicht umgesetzt.
+  \newline\textit{Ergebnis:} Mit Room/DataStore/Pending Attempts planen. \\
+
+2026-06-26 & IIRu5hII & Schlussfolgerung &
+
+  Eintrag 108: Mock-first-Ansatz hat sich bewährt: trotz fehlender früher Commits
+  schnell nutzbarer Prototyp mit Design, Navigation und Lernflow.
+  \newline\textit{Ergebnis:} Für finale Abgabe: Git-Commits künftig kleinschrittiger. \\
+
+26.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 109: Projekt-weite Code-Formatierung angewendet (PR \#62,
+  \texttt{3bda336}).
+  Gradle-Format-Task über alle Java-Dateien in \texttt{ssbackend/}
+  ausgeführt; einheitlicher Code-Stil durchgesetzt.
+  \newline\textit{Ergebnis:} Diffs in Folge-PRs werden sauberer;
+  Review-Aufwand sinkt. \\
+
+27.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 110: Szenario-Bilder aktualisiert (Commit \texttt{4736baf}).
+  Bilder-Set überarbeitet und mit dem aktuellen Stand des Backends
+  abgeglichen.
+  \newline\textit{Ergebnis:} Demo-Bilder im Frontend und Backend konsistent. \\
+
+27.06.2026 & 0qln & Ergebnis &
+
+  Eintrag 111: Android-APK-Release-Workflow erstellt (PR \#64/\#65,
+  \texttt{fbaf527}, \texttt{a54247d}, \texttt{485ea21}).
+  \texttt{android-apk-release.yml}: automatischer APK-Build bei Git-Tag;
+  APK als GitHub-Release-Asset veröffentlicht.
+  Zwei Korrekturen nötig (PR \#64 initiale Erstellung, PR \#65 Fixup).
+  \newline\textit{Ergebnis:} Vollständige Release-Pipeline für ssmobile;
+  APK bei jedem Tag-Push automatisch verfügbar. \\
+
+27.06.2026 & 0qln & Notiz &
+
+  Eintrag 112: Branch \texttt{frontend-functionality} nach umfangreichen
+  Merges und Koordination mit IIRu5hII in main zusammengeführt (PR \#63,
+  \texttt{0027401}).
+  Der PR enthielt Commits beider Autoren (IIRu5hII's Icons/Weitermachen-Logik
+  und 0qln's Debugging/Bilder/Workaround-Rücknahme).
+  \newline\textit{Ergebnis:} Finaler Stand der mobilen Frontend-Funktionalität
+  in main integriert; GitHub-Release \texttt{v0.0.0} erstellt. \\
 \end{sslabortabelle}
 
 \section{Zusammenfassung}
 
-\textbf{D0rag3on:} Backend-Grundlage, Authentifizierung, Fehlerbehandlung und School-/Klassen-Verwaltung.
+\textbf{D0rag3on:} Backend-Grundgerüst, Maven-zu-Gradle-Migration, JWT-Authentifizierung,
+globales Error-Handling und School-/Klassen-Verwaltung.
 
-\textbf{IIRu5hII:} Android-Frontend mit Compose, Mockdaten, Navigation, Gameplay, Ranking und Profil.
+\textbf{IIRu5hII:} Android-Frontend (Kotlin/Compose) – Design-System, Navigation,
+alle Screens (Auth, Home, Szenarien, Gameplay, Ranking, Profil) sowie Backend-Integration
+und UI-Feinschliff.
 
-\textbf{0qln:} Infrastruktur, Backend-APIs, CI/CD, Demo-Daten, Bildverwaltung und Mobile-Clickdummy.
-
-\textbf{Gesamt:} SafetySpot ist als Backend, Mobile-Prototyp und Projektinfrastruktur zusammengewachsen.
+\textbf{0qln:} Projektinfrastruktur, vollständige Backend-API (User, Image, Tag,
+Progress, Stats), CI/CD-Pipelines (Azure, Android), Mobile-Clickdummy und Demo-Daten.
