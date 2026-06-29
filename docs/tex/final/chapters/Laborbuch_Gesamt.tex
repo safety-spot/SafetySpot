@@ -1,0 +1,481 @@
+% ============================================================
+% Laborbuch – Gesamt
+% SafetySpot Projektdokumentation
+% Alle drei Teil-Laborbücher in einer chronologischen Tabelle
+% ============================================================
+
+\ssSetDocTitle{Laborbuch}
+\ssSetKunde{Bildungsministerium NRW}
+\ssSetProjekt{SafetySpot}
+\ssSetAutoren{D0rag3on, IIRu5hII, 0qln}
+\ssSetStand{29.06.2026}
+\maketitle
+\setcounter{section}{0}
+
+\section{Grundlage und Projektkontext}
+
+Dieses Dokument vereint die Laborbuecher aller drei Projektteilnehmer.
+Die Eintraege sind rein chronologisch sortiert und nicht nach Autor getrennt.
+Die Formatierung orientiert sich an der Ru5h-Vorlage, das Layout an der SafetySpot-Stildatei.
+
+\section{Chronologische Laborbuch-Eintraege}
+
+\begin{sslabortabelle}
+2026-01-12 & IIRu5hII & Recherche &
+  Eintrag 01: Projektdefinition gesichtet und Ausgangslage festgehalten.
+  Gefahrenaufklärung an Schulen erfolgt häufig nur mündlich und wenig interaktiv.
+  Daraus wurde abgeleitet, dass die App niedrigschwellig, spielerisch und
+  direkt verständlich sein muss.
+  \newline\textit{Ergebnis:} Projektdefinition als fachliche Grundlage;
+  Fokus auf Schüler, Lehrer und Schulen.
+\\
+
+2026-01-12 & IIRu5hII & Ziel &
+  Eintrag 02: Zielbild für die mobile App formuliert: Schüler sollen
+  Gefahrensituationen in einer sicheren Umgebung bewerten, daraus lernen
+  und durch Punkte/Rankings motiviert bleiben.
+  \newline\textit{Ergebnis:} Zielbild für Frontend, Szenarien und Gamification übernommen.
+\\
+
+2026-01-12 & IIRu5hII & Annahmen/Hypothese &
+  Eintrag 03: Annahme: Ein spielerischer Ablauf mit kurzen Aufgaben und
+  sofortigem Feedback ist für Schüler motivierender als reine Sicherheitsbelehrungen.
+  \newline\textit{Ergebnis:} Beeinflusst Spielscreen mit zwei großen Antwortbuttons und Feedback.
+\\
+
+2026-01-22 & IIRu5hII & Entscheidung &
+  Eintrag 04: Entwicklungsumgebung festgelegt: Android Studio.
+  Alternativen (IntelliJ IDEA, Qt Creator, Cordova) als weniger passend bewertet.
+  \newline\textit{Ergebnis:} Android Studio als gemeinsame Arbeitsumgebung eingeplant.
+\\
+
+2026-01-23 & IIRu5hII & Entscheidung &
+  Eintrag 05: Programmiersprache für Android-App: Kotlin.
+  Gründe: moderne Android-Entwicklung, Null-Safety, weniger Boilerplate,
+  gute Integration in Android Studio.
+  \newline\textit{Ergebnis:} Kotlin als Basis für die mobile App.
+\\
+
+2026-01-23 & IIRu5hII & Recherche &
+  Eintrag 06: Informationsmodell ausgewertet. Relevante Datenblöcke:
+  Organisation/Rollen, Lerninhalte, Fortschritt/Gamification und Admin/Lizenz.
+  \newline\textit{Ergebnis:} Datenmodell als Grundlage für spätere DTOs, Mockdaten und UI-Strukturen.
+\\
+
+2026-01-23 & IIRu5hII & Entscheidung &
+  Eintrag 07: Grundsatzentscheidung für Server-als-Wahrheit übernommen.
+  Backend speichert alles; App hält nur Token, Cache und ggf.\ ausstehende Versuche.
+  \newline\textit{Ergebnis:} Frühe Frontend-Version trotzdem mit Mockdaten aufgebaut.
+\\
+
+2026-01-24 & IIRu5hII & Ziel &
+  Eintrag 08: Projektvision analysiert. Erstes Release: lauffähige Android-App
+  mit interaktiven Szenarien, Punkten/Ranking und einfachem Admin-Gedanken.
+  \newline\textit{Ergebnis:} Scope auf wichtigste Schüler-Funktionen fokussiert.
+\\
+
+2026-01-24 & IIRu5hII & Idee &
+  Eintrag 09: Kategorien aus Vision und Mockups abgeleitet:
+  Chemieraum, Werkraum, Sportunterricht, Technikraum, Straßenverkehr.
+  \newline\textit{Ergebnis:} Kategorien in \texttt{sampleScenarios} und Home-Screen sichtbar.
+\\
+
+2026-01-24 & IIRu5hII & Bewertung &
+  Eintrag 10: Risiken gesichtet: Android-only, Leaderboard-Sozialdruck,
+  zu komplexe eigene Szenarien.
+  \newline\textit{Ergebnis:} UI einfach gehalten; Leaderboard motivierend statt bloßstellend.
+\\
+
+2026-06-10 & IIRu5hII & Ziel &
+  Eintrag 11: Start der praktischen Frontend-Arbeit ohne Backend-Integration.
+  Ziel: klickbarer Android-Prototyp, der Mockups nachbildet und den Kernablauf
+  von Login bis Szenario-Spiel zeigt.
+  \newline\textit{Ergebnis:} Rekonstruiert aus Codezustand und Autorenaussage (kein Commit).
+\\
+
+2026-06-10 & IIRu5hII & Aufgaben &
+  Eintrag 12: Android-Projekt geöffnet, Compose-Grundstruktur geprüft,
+  \texttt{MainActivity}/\texttt{SafetySpotApp} vorbereitet.
+  Erste Orientierung an Package-Struktur \texttt{ui/auth}, \texttt{ui/home},
+  \texttt{ui/scenarios}, \texttt{ui/ranking}, \texttt{ui/profile}.
+  \newline\textit{Ergebnis:} Projekt kann als mobile Compose-App weiterentwickelt werden.
+\\
+
+2026-06-10 & IIRu5hII & Ergebnis &
+  Eintrag 13: Grundlegendes Design-System aufgebaut: Markenfarben,
+  App-Hintergrund, Kartenfarben, Kategorie-Akzente und Schwierigkeitsfarben.
+  \newline\textit{Ergebnis:} \texttt{Color.kt} enthält BrandGreen, BrandBlue, PointsYellow,
+  ChemieBlueTint, WerkraumOrange, SportGreen, TechnikPurple, TrafficRed.
+\\
+
+2026-06-11 & IIRu5hII & Aufgaben &
+  Eintrag 14: Navigationskonzept umgesetzt: Auth als Startscreen,
+  Hauptnavigation mit Home/Szenarien/Ranking/Profil sowie
+  Detailrouten für Szenario-Detail, Gameplay und Profil-Unterseiten.
+  \newline\textit{Ergebnis:} \texttt{SafetySpotApp} enthält NavHost und BottomBar-Logik.
+\\
+
+2026-06-11 & IIRu5hII & Ergebnis &
+  Eintrag 15: Bottom Navigation aufgebaut. Leiste wird nur auf Hauptscreens
+  angezeigt, auf Detail-/Spielseiten ausgeblendet.
+  \newline\textit{Ergebnis:} Navigation entspricht Mockups.
+\\
+
+2026-06-11 & IIRu5hII & Ergebnis &
+  Eintrag 16: AuthScreen erstellt. Enthält Branding, Login-/Registrieren-/
+  Gastzugang-Logik als UI-Prototyp; Einstieg in die App.
+  \newline\textit{Ergebnis:} Frontend ohne echte Zugangsdaten testbar.
+\\
+
+2026-06-12 & IIRu5hII & Ergebnis &
+  Eintrag 17: HomeScreen aufgebaut: Begrüßung, Level, Punkte, Streak,
+  Weiterlernen-Bereich und Kategorien.
+  \newline\textit{Ergebnis:} Zentraler Einstieg für Schüler nach Login.
+\\
+
+2026-06-12 & IIRu5hII & Ergebnis &
+  Eintrag 18: Wiederverwendbare Komponenten begonnen:
+  \texttt{MetricCard}, \texttt{StreakRow}, \texttt{SafetyProgressBar},
+  \texttt{SectionHeader}, \texttt{CategoryTile}, \texttt{ScenarioCard}.
+  \newline\textit{Ergebnis:} Reduziert Dopplungen; spätere Anpassungen einfacher.
+\\
+
+2026-06-12 & IIRu5hII & Idee &
+  Eintrag 19: Für erste UI-Version bewusst Mockdaten genutzt,
+  da Backend noch nicht vollständig angebunden.
+  \newline\textit{Ergebnis:} Mockdaten werden schrittweise durch API-Daten ersetzt.
+\\
+
+2026-06-13 & IIRu5hII & Ergebnis &
+  Eintrag 20: ScenariosScreen: Titel, Suchfeld, Filtertabs
+  (Alle/Neu/Beliebt/Abgeschlossen) und Szenario-Kartenliste.
+  \newline\textit{Ergebnis:} Nutzer kann Szenarien visuell auswählen und filtern.
+\\
+
+2026-06-13 & IIRu5hII & Ergebnis &
+  Eintrag 21: \texttt{sampleScenarios} angelegt:
+  Chemieraum, Werkraum, Sportunterricht, Straßenverkehr, Technikraum.
+  \newline\textit{Ergebnis:} Entspricht Kategorien aus Projektvision und Mockups.
+\\
+
+2026-06-13 & IIRu5hII & Problem &
+  Eintrag 22: Umlaute und Sonderzeichen können in Code/Assets
+  zu Darstellungsproblemen führen.
+  \newline\textit{Ergebnis:} Teilweise ASCII-Schreibweisen in Mockdaten verwendet.
+\\
+
+2026-06-14 & IIRu5hII & Ergebnis &
+  Eintrag 23: \texttt{ScenarioDetailScreen} erstellt: Kategorie, Titel,
+  Schwierigkeit, Aufgabenanzahl und Status vor dem Spielstart.
+  \newline\textit{Ergebnis:} Zwischenschritt zwischen Szenarienliste und Gameplay.
+\\
+
+2026-06-14 & IIRu5hII & Ergebnis &
+  Eintrag 24: \texttt{ScenarioPlayScreen} aufgebaut: Fortschrittsanzeige,
+  Punkteanzeige, Aufgabeninhalt, Kategorie-/Mascot-Bereich und
+  große Antwortbuttons (gefährlich / nicht gefährlich).
+  \newline\textit{Ergebnis:} Kernfunktion der App im Prototyp spielbar.
+\\
+
+2026-06-14 & IIRu5hII & Annahmen/Hypothese &
+  Eintrag 25: Hypothese: Zwei große Antwortbuttons sind für Schulkinder
+  verständlicher als komplexes Multiple-Choice.
+  \newline\textit{Ergebnis:} True/False-Modus für Version 1 priorisiert.
+\\
+
+2026-06-15 & IIRu5hII & Ergebnis &
+  Eintrag 26: Feedbacklogik im Spielscreen ergänzt.
+  Nach einer Antwort: korrekt/falsch hervorgehoben, Feedbacktext angezeigt.
+  \newline\textit{Ergebnis:} Direktes Feedback unterstützt Lerneffekt.
+\\
+
+2026-06-15 & IIRu5hII & Ergebnis &
+  Eintrag 27: Lokaler Punktestand und Abschlusslogik eingeführt.
+  Nach Abschluss eines Szenarios: Punkte addiert, Szenario als abgeschlossen markiert.
+  \newline\textit{Ergebnis:} Gamification-Effekt ohne Backend-Persistenz.
+\\
+
+2026-06-15 & IIRu5hII & Bewertung &
+  Eintrag 28: Mock-first-Ansatz bewertet: Vorteil: schneller UI-Fortschritt;
+  Nachteil: spätere Umstellung auf echte API-Modelle.
+  \newline\textit{Ergebnis:} Entscheidung bleibt sinnvoll; Prototyp früh prüfbar.
+\\
+
+2026-06-16 & IIRu5hII & Ergebnis &
+  Eintrag 29: RankingScreen: Scope-Tabs (Klasse/Schule/Weltweit),
+  Top-3-Darstellung, Liste weiterer Spieler mit Hervorhebung des aktuellen Nutzers.
+  \newline\textit{Ergebnis:} Gamification-Ziel Punkte/Ranking sichtbar.
+\\
+
+2026-06-16 & IIRu5hII & Ergebnis &
+  Eintrag 30: \texttt{sampleLeaderboard} angelegt und dynamisch mit aktuellem
+  Nutzer kombiniert. Lokaler Punktestand kann den Rang beeinflussen.
+  \newline\textit{Ergebnis:} Ranking reagiert im Prototyp auf abgeschlossene Szenarien.
+\\
+
+2026-06-16 & IIRu5hII & Risiko/Beobachtung &
+  Eintrag 31: Leaderboard kann motivieren, aber auch Druck erzeugen.
+  \newline\textit{Ergebnis:} Eigener Nutzer positiv hervorgehoben;
+  spätere Option: Klassenranking abschaltbar.
+\\
+
+2026-06-17 & IIRu5hII & Ergebnis &
+  Eintrag 32: ProfileScreen erstellt: Avatar, Name, Level, XP-Balken,
+  Punkte, Streak, Abzeichen und Menügruppen.
+  \newline\textit{Ergebnis:} Profil macht Fortschritt und Gamification persönlich sichtbar.
+\\
+
+2026-06-17 & IIRu5hII & Ergebnis &
+  Eintrag 33: Profil-Unterseiten ergänzt:
+  Mein Fortschritt, Abzeichen und Meine Szenarien.
+  \newline\textit{Ergebnis:} Nutzer kann Szenarien und Auszeichnungen nachvollziehen.
+\\
+
+2026-06-17 & IIRu5hII & Ergebnis &
+  Eintrag 34: \texttt{SettingsScreen} und \texttt{HelpFeedbackScreen} ergänzt.
+  \newline\textit{Ergebnis:} Erhöht Eindruck einer vollständigen App.
+\\
+
+2026-06-18 & IIRu5hII & Aufgaben &
+  Eintrag 35: Mockup-Screens mit realem Compose-Layout abgeglichen.
+  Abstände, Karten, Rundungen und Farben angepasst.
+  \newline\textit{Ergebnis:} UI wirkt wie Projekt-Mockups, nicht wie Standard-Demo.
+\\
+
+2026-06-18 & IIRu5hII & Ergebnis &
+  Eintrag 36: Szenario-/Kategoriedaten verfeinert.
+  Chemie, Werkraum, Sport, Technik und Verkehr als Lernbereiche vorhanden.
+  \newline\textit{Ergebnis:} Struktur lässt sich durch Backend-Kategorien erweitern.
+\\
+
+2026-06-18 & IIRu5hII & Idee &
+  Eintrag 37: SafetySpot-Drache/Maskottchen als unterstützendes Element vorgesehen.
+  Für Feedback, Motivation und kindgerechte Ansprache.
+  \newline\textit{Ergebnis:} Mascot-Bereich im Spielscreen vorgesehen; echte Assets später.
+\\
+
+2026-06-19 & IIRu5hII & Ergebnis &
+  Eintrag 38: UI-Komponenten weiter standardisiert:
+  einheitliche Cards, Chips, ProgressBars, Textfarben und Buttons.
+  \newline\textit{Ergebnis:} Verbessert Wartbarkeit und konsistente Darstellung.
+\\
+
+2026-06-19 & IIRu5hII & Problem &
+  Eintrag 39: Durch lokale UI-Zustände drohten inkonsistente Punkte/
+  abgeschlossene Szenarien beim Navigieren.
+  \newline\textit{Ergebnis:} Zustand in \texttt{SafetySpotApp} zentralisiert:
+  \texttt{sessionPoints} und \texttt{completedScenarioIds}.
+\\
+
+2026-06-19 & IIRu5hII & Lösung &
+  Eintrag 40: \texttt{completedScenarioIds} als \texttt{mutableStateListOf},
+  \texttt{sessionPoints} als Compose-State.
+  \newline\textit{Ergebnis:} Lokaler Prototyp ohne Backend trotzdem konsistent.
+\\
+
+2026-06-20 & IIRu5hII & Ergebnis &
+  Eintrag 41: Navigation zwischen Szenario-Liste, Detailansicht und Gameplay
+  geprüft und verbessert.
+  \newline\textit{Ergebnis:} Back-Navigation und Starten eines Szenarios funktionieren.
+\\
+
+2026-06-20 & IIRu5hII & Test/Beobachtung &
+  Eintrag 42: Manueller Test des Kernflows:
+  Auth → Home → Szenarien → Detail → Spielen → Ergebnis → Ranking/Profil.
+  \newline\textit{Ergebnis:} Kompletter Schüler-Flow im Frontend testbar.
+\\
+
+2026-06-20 & IIRu5hII & Offene Punkte &
+  Eintrag 43: Persistenz fehlt: Punktestand und Abschlussstatus gehen
+  nach App-Neustart verloren.
+  \newline\textit{Ergebnis:} Für nächste Stufe: Backend/Room/DataStore.
+\\
+
+2026-06-21 & IIRu5hII & Ergebnis &
+  Eintrag 44: Profil- und Rankingdaten mit lokalen Spielständen verknüpft.
+  \newline\textit{Ergebnis:} Gamification fühlt sich zusammenhängender an.
+\\
+
+2026-06-21 & IIRu5hII & Bewertung &
+  Eintrag 45: Frontend-Prototyp erfüllt wichtigste UI-Anforderungen:
+  simpel, mobil, visuell freundlich, große Bedienelemente, spielerischer Ablauf.
+  \newline\textit{Ergebnis:} Basis für Demo und spätere Backend-Integration vorhanden.
+\\
+
+2026-06-21 & IIRu5hII & Aufgaben &
+  Eintrag 46: Code bereinigt und in UI-Pakete aufgeteilt:
+  auth, home, scenarios, scenario, ranking, profile, navigation, theme, components.
+  \newline\textit{Ergebnis:} Ordnung erleichtert Teamarbeit.
+\\
+
+2026-06-22 & IIRu5hII & Recherche &
+  Eintrag 47: Abgleich mit Backend-/Informationsmodell.
+  Benötigte API-Daten: User/Profile, Kategorien, Szenarien, Fortschritt,
+  Leaderboard, Attempt/Answers.
+  \newline\textit{Ergebnis:} Vorbereitung auf Entfernung harter Mockdaten.
+\\
+
+2026-06-22 & IIRu5hII & Aufgaben &
+  Eintrag 48: Mögliche DTO-/Repository-Grenzen identifiziert.
+  UI soll langfristig über Repository/ViewModel-Daten arbeiten.
+  \newline\textit{Ergebnis:} MVVM/Repository-Struktur als Zielarchitektur festgehalten.
+\\
+
+2026-06-22 & IIRu5hII & Offene Punkte &
+  Eintrag 49: Mobile ViewModels und echte Repository-Implementierungen
+  noch nicht vollständig vorhanden.
+  \newline\textit{Ergebnis:} Für späteres Refactoring: UI-State-Klassen und Tests.
+\\
+
+2026-06-23 & IIRu5hII & Ergebnis &
+  Eintrag 50: Frontend-Prototyp vor Git-Historie konsolidiert.
+  Wichtigste Screens mit Mockdaten verbunden.
+  \newline\textit{Ergebnis:} Grundlage für anschließende Integration-Commits.
+\\
+
+2026-06-23 & IIRu5hII & Problem &
+  Eintrag 51: Frühe Arbeiten ohne Commits — technische Historie nicht
+  vollständig aus Git rekonstruierbar.
+  \newline\textit{Ergebnis:} Laborbuch rekonstruiert frühe Schritte aus Quellcode und Mockups.
+\\
+
+2026-06-23 & IIRu5hII & Offene Punkte &
+  Eintrag 52: Backend-Anbindung, echte Auth, Bilddaten und persistenter
+  Fortschritt müssen angebunden werden.
+  \newline\textit{Ergebnis:} Nächster Fokus: API/Retrofit und Integration.
+\\
+
+2026-06-24 & IIRu5hII & Ergebnis &
+  Eintrag 53: Commit \texttt{7d86b5d}: Retrofit kann nun auch Plain Text lesen.
+  Retrofit Scalars, DTOs, Auth/Login, Backend-Bilder sowie Home/Szenarien
+  aus Backend vorbereitet und angebunden.
+  \newline\textit{Ergebnis:} Beginn der konkreten Mobile-Backend-Integration.
+\\
+
+2026-06-24 & IIRu5hII & Aufgaben &
+  Eintrag 54: DTOs und API-Kommunikation für Login/Auth und Datenabruf geprüft.
+  \newline\textit{Ergebnis:} Vorbereitung auf Zusammenspiel ssmobile ↔ ssbackend.
+\\
+
+2026-06-24 & IIRu5hII & Ergebnis &
+  Eintrag 55: Backend-Bilder als Quelle für Szenario-/Aufgabenbilder berücksichtigt.
+  \newline\textit{Ergebnis:} Wichtig für spätere Hotspot-Gefahrensituationen.
+\\
+
+2026-06-24 & IIRu5hII & Ergebnis &
+  Eintrag 56: Home- und Szenarienbereiche auf spätere Backend-Daten vorbereitet.
+  \newline\textit{Ergebnis:} Mockdaten bleiben als Fallback/Demo nützlich.
+\\
+
+2026-06-24 & IIRu5hII & Ergebnis &
+  Eintrag 57: Commit \texttt{09beaca}: Merge von origin/main in
+  frontend-functionality. Übernommen: Test-Workflow, README,
+  DemoDataService, AdminShellCommands.
+  \newline\textit{Ergebnis:} Frontend-Branch mit aktuellem main synchronisiert.
+\\
+
+2026-06-24 & IIRu5hII & Problem &
+  Eintrag 58: Merges können Konflikte zwischen Frontend-Prototyp und
+  Backend-/DemoDataService-Änderungen verursachen.
+  \newline\textit{Ergebnis:} Nach Merge geprüft, dass relevante Änderungen erhalten bleiben.
+\\
+
+2026-06-24 & IIRu5hII & Bewertung &
+  Eintrag 59: CI/Test-Workflow und AdminShellCommands wichtig für Teamarbeit.
+  \newline\textit{Ergebnis:} Projekt reproduzierbarer und wartbarer.
+\\
+
+2026-06-25 & IIRu5hII & Ergebnis &
+  Eintrag 60: Commit \texttt{5a24e56}: Merge branch main into frontend-functionality.
+  DemoDataService-Änderungen übernommen.
+  \newline\textit{Ergebnis:} Datenbasis/Seed-Daten mit Frontend-Branch kompatibel.
+\\
+
+2026-06-25 & IIRu5hII & Ergebnis &
+  Eintrag 61: Commit \texttt{d804323}: weiterer Merge von main in
+  frontend-functionality. Backend-/Security-Konfiguration übernommen.
+  \newline\textit{Ergebnis:} Auth-relevante Konfiguration im Branch vorhanden.
+\\
+
+2026-06-25 & IIRu5hII & Aufgaben &
+  Eintrag 62: Nach Merges geprüft, ob Frontend-Navigation, Demo-Daten und
+  Backend-Konfiguration zusammenpassen.
+  \newline\textit{Ergebnis:} Keine Regression im klickbaren Prototyp.
+\\
+
+2026-06-25 & IIRu5hII & Ergebnis &
+  Eintrag 63: Commit \texttt{41832d1}: Kategorie-Icons, Punkte-/Suchicon,
+  Weitermachen-Logik, lokaler Fortschritt sowie Profilname/Avatar-Fallback ergänzt.
+  \newline\textit{Ergebnis:} UI wirkt vollständiger und robuster.
+\\
+
+2026-06-25 & IIRu5hII & Lösung &
+  Eintrag 64: Fallbacks für Profilname und Avatar eingeführt.
+  \newline\textit{Ergebnis:} App bleibt bei fehlenden Backend-Daten nutzbar.
+\\
+
+2026-06-25 & IIRu5hII & Ergebnis &
+  Eintrag 65: Weitermachen-Logik verbessert: Home kann begonnenes Szenario
+  anzeigen und Nutzer zurück in den Lernfluss führen.
+  \newline\textit{Ergebnis:} Erhöht Nutzerbindung und passt zur Gamification-Idee.
+\\
+
+2026-06-25 & IIRu5hII & Test/Beobachtung &
+  Eintrag 66: Nach Icon- und Fortschrittsänderungen wurden Home, Szenarien,
+  Profil und Ranking manuell geprüft.
+  \newline\textit{Ergebnis:} Keine offensichtlichen Brüche im Hauptfluss.
+\\
+
+2026-06-26 & IIRu5hII & Ergebnis &
+  Eintrag 67: Commit \texttt{edab15a}: restliche Icons ergänzt.
+  Profil-Icons, Filter-Icon und Avatar-Icon hinzugefügt;
+  Profil- und Szenario-UI angepasst.
+  \newline\textit{Ergebnis:} Letzter Feinschliff am visuellen Eindruck.
+\\
+
+2026-06-26 & IIRu5hII & Ergebnis &
+  Eintrag 68: Profil-UI weiter an Mockups angepasst.
+  Menüpunkte und Statuswerte visuell klarer erkennbar.
+  \newline\textit{Ergebnis:} Profilseite für Schüler verständlicher und vollständiger.
+\\
+
+2026-06-26 & IIRu5hII & Ergebnis &
+  Eintrag 69: Szenario-UI angepasst. Filter- und Szenariodarstellung optisch verbessert.
+  \newline\textit{Ergebnis:} Szenarienliste leichter zu scannen; entspricht App-Stil.
+\\
+
+2026-06-26 & IIRu5hII & Bewertung &
+  Eintrag 70: Die UI ist als funktionsfähiger Frontend-Prototyp vorzeigbar:
+  Login/Gastzugang, Home, Szenarien, Spielscreen, Ranking und Profil.
+  \newline\textit{Ergebnis:} Erfüllt MVP-Schwerpunkt aus Projektvision.
+\\
+
+2026-06-26 & IIRu5hII & Offene Punkte &
+  Eintrag 71: Echte Persistenz und vollständige Backend-Anbindung müssen
+  weiter stabilisiert werden.
+  \newline\textit{Ergebnis:} Nächste Arbeit: Repository/ViewModel-Schicht,
+  Auth-State, Tokenhandling, Cache.
+\\
+
+2026-06-26 & IIRu5hII & Offene Punkte &
+  Eintrag 72: Lehrer-/Adminbereich im Mobile-Frontend noch nicht umgesetzt.
+  \newline\textit{Ergebnis:} Für später: Klassen, Schülerverwaltung,
+  Szenario-Editor, Statistiken.
+\\
+
+2026-06-26 & IIRu5hII & Offene Punkte &
+  Eintrag 73: Offline-Modus konzeptionell vorgesehen, aber nicht umgesetzt.
+  \newline\textit{Ergebnis:} Mit Room/DataStore/Pending Attempts planen.
+\\
+
+\end{sslabortabelle}
+
+\section{Zusammenfassung}
+
+\textbf{D0rag3on:} Backend-Grundlage, Authentifizierung, Fehlerbehandlung und School-/Klassen-Verwaltung.
+
+\textbf{IIRu5hII:} Android-Frontend mit Compose, Mockdaten, Navigation, Gameplay, Ranking und Profil.
+
+\textbf{0qln:} Infrastruktur, Backend-APIs, CI/CD, Demo-Daten, Bildverwaltung und Mobile-Clickdummy.
+
+\textbf{Gesamt:} SafetySpot ist als Backend, Mobile-Prototyp und Projektinfrastruktur zusammengewachsen.
