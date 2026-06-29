@@ -1,0 +1,242 @@
+% ============================================================
+% safetyspot.sty
+% Gemeinsames Layout fuer alle SafetySpot-Projektdokumente
+%
+% Engine: XeLaTeX oder LuaLaTeX
+% ============================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{safetyspot}[2026/06/29 SafetySpot Dokumentenstil]
+
+% ---------- Sprache & Schrift ----------
+\RequirePackage{fontspec}
+\RequirePackage{polyglossia}
+\setdefaultlanguage{german}
+\setmainfont{Carlito}
+\setsansfont{Carlito}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+
+% ---------- Seitenlayout ----------
+\RequirePackage[a4paper, top=2.5cm, bottom=2.8cm, left=2.6cm, right=2.6cm, headheight=24pt]{geometry}
+\RequirePackage{setspace}
+\onehalfspacing
+
+% ---------- Farben (SafetySpot-Branding) ----------
+\RequirePackage{xcolor}
+\definecolor{ssGreen}{HTML}{0D9F53}
+\definecolor{ssGreenDark}{HTML}{0A7D42}
+\definecolor{ssGreenLight}{HTML}{E2F5E4}
+\definecolor{ssGrey}{HTML}{5B6470}
+\definecolor{ssBlack}{HTML}{1A1A1A}
+
+% ---------- Gliederung & Ueberschriften ----------
+\RequirePackage{titlesec}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{ssGreenDark}}
+  {\thesection}{0.6em}{}
+  [{\color{ssGreen}\titlerule[0.8pt]}]
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{ssGreenDark}}
+  {\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{ssBlack}}
+  {\thesubsubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.8em}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.6em}
+
+% ---------- Kopf-/Fusszeile ----------
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{ssGreen}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\color{ssGrey}\ssDocTitle}
+\fancyhead[R]{\small\color{ssGrey}SafetySpot}
+\fancyfoot[L]{\small\color{ssGrey}\ssDocStand}
+\fancyfoot[C]{\small\color{ssGrey}\thepage}
+\fancyfoot[R]{\small\color{ssGrey}\ssDocKunde}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[C]{\small\color{ssGrey}\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% ---------- Metadaten-Befehle ----------
+\newcommand{\ssDocTitle}{}
+\newcommand{\ssDocKunde}{}
+\newcommand{\ssDocProjekt}{}
+\newcommand{\ssDocAutoren}{}
+\newcommand{\ssDocStand}{}
+
+\newcommand{\ssSetDocTitle}[1]{\renewcommand{\ssDocTitle}{#1}}
+\newcommand{\ssSetKunde}[1]{\renewcommand{\ssDocKunde}{#1}}
+\newcommand{\ssSetProjekt}[1]{\renewcommand{\ssDocProjekt}{#1}}
+\newcommand{\ssSetAutoren}[1]{\renewcommand{\ssDocAutoren}{#1}}
+\newcommand{\ssSetStand}[1]{\renewcommand{\ssDocStand}{#1}}
+
+% ---------- Titelseite ----------
+\RequirePackage{tikz}
+\RequirePackage{tabularx}
+\renewcommand{\maketitle}{%
+  \begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+      \fill[ssGreen] (current page.north west) rectangle ([yshift=-1.2cm]current page.north east);
+    \end{tikzpicture}
+    \vspace*{1.2cm}
+    {\color{ssGreenDark}\rule{\linewidth}{2pt}}\\[0.6em]
+    {\Huge\bfseries\color{ssBlack} \ssDocTitle}\\[0.3em]
+    {\Large\color{ssGreen} SafetySpot}\\[2.5em]
+    \renewcommand{\arraystretch}{1.6}
+    \begin{tabular}{@{}>{\bfseries\color{ssGreenDark}\raggedright}m{4.2cm}>{\raggedright\arraybackslash}m{9cm}@{}}
+      Stand         & \ssDocStand \\
+      Kunde         & \ssDocKunde \\
+      Projektbezeichnung & \ssDocProjekt \\
+      Autor / Kürzel & \ssDocAutoren \\
+      Art des Dokuments & Persönliches Laborbuch \\
+    \end{tabular}
+    \vfill
+    {\color{ssGreen}\rule{\linewidth}{0.8pt}}
+  \end{titlepage}
+}
+
+% ---------- Metadaten-/Kopftabelle ----------
+\newenvironment{ssmetatable}{%
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabular}{@{}>{\bfseries\color{ssGreenDark}\raggedright}m{4cm}>{\raggedright\arraybackslash}m{0.7\linewidth}@{}}
+}{%
+  \end{tabular}
+  \vspace{0.8em}
+}
+
+% ---------- Farb-Spaltentypen ----------
+\RequirePackage{colortbl}
+\RequirePackage{array}
+\RequirePackage{longtable}
+\RequirePackage{tabularx}
+\newcolumntype{H}{>{\columncolor{ssGreenLight}\bfseries\color{ssGreenDark}\raggedright}m{4cm}}
+\newcolumntype{Z}{>{\raggedright\arraybackslash}m{0.72\linewidth}}
+
+% ---------- Hinweis-Tabelle (2-spaltig) ----------
+\newenvironment{sshinweistabelle}{%
+  \renewcommand{\arraystretch}{1.3}
+  \begin{longtable}{HZ}
+}{%
+  \end{longtable}
+}
+
+% ---------- Unterlagen-Tabelle (2-spaltig, Ru5h-Format) ----------
+\newenvironment{ssunterlagetabelle}{%
+  \renewcommand{\arraystretch}{1.3}
+  \begin{longtable}{>{\columncolor{ssGreenLight}\bfseries\color{ssGreenDark}\raggedright\arraybackslash}m{4.5cm}%
+                    >{\raggedright\arraybackslash}m{0.64\linewidth}}
+  \rowcolor{ssGreen}
+  \multicolumn{1}{>{\bfseries\color{white}\raggedright\arraybackslash}m{4.5cm}}{Unterlage} &
+  \multicolumn{1}{>{\bfseries\color{white}\raggedright\arraybackslash}m{0.64\linewidth}}{Bedeutung für das Laborbuch} \\
+  \endhead
+}{%
+  \end{longtable}
+  \vspace{0.4em}
+}
+
+% ---------- Arbeitsstand-Tabelle (2-spaltig, Ru5h-Format) ----------
+\newenvironment{ssstandtabelle}{%
+  \renewcommand{\arraystretch}{1.3}
+  \begin{longtable}{>{\columncolor{ssGreenLight}\bfseries\color{ssGreenDark}\raggedright\arraybackslash}m{3.5cm}%
+                    >{\raggedright\arraybackslash}m{0.69\linewidth}}
+  \rowcolor{ssGreen}
+  \multicolumn{1}{>{\bfseries\color{white}\raggedright\arraybackslash}m{3.5cm}}{Bereich} &
+  \multicolumn{1}{>{\bfseries\color{white}\raggedright\arraybackslash}m{0.69\linewidth}}{Beobachtung / Ergebnis} \\
+  \endhead
+}{%
+  \end{longtable}
+  \vspace{0.4em}
+}
+
+% ---------- Eintrags-Tabelle fuer Laborbuch (4-spaltig, Ru5h-Format) ----------
+\newenvironment{sslabortabelle}{%
+  \setstretch{1.2}%
+  \renewcommand{\arraystretch}{1.25}
+  \footnotesize
+  \begin{longtable}{>{\raggedright\arraybackslash}m{2.0cm}%
+                    >{\raggedright\arraybackslash}m{1.9cm}%
+                    >{\raggedright\arraybackslash}m{2.8cm}%
+                    >{\raggedright\arraybackslash}m{0.48\linewidth}}
+  \rowcolor{ssGreen}
+  \bfseries\color{white}Datum &
+  \bfseries\color{white}Autor &
+  \bfseries\color{white}Klassifikation &
+  \bfseries\color{white}Beschreibung / Ergebnis \\[2pt]
+  \endhead
+  \hline
+}{%
+  \end{longtable}
+  \normalsize
+  \setstretch{1.5}%
+  \vspace{0.4em}
+}
+
+% ---------- Git-Commit-Tabelle (4-spaltig) ----------
+\newenvironment{ssgittabelle}{%
+  \setstretch{1.2}%
+  \renewcommand{\arraystretch}{1.25}
+  \footnotesize
+  \begin{longtable}{>{\raggedright\arraybackslash}m{2.0cm}%
+                    >{\ttfamily\raggedright\arraybackslash}m{1.6cm}%
+                    >{\raggedright\arraybackslash}m{4.5cm}%
+                    >{\raggedright\arraybackslash}m{0.38\linewidth}}
+  \rowcolor{ssGreen}
+  \bfseries\color{white}Datum &
+  \bfseries\color{white}Commit &
+  \bfseries\color{white}Message &
+  \bfseries\color{white}Kurzinhalt \\[2pt]
+  \endhead
+  \hline
+}{%
+  \end{longtable}
+  \normalsize
+  \setstretch{1.5}%
+  \vspace{0.4em}
+}
+
+% ---------- Sslaboreintrag (Box-Format, D0rag3on-Original) ----------
+\RequirePackage[most]{tcolorbox}
+\newtcolorbox{sshinweis}{
+  colback=ssGreenLight, colframe=ssGreen,
+  boxrule=0.6pt, arc=2pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  fonttitle=\bfseries\color{ssGreenDark}
+}
+\newtcolorbox{ssbeispiel}[1][Beispiel]{
+  colback=white, colframe=ssGrey!60,
+  boxrule=0.5pt, arc=2pt, left=8pt, right=8pt, top=4pt, bottom=4pt,
+  title=#1, fonttitle=\bfseries\color{ssGrey}
+}
+
+\newenvironment{sslaboreintrag}[3]{%
+  \begin{tcolorbox}[colback=ssGreenLight!40, colframe=ssGreen!70, boxrule=0.5pt, arc=2pt,
+      top=5pt, bottom=5pt]
+  \noindent{\bfseries\color{ssGreenDark} #1} \hfill
+  {\small\color{ssGrey} Autor: #2 \quad|\quad Klassifikation: #3}\par
+  \vspace{0.4em}
+}{%
+  \end{tcolorbox}
+  \vspace{0.5em}
+}
+
+% ---------- Sonstige Pakete ----------
+\RequirePackage{graphicx}
+\RequirePackage{enumitem}
+\setlist{topsep=0.3em, itemsep=0.15em}
+\RequirePackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=ssGreenDark,
+  citecolor=ssGreenDark,
+  urlcolor=ssGreenDark,
+  pdftitle={\ssDocTitle},
+  pdfauthor={SafetySpot}
+}
+\RequirePackage[labelfont={bf,color=ssGreenDark}]{caption}
+
+\endinput

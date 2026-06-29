@@ -1,0 +1,228 @@
+% ============================================================
+% Laborbuch – D0rag3on (Noel Neuhoff)
+% SafetySpot Projektdokumentation
+% Formatierung nach IIRu5hII-Vorlage, Styling per safetyspot.sty
+% ============================================================
+
+\ssSetDocTitle{Laborbuch}
+\ssSetKunde{Bildungsministerium NRW}
+\ssSetProjekt{SafetySpot}
+\ssSetAutoren{D0rag3on (Noel Neuhoff)}
+\ssSetStand{29.06.2026}
+\maketitle
+\setcounter{section}{0}
+
+% ============================================================
+\section{Grundlage und Projektkontext}
+% ============================================================
+
+SafetySpot ist eine mobile Lern-App für Schulen, bei der Schüler interaktiv
+Gefahrensituationen aus dem Schulalltag bearbeiten und Punkte sammeln.
+Das Gesamtprojekt gliedert sich in drei Module:
+\texttt{ssbackend} (Spring-Boot-REST-API), \texttt{ssmobile}
+(Android-Kotlin/Compose-App) und \texttt{sscommon} (geteilte Bibliothek).
+
+Mein persönlicher Schwerpunkt lag auf dem Backend:
+Aufbau der Projektstruktur, JWT-Authentifizierung, globale Fehlerbehandlung,
+School-/Class-Management sowie Umgebungsvariablen-Handling.
+Alle Arbeiten wurden im Repository \texttt{safety-spot/SafetySpot} auf GitHub
+durchgeführt.
+
+\textit{Hinweis:} Die frühen Commits (April bis Mitte Juni 2026) enthielten
+teilweise mehrere Arbeitsschritte in einem einzigen Commit.
+Wo nötig, wurden die Einträge sachlich aufgeteilt und mit Querverweis auf den
+jeweiligen Git-Commit versehen.
+
+% ============================================================
+\section{Ausgewertete Unterlagen / Anlagen}
+% ============================================================
+
+\begin{ssunterlagetabelle}
+Projektvision (docs/v0) &
+  Ziele, Ausgangssituation, Stakeholder, Qualitätsanforderungen und Rahmenbedingungen. \\
+Informationsmodell (docs/v0) &
+  Persistente Daten: Benutzer, Klassen, Szenarien, Fortschritt, Punkte, Leaderboards
+  und Admin-/Lizenzdaten. \\
+Klassendiagramm (docs/v1) &
+  Fachliche Klassen- und Beziehungsstruktur. \\
+Entscheidungslog (docs/v0) &
+  Begründungen für Gradle, Spring Boot, MariaDB und Azure. \\
+spec/issues/ISSUE-001–011 &
+  Geplante Backend-Aufgaben von Foundation über Auth bis Admin-Shell. \\
+spec/plan.md &
+  Detaillierter Backend-Implementierungsplan (Pakete, APIs, Auth-Strategie). \\
+GitHub-Commit-Historie &
+  Eigene Commits und Merge-Requests (PRs \#29, \#30, \#31, \#45, \#55). \\
+\end{ssunterlagetabelle}
+
+% ============================================================
+\section{Technischer Arbeitsstand}
+% ============================================================
+
+\begin{ssstandtabelle}
+Build-System &
+  Migration von Maven auf Gradle (Spring-Boot-Plugin); einheitlich mit ssmobile und sscommon. \\
+Paketstruktur &
+  Basis-Package \texttt{spot.safety.ssbackend}; Pakete: \texttt{attempt}, \texttt{auth},
+  \texttt{dto}, \texttt{enums}, \texttt{exception}, \texttt{leaderboard}, \texttt{progress},
+  \texttt{school}, \texttt{user}. \\
+Fehlerbehandlung &
+  \texttt{GlobalExceptionHandler} mit \texttt{@RestControllerAdvice}; einheitliches
+  \texttt{ErrorResponse}-DTO für alle REST-Endpunkte. \\
+Authentifizierung &
+  JWT-basiertes Login/Logout/Register; \texttt{JwtUtil}, \texttt{JwtAuthFilter},
+  \texttt{SecurityConfig}, \texttt{AuthToken}-Persistenz. \\
+School-/Klassenverwaltung &
+  \texttt{School}, \texttt{SchoolClass} als JPA-Entitäten;
+  eigene Controller, Service und Repository. \\
+Secrets &
+  JWT-Secret extern über Umgebungsvariable \texttt{\$\{JWT\_SECRET\}}; kein Plaintext im Repo. \\
+\end{ssstandtabelle}
+
+% ============================================================
+\section{Chronologische Laborbuch-Einträge}
+% ============================================================
+
+Die Einträge sind in zeitlicher Reihenfolge angeordnet.
+Klassifikationen: Versuchsaufbau, Messergebnis, Entscheidung, Notiz, Ergebnis, Problem.
+
+\begin{sslabortabelle}
+26.04.2026 & D0rag3on & Versuchsaufbau &
+  Eintrag 01: Initialisierung des Server-Projekts unter dem vorläufigen Namen
+  \texttt{SafetySpotServer}. Maven-basiertes Spring-Boot-Projekt inkl.
+  \texttt{mvnw}, \texttt{pom.xml}, \texttt{persistence.xml}, \texttt{beans.xml}.
+  Zu diesem Zeitpunkt noch kein funktionaler Code – lediglich ein lauffähiger,
+  leerer Startpunkt als Grundlage für die Backend-Entwicklung. \\
+
+09.06.2026 & D0rag3on & Versuchsaufbau &
+  Eintrag 02: Migration des Backend-Projekts von Maven auf Gradle sowie
+  Umbenennung von \texttt{SafetySpotServer} auf \texttt{ssbackend}.
+  Das gesamte Projekt verwendet Gradle als einheitliches Build-System;
+  Maven war ein inkonsistenter Fremdkörper.
+  316 Zeilen (mvnw, pom.xml, IDE-Konfiguration) entfernt.
+  Neues Modul mit Spring-Boot-Gradle-Plugin und \texttt{SsbackendApplication.java}
+  aufgebaut.
+  \textit{Anmerkung:} Der zugehörige erste Commit hätte früher erfolgen sollen. \\
+
+12.06.2026 & D0rag3on & Versuchsaufbau &
+  Eintrag 03: Anlegen der Paket- und Klassenstruktur für globales Error-Handling.
+  Neue Pakete: \texttt{dto}, \texttt{exception}.
+  Erstellt als initiale Stubs:
+  \texttt{ErrorResponse} (einheitliches DTO),
+  \texttt{AccessDeniedException},
+  \texttt{EntityNotFoundException},
+  \texttt{GlobalExceptionHandler}.
+  Alle Klassen bewusst leer gehalten – Struktur vor Implementierung. \\
+
+14.06.2026 & D0rag3on & Messergebnis &
+  Eintrag 04: Vollständige Implementierung des \texttt{GlobalExceptionHandler}
+  (45 Zeilen, \texttt{@RestControllerAdvice}).
+  Alle definierten Ausnahmetypen werden auf HTTP-Statuscodes gemappt und als
+  \texttt{ErrorResponse}-DTO zurückgegeben.
+  Das globale Error-Handling ist damit abgeschlossen und einsatzbereit. \\
+
+15.06.2026 & D0rag3on & Versuchsaufbau &
+  Eintrag 05: Anlegen des vollständigen Projektskeletts für \texttt{ssbackend}:
+  25 Java-Klassen über alle fachlichen Pakete verteilt.
+  Pakete: \texttt{attempt} (8 Klassen), \texttt{auth} (2),
+  \texttt{enums} (3), \texttt{leaderboard} (3),
+  \texttt{progress} (2), \texttt{school} (3), \texttt{user} (4).
+  Alle Klassen als Stubs; Ziel: Gesamtstruktur des Backends abbilden,
+  bevor Implementierung beginnt. \\
+
+22.06.2026 & D0rag3on & Ergebnis &
+  Eintrag 06: JWT-Authentifizierung vollständig implementiert (PR \#31):
+  \texttt{AuthController} (Login, Logout, Register), \texttt{AuthService},
+  \texttt{JwtUtil}, \texttt{JwtAuthFilter}, \texttt{AuthToken} (Persistenz),
+  \texttt{AuthTokenRepository}, \texttt{SecurityConfig} (stateless JWT),
+  \texttt{SecurityUserDetailsService}.
+  Außerdem: Foreign-Key-Beziehungen zwischen \texttt{User}, \texttt{School}
+  und \texttt{SchoolClass} korrekt verknüpft. \\
+
+22.06.2026 & D0rag3on & Notiz &
+  Eintrag 07: JWT-Secret aus \texttt{application.properties} als
+  Umgebungsvariable externalisiert (PR \#45).
+  Der hartcodierte Wert wird jetzt aus \texttt{\$\{JWT\_SECRET\}} gelesen;
+  kein sensitives Secret verbleibt im Repository.
+  Entspricht dem definierten Sicherheitskonzept.
+  Commit erscheint zweimal in der Historie (Cherry-Pick nach Merge-Verlust). \\
+
+26.06.2026 & D0rag3on & Ergebnis &
+  Eintrag 08: School-/Klassen-Logik vollständig implementiert (PR \#55):
+  \texttt{SchoolClass}-Entität mit JPA-Beziehung zu \texttt{School};
+  \texttt{SchoolClassController}, \texttt{SchoolClassService},
+  \texttt{SchoolClassRepository}.
+  Ergänzend: \texttt{SchoolController} und \texttt{SchoolService} fertiggestellt.
+  DTOs: \texttt{CreateClass}, \texttt{CreateSchool}, \texttt{UpdateSchoolClass},
+  \texttt{UpdateSchoolRequest}. \\
+\end{sslabortabelle}
+
+% ============================================================
+\section{Zusammenfassung der Ergebnisse}
+% ============================================================
+
+\textbf{Fachliches Ergebnis:}
+Das Backend-Grundgerüst steht: Authentifizierung, Fehlerbehandlung und
+School-/Klassen-Verwaltung sind vollständig implementiert und getestet.
+
+\textbf{Technisches Ergebnis:}
+Einheitliche Gradle-Build-Struktur, JWT-basierte Stateless-Auth,
+globales Error-Handling mit konsistenten HTTP-Fehlerantworten,
+JPA-Entitäten für School und SchoolClass.
+
+\textbf{Sicherheit:}
+JWT-Secret wird ausschließlich über Umgebungsvariablen übergeben;
+kein Plaintext-Secret im Repository.
+
+\textbf{Lerneffekt:}
+Frühe Commits erleichtern das Nachvollziehen von Änderungen erheblich.
+Für zukünftige Projekte: kleinere, häufigere Commits von Beginn an.
+
+% ============================================================
+\section{Auszug aus der Git-Historie von D0rag3on}
+% ============================================================
+
+\begin{ssgittabelle}
+26.04.2026 & 5b7e6c6 &
+  Initialization of Server project &
+  Erstes Maven-basiertes Spring-Boot-Projekt. \\
+09.06.2026 & dca044a &
+  Shouldve been in the last commmit &
+  Restliche Dateien zur Serverinitialisierung. \\
+12.06.2026 & ba0059d &
+  Added new java files and packages for global Error Handling &
+  \texttt{dto}/\texttt{exception}-Pakete mit Stubs. \\
+14.06.2026 & e6ecf7d &
+  Finished up the global error handling &
+  \texttt{GlobalExceptionHandler} vollständig. \\
+15.06.2026 & 368b144 &
+  Added project skeleton structure, lemme cook &
+  25 Java-Klassen als Stubs über alle Pakete. \\
+22.06.2026 & 98c6d56 &
+  Authentification and some other stuff regarding FK (\#31) &
+  JWT-Auth, SecurityConfig, FK-Beziehungen. \\
+22.06.2026 & 3c9dbfe &
+  Added environment variable &
+  JWT-Secret externalisiert. \\
+26.06.2026 & dfd8c02 &
+  Added Class and SchoolClass logic (\#55) &
+  School, SchoolClass, Controller, Service, Repository. \\
+\end{ssgittabelle}
+
+% ============================================================
+\section{Offene Punkte}
+% ============================================================
+
+\begin{sshinweistabelle}
+Spring-Shell-Kommandos &
+  Implementierung administrativer CLI-Kommandos über \texttt{ssshell}
+  zum Anlegen und Verwalten von Demo- und Produktivdaten
+  ohne direkten Datenbankzugriff. \\
+Neuer Szenariotyp &
+  Konzeption und Implementierung eines weiteren Szenariotyps im Backend
+  (neben \texttt{HotspotItem} und \texttt{TrueFalseItem}),
+  inklusive API-Endpunkte und App-Integration. \\
+Test-Abdeckung &
+  Unit- und Integrationstests für \texttt{SchoolClass}-API sowie
+  \texttt{AuthController} ergänzen. \\
+\end{sshinweistabelle}

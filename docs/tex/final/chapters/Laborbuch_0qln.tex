@@ -1,0 +1,486 @@
+% ============================================================
+% Laborbuch – 0qln
+% SafetySpot Projektdokumentation
+% Erstellt auf Basis der Git-Commit-Historie und GitHub-PR-Kommentare
+% Formatierung nach IIRu5hII-Vorlage, Styling per safetyspot.sty
+% ============================================================
+
+\ssSetDocTitle{Laborbuch}
+\ssSetKunde{Bildungsministerium NRW}
+\ssSetProjekt{SafetySpot}
+\ssSetAutoren{0qln}
+\ssSetStand{29.06.2026}
+\maketitle
+\setcounter{section}{0}
+
+% ============================================================
+\section{Grundlage und Projektkontext}
+% ============================================================
+
+SafetySpot ist eine mobile Lern-App für Schulen, bei der Schüler interaktiv
+Gefahrensituationen aus dem Schulalltag bearbeiten (Chemielabor, Werkraum,
+Sportunterricht, Technikraum, Straßenverkehr) und Punkte sammeln.
+Lehrer verwalten Klassen und erstellen Szenarien.
+Schulen erwerben Lizenzen.
+
+Das Projekt gliedert sich in drei Gradle-Module:
+\texttt{ssbackend} (Spring-Boot-REST-API, Java 25),
+\texttt{ssmobile} (Android-App, Kotlin/Compose)
+und \texttt{sscommon} (geteilte Kotlin-Bibliothek).
+Hosting: Microsoft Azure App Service mit Azure SQL für die Produktion;
+MariaDB lokal.
+
+Mein persönlicher Schwerpunkt lag auf vier Bereichen:
+
+\begin{enumerate}
+  \item \textbf{Infrastruktur und Projektsetup:} Repo-Initialisierung,
+        sscommon-Modul, Nix-Dev-Umgebung, CI-Test-Workflow,
+        Build-\&-Release-Pipeline für Azure und Android.
+  \item \textbf{Backend-API:} Kern-JPA-Entitäten, User-Management-API,
+        Image- und Tagging-API, Progress- und Stats-API,
+        Admin-Shell und Demo-Daten.
+  \item \textbf{Mobile UI Clickdummy:} Vollständiger Compose-Prototyp
+        (\textasciitilde{}4\,000 Zeilen Kotlin) mit Auth, Home, Szenarien,
+        Gameplay, Ranking und Profil-Screens.
+  \item \textbf{Integration:} Backend-Debugging, Szenario-Bilder,
+        Merge-Koordination zwischen frontend-functionality und main.
+\end{enumerate}
+
+\begin{sshinweis}
+  Alle hier genannten Einträge basieren direkt auf Git-Commits und
+  GitHub-Pull-Requests im Repository \texttt{safety-spot/SafetySpot}.
+  Commit-SHAs und PR-Nummern sind jeweils angegeben.
+\end{sshinweis}
+
+% ============================================================
+\section{Ausgewertete Unterlagen / Anlagen}
+% ============================================================
+
+\begin{ssunterlagetabelle}
+Projektvision (docs/v0) &
+  Ziele, Stakeholder, Releases und langfristige Vision; Grundlage für
+  Scope-Entscheidungen. \\
+Informationsmodell (docs/v0) &
+  Persistente Datenblöcke: Org/Rollen, Lerninhalte, Fortschritt/Gamification,
+  Admin/Lizenz; Grundlage für JPA-Entitäten. \\
+Klassendiagramm (docs/v1) &
+  Fachliche Klassen- und Beziehungsstruktur; Orientierungsrahmen für
+  Backend-Pakete. \\
+spec/plan.md &
+  Detaillierter Backend-Implementierungsplan: Pakete, DTOs, Security-Config,
+  URL-Präfix \texttt{/api/v1}, JWT-Auth-Strategie. \\
+spec/issues/ISSUE-001–022 &
+  Backend-Issues (001–011) und Mobile-Issues (012–022);
+  Grundlage für Aufgabenplanung und PR-Struktur. \\
+GitHub-PR-Kommentare &
+  z.\,B.\ PR \#44: \glqq{}Waiting for \#31 to complete\grqq{} –
+  Koordination mit D0rag3on's Auth-Branch. \\
+Spring-Boot-Dokumentation &
+  Spring Data JPA, Spring Security (JWT), Spring Shell,
+  Spring Boot Actuator. \\
+Android/Compose-Dokumentation &
+  Jetpack Compose, Navigation-Compose, Material3, Retrofit2. \\
+\end{ssunterlagetabelle}
+
+% ============================================================
+\section{Technischer Arbeitsstand}
+% ============================================================
+
+\begin{ssstandtabelle}
+Backend &
+  Spring Boot 4.1, Java 25. Ca.\ 93 Java-Dateien / ca.\ 3\,141 Zeilen.
+  Pakete: \texttt{auth}, \texttt{user}, \texttt{school}, \texttt{image},
+  \texttt{tag}, \texttt{progress}, \texttt{stats}, \texttt{leaderboard},
+  \texttt{attempt}, \texttt{dto}, \texttt{enums}, \texttt{exception},
+  \texttt{shell}, \texttt{demo}. \\
+Mobile Frontend &
+  Kotlin/Jetpack Compose. Ca.\ 20 Kotlin-Dateien / ca.\ 4\,108 Zeilen
+  (PR \#54). Screens: Auth, Home, Szenarien, Szenario-Detail, Gameplay,
+  Ranking, Profil, Settings, Help. \\
+Tests &
+  18 JUnit-Testklassen in \texttt{ssbackend/src/test/}:
+  Controller-, Service- und Repository-Tests für Image, Tag, Progress,
+  Stats, School, SchoolClass und User. \\
+CI/CD &
+  \texttt{test.yml}: Gradle-Tests bei jedem Push/PR.
+  \texttt{azure-container-webapp.yml}: Docker-Image → Azure Container Registry
+  → Azure App Service.
+  \texttt{android-apk-release.yml}: Android APK Build und GitHub Release. \\
+Dev-Umgebung &
+  Nix devenv (\texttt{devenv.nix}/\texttt{devenv.yaml}/\texttt{devenv.lock})
+  mit MariaDB, Java 25 und Gradle; reproduzierbar für alle Teammitglieder. \\
+Bildverwaltung &
+  Dateibasierte Speicherung in \texttt{ssbackend/data/images/};
+  REST-API für Upload/Download; 10 Demo-Szenarien-Bilder enthalten. \\
+\end{ssstandtabelle}
+
+% ============================================================
+\section{Chronologische Laborbuch-Einträge}
+% ============================================================
+
+Klassifikationen orientieren sich an der Laborbuch-Vorlage:
+Versuchsaufbau, Entscheidung, Ergebnis, Aufgaben, Problem, Lösung, Notiz.
+
+\begin{sslabortabelle}
+26.04.2026 & 0qln & Versuchsaufbau &
+  Eintrag 01: Repository \texttt{safety-spot/SafetySpot} initialisiert
+  (Commit \texttt{183ac5f}).
+  Grundlegende Repo-Struktur: \texttt{.gitignore}, \texttt{.gitattributes},
+  \texttt{README.md}; Zeilenendenrichtlinien (\texttt{.gitattributes})
+  für plattformübergreifende Zusammenarbeit normalisiert.
+  \newline\textit{Ergebnis:} Gemeinsames Repository als Startpunkt für das gesamte Team. \\
+
+09.06.2026 & 0qln & Versuchsaufbau &
+  Eintrag 02: Versionsdokumentation eingepflegt – v0-Dokumente (Projektvision,
+  Informationsmodell, Entscheidungen, Risiken, Klassendiagramm \texttt{docs/v0})
+  und v1-Mockups (\texttt{docs/v1}) dem Repository hinzugefügt
+  (Commits \texttt{cf734b4}, \texttt{cf9eabf}).
+  \newline\textit{Ergebnis:} Fachliche Grundlage und UX-Mockups im Repo versioniert;
+  alle Teammitglieder haben Zugriff ohne separaten Dateiumlauf. \\
+
+09.06.2026 & 0qln & Versuchsaufbau &
+  Eintrag 03: \texttt{sscommon}-Kotlin-Modul initiiert sowie
+  Copilot-Instruktionen und Projekt-Spezifikation angelegt (PR \#26,
+  \texttt{1a90de6}).
+  Inhalt: Copilot-Instruktionsdatei \texttt{.github/copilot-instructions.md},
+  \texttt{sscommon/}-Gradle-Modul (geteilte Bibliothek),
+  \texttt{spec/plan.md} (Backend-Implementierungsplan mit Paketen, DTOs,
+  Security-Konzept), ISSUE-001 bis ISSUE-011 (Backend-Aufgaben).
+  Außerdem: Dev-Umgebung als Nix-Flake vorbereitet.
+  \newline\textit{Ergebnis:} Strukturierte Aufgabenplanung und Copilot-Wissen
+  als Grundlage für alle weiteren Backend-Entwicklungsschritte. \\
+
+09.06.2026 & 0qln & Versuchsaufbau &
+  Eintrag 04: \texttt{ssmobile}-Android-Projekt initialisiert (PR \#27,
+  Commit \texttt{6caaf64}).
+  Gradle-Build-Konfiguration, \texttt{AndroidManifest.xml},
+  Basis-Theme (Material3), Basis-Navigation und \texttt{MainActivity.kt}.
+  Struktur angelegt für spätere UI-Screens.
+  \newline\textit{Ergebnis:} Lauffähiges Android-Projekt-Skelett;
+  IIRu5hII kann sofort auf der gleichen Basis aufbauen. \\
+
+11.06.2026 & 0qln & Ergebnis &
+  Eintrag 05: Projekt-weite Struktur-Überarbeitung (PR \#28, \texttt{9ee221e}).
+  Anpassungen an Build-Skripten und Projekt-Struktur nach erstem
+  Feedback und paralleler Backend-Entwicklung.
+  \newline\textit{Ergebnis:} Konsistente Projektstruktur über alle drei Module. \\
+
+18.06.2026 & 0qln & Aufgaben &
+  Eintrag 06: Mobile-Spezifikations-Issues ISSUE-012 bis ISSUE-022 erstellt
+  (Commits \texttt{2161ee6}–\texttt{701aa4c}).
+  Themen: Foundation/Build-Config, Design-System, Networking/Auth-Infrastruktur,
+  Navigation-Shell, Auth-Screen, Home-Screen, Scenarios-Browse,
+  Szenario-Gameplay, Ranking-Screen, Profil-Screen, Offline-Cache-Sync.
+  \newline\textit{Ergebnis:} Vollständige Spezifikation der mobilen App-Screens
+  als Grundlage für IIRu5hII's Frontend-Entwicklung und eigene Clickdummy-Arbeit. \\
+
+21.06.2026 & 0qln & Aufgaben &
+  Eintrag 07: Frontend-Planung dokumentiert (PR \#43, \texttt{d01cb56}).
+  Entscheidungen zu UI-Architektur, Screen-Übergängen und Datenfluss
+  zwischen Frontend-Screens festgehalten.
+  \newline\textit{Ergebnis:} Gemeinsames Verständnis für Frontend-Strukturierung
+  mit IIRu5hII. \\
+
+22.06.2026 & 0qln & Versuchsaufbau &
+  Eintrag 08: Kern-JPA-Entitäten implementiert (PR \#44, \texttt{f5af1c2}).
+  Refactoring der Stub-Entitäten von D0rag3on's Basis:
+  \texttt{User}, \texttt{School}, \texttt{SchoolClass}, \texttt{Scenario},
+  \texttt{Category}, \texttt{Attempt} etc.\ mit Lombok-Annotations
+  (\texttt{@Data}, \texttt{@Builder}, \texttt{@Entity}).
+  Hibernate konfiguriert (\texttt{spring.jpa.hibernate.ddl-auto=update}).
+  Erste Tests zum Laufen gebracht.
+  \newline\textit{Notiz:} PR \#44 wartete explizit auf PR \#31 (D0rag3on's Auth):
+  \glqq{}Waiting for \#31 to complete\grqq{}. \\
+
+22.06.2026 & 0qln & Ergebnis &
+  Eintrag 09: User-Management-API implementiert (PR \#46, \texttt{d8b7aa7}).
+  Neue Klassen: \texttt{UserController} (CRUD-Endpoints \texttt{/api/v1/users}),
+  \texttt{UserService}/\texttt{UserServiceImpl},
+  \texttt{UserRepository} (Spring Data JPA),
+  DTOs: \texttt{CreateUserRequest}, \texttt{UpdateUserRequest},
+  \texttt{ResetPasswordRequest}, \texttt{UserResponse}.
+  Passwörter werden stets gehasht (BCrypt).
+  \newline\textit{Ergebnis:} Vollständige CRUD-API für Benutzer; Lehrer können
+  Passwörter zurücksetzen. \\
+
+22.06.2026 & 0qln & Ergebnis &
+  Eintrag 10: Image- und ImageTag-Entitäten erstellt (PR \#47, \texttt{2c9afa2}).
+  \texttt{Image}-Entität mit Metadaten (Beschreibung, Dateiname, Dateipfad),
+  \texttt{ImageTag}-Entität (Verknüpfung Bild ↔ Nutzer ↔ Bewertung),
+  \texttt{TagValue}-Enum (\texttt{DANGEROUS}/\texttt{SAFE}).
+  \newline\textit{Ergebnis:} Datenmodell für kollaboratives Bild-Tagging im Backend. \\
+
+22.06.2026 & 0qln & Ergebnis &
+  Eintrag 11: Image-Management-API implementiert (PR \#48, \texttt{7a6cd2f}).
+  \texttt{ImageController} (Upload/Download/CRUD \texttt{/api/v1/images}),
+  \texttt{ImageService}/\texttt{ImageServiceImpl},
+  \texttt{ImageDataService}/\texttt{ImageDataServiceImpl}
+  (Datei-basierte Speicherung in \texttt{data/images/}),
+  \texttt{ImageRepository}, \texttt{ImageTagRepository}.
+  DTOs: \texttt{CreateImageRequest}, \texttt{UpdateImageRequest},
+  \texttt{ImageResponse}, \texttt{ImageTagResultResponse}.
+  \newline\textit{Ergebnis:} Bilder können hochgeladen, abgerufen und verwaltet werden. \\
+
+22.06.2026 & 0qln & Ergebnis &
+  Eintrag 12: Bild-Tagging-API implementiert (PR \#49, \texttt{92ab258}).
+  \texttt{TagController} (\texttt{/api/v1/tags}), \texttt{TagService}/
+  \texttt{TagServiceImpl}.
+  Schüler können Bilder als \texttt{DANGEROUS} oder \texttt{SAFE} markieren;
+  Duplikat-Tags werden mit \texttt{DuplicateTagException} abgelehnt.
+  DTOs: \texttt{SubmitTagRequest}, \texttt{TagResponse},
+  \texttt{ImageStatsResponse}.
+  \newline\textit{Ergebnis:} Kern-Spielmechanik (Bild bewerten) im Backend vollständig. \\
+
+22.06.2026 & 0qln & Versuchsaufbau &
+  Eintrag 13: Nix Dev-Umgebung eingerichtet (PR \#50, \texttt{3d72b56}).
+  \texttt{devenv.nix}: MariaDB, Java 25, Gradle deklarativ definiert;
+  \texttt{devenv.yaml} und \texttt{devenv.lock} für Reproduzierbarkeit.
+  \newline\textit{Ergebnis:} Einheitliche, reproduzierbare Entwicklungsumgebung
+  für alle Teammitglieder ohne manuelle Tool-Installation. \\
+
+22.06.2026 & 0qln & Ergebnis &
+  Eintrag 14: Schülerfortschritt- und Lehrer-Stats-API implementiert
+  (PR \#51, \texttt{5264857}).
+  \texttt{Progress}-Entität (Schüler ↔ Szenario: Score, Attempts, Completed),
+  \texttt{ProgressController}/\texttt{ProgressService}/\texttt{ProgressServiceImpl}
+  (\texttt{/api/v1/progress}).
+  \texttt{StatsController}/\texttt{StatsService}/\texttt{StatsServiceImpl}
+  (\texttt{/api/v1/stats}): Klassen-Statistiken pro Lehrer.
+  DTOs: \texttt{ProgressEntryResponse}, \texttt{ProgressSummaryResponse},
+  \texttt{ClassStatsResponse}, \texttt{StudentStatEntry}.
+  \newline\textit{Ergebnis:} Lehrer können Klassenergebnisse einsehen;
+  Schüler-Fortschritt wird serverseitig persistiert. \\
+
+22.06.2026 & 0qln & Ergebnis &
+  Eintrag 15: Build- \& Release-Pipeline aufgebaut (PR \#52, \texttt{95f8be5}).
+  \texttt{Dockerfile} für ssbackend,
+  GitHub-Actions-Workflow \texttt{azure-container-webapp.yml}:
+  Docker-Build → Push zu Azure Container Registry → Deploy zu Azure App Service.
+  \texttt{application-prod.properties} mit Azure-SQL-Datasource-Konfiguration.
+  \newline\textit{Ergebnis:} Automatisierter Deployment-Prozess vom Commit
+  bis zur Produktionsumgebung auf Azure. \\
+
+22.06.2026 & 0qln & Problem &
+  Eintrag 16: Azure-Container-Webapp-Workflow musste direkt nach Anlegen
+  zweimal korrigiert werden (Commits \texttt{3ae7804}, \texttt{a9b36ee}).
+  Problem: Fehlende Umgebungsvariablen und inkorrekte Workflow-Trigger.
+  \newline\textit{Ergebnis:} Workflow läuft stabil nach zwei Korrekturen. \\
+
+23.06.2026 & 0qln & Problem &
+  Eintrag 17: Spring-Boot-Tests liefen nicht (Commit-Kontext PR \#53,
+  \texttt{3cc8d2a}).
+  Ursachen: Fehlende H2-Testdatenbank-Konfiguration, Spring-Security-
+  Testkonfiguration nicht gesetzt, Testfixtures unvollständig.
+  \newline\textit{Lösung:} H2 In-Memory für Testprofil konfiguriert,
+  \texttt{@SpringBootTest}-Annotations ergänzt, 17 Testklassen lauffähig. \\
+
+23.06.2026 & 0qln & Ergebnis &
+  Eintrag 18: CI-Test-Workflow erstellt (PR \#56, \texttt{63756d9}).
+  \texttt{.github/workflows/test.yml}: Gradle-Tests auf jedem
+  Push und Pull-Request automatisch ausgeführt.
+  \newline\textit{Ergebnis:} Kontinuierliche Qualitätssicherung;
+  Regressions-Erkennung bei jedem Commit. \\
+
+23.06.2026 & 0qln & Ergebnis &
+  Eintrag 19: Mobile-UI-Clickdummy vollständig implementiert (PR \#54,
+  \texttt{f9ab2db}). Ca.\ 4\,072 Zeilen Kotlin/Compose neu hinzugefügt,
+  27 Dateien geändert.
+  Screens: \texttt{AuthScreen} (Login/Register), \texttt{HomeScreen}
+  (Level, Punkte, Streak, Kategorien), \texttt{ScenariosScreen} (Filter, Suche),
+  \texttt{ScenarioDetailScreen}, \texttt{ScenarioPlayScreen} (Gameplay,
+  Antwort-Buttons, Feedback), \texttt{RankingScreen} (Scope-Tabs, Top-3),
+  \texttt{ProfileScreen} mit Unterseiten.
+  Navigation via NavHost/BottomBar, Compose-Theme mit SafetySpot-Farben,
+  Mock-Daten für vollständige Offline-Durchläufe.
+  \newline\textit{Ergebnis:} Vollständig klickbarer Prototyp zum Demo-Termin bereit. \\
+
+24.06.2026 & 0qln & Ergebnis &
+  Eintrag 20: Admin-Shell und Demo-Daten implementiert (PR \#58,
+  \texttt{8dc1fe1}).
+  \texttt{AdminShellCommands} (Spring Shell): interaktive CLI-Kommandos
+  (\texttt{create-school}, \texttt{create-class}, \texttt{create-user},
+  \texttt{seed}, \texttt{list-users} etc.).
+  \texttt{DemoDataService}: automatischer Seed beim App-Start
+  (Schule, Klassen, Schüler, Lehrer, Bilder, Tags).
+  \newline\textit{Ergebnis:} Backend kann ohne manuelle SQL-Statements
+  mit realistischen Testdaten befüllt werden. \\
+
+24.06.2026 & 0qln & Notiz &
+  Eintrag 21: Temporärer Workaround in ssmobile eingeführt (Commit
+  \texttt{221ef31}) und am 27.06.2026 wieder rückgängig gemacht
+  (Commit \texttt{7a80d24}).
+  Hintergrund: Schnelle Umgehung eines Kompatibilitätsproblems zwischen
+  Frontend-Functionality-Branch und Backend-Änderungen während
+  aktiver Merge-Phase.
+  \newline\textit{Ergebnis:} Nur temporär; saubere Lösung nach Merge eingespielt. \\
+
+25.06.2026 & 0qln & Ergebnis &
+  Eintrag 22: Demo-Daten korrigiert (PR \#59, \texttt{e766cb6}).
+  Fehler im \texttt{DemoDataService}: falsche Beziehungs-IDs und
+  inkonsistente Enum-Werte behoben.
+  \newline\textit{Ergebnis:} Backend startet mit korrekten und konsistenten
+  Testdaten. \\
+
+25.06.2026 & 0qln & Ergebnis &
+  Eintrag 23: H2-Konsole für Dev-Profil aktiviert (PR \#60, \texttt{c24bcdf}).
+  \texttt{spring.h2.console.enabled=true} in
+  \texttt{application-dev.properties}.
+  \newline\textit{Ergebnis:} Direkter Datenbankzugriff über Browser während
+  Entwicklung erleichtert Debugging. \\
+
+25.06.2026 & 0qln & Ergebnis &
+  Eintrag 24: Dateibasierte Bildspeicherung implementiert (PR \#61,
+  \texttt{659fa1a}).
+  \texttt{ImageDataServiceImpl} schreibt und liest Binärdaten unter
+  \texttt{ssbackend/data/images/}.
+  Verzeichnis mit gitignore-Ausnahme für Demo-Daten.
+  \newline\textit{Ergebnis:} Bilder werden persistent auf dem Dateisystem
+  gespeichert und per REST-Endpunkt ausgeliefert. \\
+
+25.06.2026 & 0qln & Aufgaben &
+  Eintrag 25: Debugging-Session Backend (Commit \texttt{1d41833}).
+  Untersuchung von Fehlern bei der Bild-Upload/Download-Kette zwischen
+  ssmobile und ssbackend.
+  \newline\textit{Ergebnis:} Probleme identifiziert und in Folgecommits behoben. \\
+
+25.06.2026 & 0qln & Ergebnis &
+  Eintrag 26: Szenario-Demo-Bilder hinzugefügt (Commit \texttt{60f19a1}).
+  10 PNG-Bilder (\texttt{scenario-00.png} bis \texttt{scenario-09.png})
+  unter \texttt{ssbackend/src/main/resources/demo/images/}.
+  Diese werden vom \texttt{DemoDataService} beim Seed in die Datenbank geladen.
+  \newline\textit{Ergebnis:} Vollständiger Demo-Betrieb mit realistischen
+  Bild-Szenarien möglich; IIRu5hII kann Backend-Bilder direkt testen. \\
+
+26.06.2026 & 0qln & Ergebnis &
+  Eintrag 27: Projekt-weite Code-Formatierung angewendet (PR \#62,
+  \texttt{3bda336}).
+  Gradle-Format-Task über alle Java-Dateien in \texttt{ssbackend/}
+  ausgeführt; einheitlicher Code-Stil durchgesetzt.
+  \newline\textit{Ergebnis:} Diffs in Folge-PRs werden sauberer;
+  Review-Aufwand sinkt. \\
+
+27.06.2026 & 0qln & Ergebnis &
+  Eintrag 28: Szenario-Bilder aktualisiert (Commit \texttt{4736baf}).
+  Bilder-Set überarbeitet und mit dem aktuellen Stand des Backends
+  abgeglichen.
+  \newline\textit{Ergebnis:} Demo-Bilder im Frontend und Backend konsistent. \\
+
+27.06.2026 & 0qln & Ergebnis &
+  Eintrag 29: Android-APK-Release-Workflow erstellt (PR \#64/\#65,
+  \texttt{fbaf527}, \texttt{a54247d}, \texttt{485ea21}).
+  \texttt{android-apk-release.yml}: automatischer APK-Build bei Git-Tag;
+  APK als GitHub-Release-Asset veröffentlicht.
+  Zwei Korrekturen nötig (PR \#64 initiale Erstellung, PR \#65 Fixup).
+  \newline\textit{Ergebnis:} Vollständige Release-Pipeline für ssmobile;
+  APK bei jedem Tag-Push automatisch verfügbar. \\
+
+27.06.2026 & 0qln & Notiz &
+  Eintrag 30: Branch \texttt{frontend-functionality} nach umfangreichen
+  Merges und Koordination mit IIRu5hII in main zusammengeführt (PR \#63,
+  \texttt{0027401}).
+  Der PR enthielt Commits beider Autoren (IIRu5hII's Icons/Weitermachen-Logik
+  und 0qln's Debugging/Bilder/Workaround-Rücknahme).
+  \newline\textit{Ergebnis:} Finaler Stand der mobilen Frontend-Funktionalität
+  in main integriert; GitHub-Release \texttt{v0.0.0} erstellt. \\
+\end{sslabortabelle}
+
+% ============================================================
+\section{Zusammenfassung der Ergebnisse}
+% ============================================================
+
+\textbf{Infrastruktur:}
+Vollständige CI/CD-Pipeline von Commit bis Produktion:
+Test-Workflow, Azure-Deploy-Pipeline und Android-APK-Release.
+Reproduzierbare Nix-Dev-Umgebung.
+
+\textbf{Backend-API:}
+REST-API mit 8 Hauptbereichen: User, Image, Tag, Progress, Stats,
+Leaderboard, School und Auth.
+Admin-Shell und Demo-Datenseeding für sofortigen Demo-Betrieb.
+
+\textbf{Mobile Frontend:}
+Vollständiger Compose-Clickdummy mit \textasciitilde{}4\,000 Zeilen Kotlin
+als Grundlage für IIRu5hII's Backend-Integration.
+
+\textbf{Koordination:}
+PR-Kommentare und Merge-Koordination sichergestellt, dass D0rag3on's Auth-Branch
+(\#31) vor Core-Entities (\#44) abgeschlossen war.
+Gemeinsamer feature-Branch mit IIRu5hII sauber in main gemergt.
+
+\textbf{Lerneffekt:}
+Temporäre Workarounds immer sofort mit einem Rücknahme-Commit dokumentieren.
+Workflow-Dateien beim ersten Commit testen, nicht raten –
+der Azure-Workflow brauchte zwei Korrekturen.
+
+% ============================================================
+\section{Auszug aus der Git-Historie von 0qln}
+% ============================================================
+
+\begin{ssgittabelle}
+26.04.2026 & 183ac5f &
+  Initial commit &
+  Repo-Initialisierung, README, .gitignore. \\
+09.06.2026 & cf734b4 &
+  add v0 docs &
+  Projektvision, Informationsmodell, Entscheidungen (docs/v0). \\
+09.06.2026 & 1a90de6 &
+  Initiate clanker setup (\#26) &
+  sscommon, Copilot-Instruktionen, spec/plan.md, ISSUE-001–011. \\
+09.06.2026 & 826c5bb &
+  Initiate ssmobile project (\#27) &
+  Android-Projekt-Skeleton mit Gradle, Compose, Navigation. \\
+22.06.2026 & f5af1c2 &
+  004 – Add core entities (\#44) &
+  JPA-Entitäten, Hibernate-Config, Tests. \\
+22.06.2026 & d8b7aa7 &
+  Implement User Management API (\#46) &
+  UserController, Service, Repository, DTOs. \\
+22.06.2026 & 2c9afa2 &
+  007 image entities (\#47) &
+  Image, ImageTag, TagValue-Enum. \\
+22.06.2026 & 7a6cd2f &
+  008 image management api (\#48) &
+  ImageController, DataService (Datei-Speicherung). \\
+22.06.2026 & 92ab258 &
+  009 – Add image tagging API (\#49) &
+  TagController, DANGEROUS/SAFE, DuplicateTagException. \\
+22.06.2026 & 3d72b56 &
+  Nix dev env (\#50) &
+  devenv.nix, MariaDB, Java 25, Gradle. \\
+22.06.2026 & 5264857 &
+  Add student progress \& teacher stats API (\#51) &
+  Progress, Stats, Leaderboard, DTOs. \\
+22.06.2026 & 95f8be5 &
+  Build- \& Release pipeline (\#52) &
+  Dockerfile, Azure-Actions-Workflow, prod.properties. \\
+23.06.2026 & 3cc8d2a &
+  Get tests to run (\#53) &
+  H2-Testprofil, 17 Testklassen lauffähig. \\
+23.06.2026 & f9ab2db &
+  Mobile UI Clickdummy (\#54) &
+  4\,072 Zeilen Kotlin/Compose, 7 Screens. \\
+23.06.2026 & 63756d9 &
+  Create test.yml (\#56) &
+  CI-Workflow: Gradle-Tests bei Push/PR. \\
+24.06.2026 & 8dc1fe1 &
+  Add admin shell and demo data (\#58) &
+  Spring Shell, DemoDataService, Seed-Daten. \\
+25.06.2026 & e766cb6 &
+  Fix demo data (\#59) &
+  Beziehungs-IDs und Enum-Werte korrigiert. \\
+25.06.2026 & 659fa1a &
+  Image storage (\#61) &
+  Dateibasierte Bildspeicherung. \\
+25.06.2026 & 60f19a1 &
+  Add Scenario images &
+  10 Demo-Szenario-Bilder. \\
+26.06.2026 & 3bda336 &
+  Project wide formatting (\#62) &
+  Einheitlicher Code-Stil in ssbackend. \\
+27.06.2026 & fbaf527 &
+  Create ssmobile release workflow (\#64) &
+  Android-APK-Build-\&-Release via GitHub Actions. \\
+27.06.2026 & 0027401 &
+  Frontend functionality (\#63) &
+  Merge frontend-functionality → main; GitHub-Release v0.0.0. \\
+\end{ssgittabelle}
